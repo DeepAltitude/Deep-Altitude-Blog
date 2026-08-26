@@ -11,3 +11,5 @@ Kas butu naudingiausia daugiausiai zmoniu ilgalaikiskiausioje perspektyvoje?
 Struktura... Paruosti 6-pager; pre-moretem.
 
 Pvz.: darbas uz ir pries; tradeoffs, kada butu geras sprendimas?
+
+Breakdown... analyze MECE... koks mano tikslas, kokius svertus turiu? Kokia kiekvieno kaina?
