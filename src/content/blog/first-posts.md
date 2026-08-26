@@ -1,10 +1,9 @@
 ---
-title: "Apie ka rasau?"
-description: "Minciu distiliavimas"
+title: "Jiu Jitsu"
+description: "Kur turiu sverta?"
 pubDate: "2026.08.26"
 heroImage: "/blog-placeholder-3.jpg"
 ---
 
-Kalbos, sportas ir apmastymai. Sitam bloge pats rasau savo mintis, jas distiliuoju ir derbu. Rasau apie freedivingo pamokas, paraglaidinga, ir labai intensyvu kalbu mokymasi. 
-
-Tuo paciu rasysiu apie ppl skills, negotiations etc., santraupos is knygu ar asmeniniu istoriju. 
+Man Jiu Jitsu padeda eiti savo baimes link. Kovoti pries stipriausia. Grizti i kukluma kai prismaugia. 
+Svertas, berimbolo, artima distancija, life-long mokymasis
