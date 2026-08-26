@@ -1,10 +1,10 @@
 ---
-title: "Apie ka rasau?"
-description: "Minciu distiliavimas"
+title: "Parapente"
+description: "Ka ismoko oras?"
 pubDate: "2026.08.26"
 heroImage: "/blog-placeholder-3.jpg"
 ---
 
-Kalbos, sportas ir apmastymai. Sitam bloge pats rasau savo mintis, jas distiliuoju ir derbu. Rasau apie freedivingo pamokas, paraglaidinga, ir labai intensyvu kalbu mokymasi. 
-
-Tuo paciu rasysiu apie ppl skills, negotiations etc., santraupos is knygu ar asmeniniu istoriju. 
+Islaukti gero vejo.
+Po audros gerai skrendasi... bet blogom salygom, geriau ramiai but. 
+Yra dienos, kai oras aktyvus. Jeigu gerai suksiesi, iskilsi i virsu. Nesisuksi.. arba liksi savo lygyje, arba praeinantis kylantis oras kals per sparna ir gali turet bedu... ir jeigu visiskai atleides kontrole busi, collapse, ikrisi i medi.
