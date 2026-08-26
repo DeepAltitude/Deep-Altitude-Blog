@@ -13,3 +13,5 @@ Struktura... Paruosti 6-pager; pre-moretem.
 Pvz.: darbas uz ir pries; tradeoffs, kada butu geras sprendimas?
 
 Breakdown... analyze MECE... koks mano tikslas, kokius svertus turiu? Kokia kiekvieno kaina?
+
+pvz.. ideja, ar verta keisti darba, mazai streso, mazai sudu, bet jokio karjeros progreso..  is keista dinamika nesikalbant vapse su vadove
