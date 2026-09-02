@@ -5,4 +5,24 @@ pubDate: "2026.08.26"
 heroImage: "/blog-placeholder-3.jpg"
 ---
 
-Daug minciu apie santykius, bendravima.
+Mintys, pastebėjimai ir pamokos apie santykius ir bendravimą. 
+
+### Pagrindas yra linkėti gero kitam
+
+
+### Būk draugiškas, bet neužsileisk ant galvos
+
+
+### Jausk kitą
+
+
+### Nubrėžk ribas
+
+### Suteik erdvę kitam būti savimi
+Nereikia vertinti, kišti savo nuomonę... 
+
+
+
+
+
+
