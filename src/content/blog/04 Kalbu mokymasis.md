@@ -1,12 +1,23 @@
 ---
-title: "Kalbu mokymasis"
-description: "Kaip ir kodel"
-pubDate: "2026.08.26"
+title: "Kalbų mokymasis"
+description: "Kalbos atveria naujus pasaulius, vidinius ir išorinius"
+pubDate: "2026.09.02"
 heroImage: "/blog-placeholder-4.jpg"
 ---
 
-Mokintis kalbas atveria naujus horizontus, tiek viduj, tiek isorej. Reikia prisiminti buti... kukliam. Bunu priverstas paziureti nemokejimui i akis, daryti tai, kas sunku, kartoti basics vel ir vel..
+Mokintis kalbas atveria naujus horizontus, tiek viduje, tiek išorėje.
+Primena būti... kukliam, nes pradėdamas mokintis kalbą negaliu būti tobulas, darau tai, kas nesigauna, kas sunku, kartoju pagrindus daug kartų iš eilės. 
 
 Tutoriai labai padeda nuoseklumui. 
 
-Rusu, ispanu, danu, prancuzu, portugalu, italu, vokieciu..
+Bus istorijos ir pamąstymai apie šias kalbas:
+- Rusų
+- Ispanų
+- Danų
+- Prancūzų
+- Portugalų
+- Italų
+- Vokiečių
+
+
+# Dabartinis metodas
