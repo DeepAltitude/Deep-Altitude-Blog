@@ -20,4 +20,9 @@ Bus istorijos ir pamąstymai apie šias kalbas:
 - Vokiečių
 
 
-# Dabartinis metodas
+### Dabartinis metodas
+
+Pamokos su tutoriais, apie šešios-dešimt valandų per savaitę. 
+Skaitau, arba klausau dirbtiniu intelektu parašytas istorijas, bet ką, kas įdomu, adekvačiu lygiu. 
+Atsispauzdinu lapus to, kas įdomu, kad anksti ryte, po meditacijos ir prieš pamoką, galėčiau ramiai sau skaityti išjungtu telefonu, markeriu pasibraukti kas įdomu. 
+Drills, dirbtiniu intelektu parašytos 
