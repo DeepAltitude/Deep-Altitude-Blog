@@ -18,4 +18,6 @@ Aš klaidingai tikėjausi iš žmogaus to, ko ji nesugeba. Pamoka yra iš tiesų
 
 ## Progresas karjeroje
 
+Girdėjau iš kitų, kad šioje kompanijoje karjeros nepadarysi. Daug savininkų šeimos narių sėdi patogiai ir aukštai, o didžioji dalis išsilavinusių darbuotojų čillina, biški padirba ir tiek. Relaksuoja ofisiuke. Kompanija duoda saugumą ir stabilumą, o jo kaina yra stagnacija. Algos pakankamai neblogos, nepersidirbi... Bet nėra jokių perspektyvų, jokios lyderystės, jokių gerų pavyzdžių, iš kurių galėtum mokytis. 
 
+Žmonių resursai pokalbyje sakė, kad dėja, kad ir kaip būtų apmaudu, kompanija dar nepriaugo iki stabilių procesų karjeros vystymui, o savininko sūnus nemėgsta dėti etiketės "Talentas", tad neturim jokio talentų vystymo. 
