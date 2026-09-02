@@ -1,9 +1,12 @@
 ---
 title: "Kalbų mokymasis"
-description: "Kalbos atveria naujus pasaulius, vidinius ir išorinius"
+description: "Atrasti savo energiją procese"
 pubDate: "2026.09.02"
 heroImage: "/blog-placeholder-4.jpg"
 ---
+
+### Kodėl mokinuosi kalbas?
+
 
 Mokintis kalbas atveria naujus horizontus, tiek viduje, tiek išorėje.
 Primena būti... kukliam, nes pradėdamas mokintis kalbą negaliu būti tobulas, darau tai, kas nesigauna, kas sunku, kartoju pagrindus daug kartų iš eilės. 
@@ -18,6 +21,11 @@ Bus istorijos ir pamąstymai apie šias kalbas:
 - Portugalų
 - Italų
 - Vokiečių
+
+### Atrasti savo energiją procese
+
+Manau, kad svarbiausia mokantis kalbą yra pažinti save. Klausytis savęs, savo energijos lygių. Ir plaukti ant tos bangos, keisti metodus kas dieną jei reikia, nenorint mokintis gramatikos - mokintis per pavyzdžius, drillinti. Jeigu nuobodu - kažkas netaip. 
+
 
 
 ### Dabartinis metodas
