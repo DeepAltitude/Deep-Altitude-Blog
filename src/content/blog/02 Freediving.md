@@ -13,4 +13,22 @@ Skenuoju savo kūną, paleidžiu visą įtampą. Nardymo kostiumas dengia visą 
 
 [...]
 
-Išmokau, kad kvėpavimas, tai įrankis. 
+
+### Darbas su treneriu
+
+Virš metų dirbau su Gineso rekordų turėtoju Buda Šobat. Susipažinom Static Weekend Ženevoje, ir supratau, pamačiau, kad pasaulio rekordai neturi jokios mistikos, nei magijos... Jis tiesiog labai daug nuosekliai dirba. 
+
+Trackinti maistą ir vakarais siųsti screenshotus buvo nauja, bet įpratau. Turėjau treniruočių programas savaitei. 
+
+
+Išmokau ilsėtis, gerai valgyti, gerai sportuoti. 
+
+Ir tuo pačiu, sėkmei, nuoseklumui labai padeda treneris, vienas kompetetingas ir įkvepiantis žmogus kuriam rūpi mano sekmė. 
+
+
+
+
+
+
+
+
