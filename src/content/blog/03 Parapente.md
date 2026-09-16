@@ -15,3 +15,5 @@ Never complacent.
 Always check. Checklists. 
 
 Always have plan B, always OK not to fly after arrival. 
+
+260916 Praeitą penktadienį išlaikiau egzą, dabar galiu legaliai skraidyti pats vienas, be racijos. Po egzo dar porą skrydžių Interlakene padariau. Šeštadienį - rest day. Sekmadienį - į Charmey, 4 skrydžiai, vienas 44min. 
