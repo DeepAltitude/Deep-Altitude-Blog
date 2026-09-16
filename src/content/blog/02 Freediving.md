@@ -25,7 +25,8 @@ Išmokau ilsėtis, gerai valgyti, gerai sportuoti.
 
 Ir tuo pačiu, sėkmei, nuoseklumui labai padeda treneris, vienas kompetetingas ir įkvepiantis žmogus kuriam rūpi mano sekmė. 
 
-
+https://www.aidainternational.org/Athletes/Profile-3ec3cf04-ffd9-4e72-95cd-2abf8096f011
+https://susv.ch/de/freediving-apnoe/veranstaltungen/aida-swiss-depth-championship-2024/
 
 
 
