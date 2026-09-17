@@ -1,0 +1,473 @@
+@@ why-this-notebook
+# ¿Sobre qué escribo?
+> Destilar pensamientos
+
+Idiomas, deporte y reflexiones. En este blog escribo mis propios pensamientos, los destilo y trabajo en ellos. Escribo sobre las lecciones de la apnea, el parapente y el aprendizaje muy intensivo de idiomas.
+
+También escribiré sobre habilidades interpersonales, negociaciones, etc., resúmenes de libros o historias personales.
+
+@@ freediving
+# Apnea
+> La respiración es una herramienta
+
+Recorro mi cuerpo con la atención, suelto toda la tensión. El traje de neopreno cubre todo mi cuerpo; solo la cara, las manos y los pies, en la parte que no cubren las aletas, están en contacto con el agua cálida del Mediterráneo. Siento [...]
+
+Inspiro muy, muy profundamente... Lleno los pulmones desde abajo, desde el abdomen, poco a poco, hasta que también se llena el pecho. Después hago packing, añado más aire a los pulmones del que normalmente cabe.
+
+[...]
+
+### Trabajar con un entrenador
+
+Durante más de un año trabajé con Buda Šobat, poseedor de un récord Guinness. Nos conocimos en el Static Weekend de Ginebra y comprendí, vi, que los récords mundiales no tienen ningún misterio ni magia... Simplemente trabaja mucho y con constancia.
+
+Registrar la comida y enviar capturas por la noche era nuevo, pero me acostumbré. Tenía programas de entrenamiento para la semana.
+
+Aprendí a descansar, comer bien y entrenar bien.
+
+Y, a la vez, para el éxito y la constancia ayuda mucho un entrenador: una persona competente e inspiradora a la que le importe mi éxito.
+
+https://www.aidainternational.org/Athletes/Profile-3ec3cf04-ffd9-4e72-95cd-2abf8096f011
+https://susv.ch/de/freediving-apnoe/veranstaltungen/aida-swiss-depth-championship-2024/
+
+@@ paragliding
+# Parapente
+> ¿Qué enseña el aire?
+
+Esperar un buen viento, buenas condiciones... Si las condiciones son desfavorables, mejor ni volar: descansar, leer... Tener otro plan.
+
+Después de una tormenta se vuela bien... pero con malas condiciones es mejor quedarse tranquilo.
+Hay días en que el aire está activo. Si giras bien, subirás. Si no giras... o te quedarás a tu altura, o el aire ascendente que pasa golpeará el ala y puedes tener problemas... y si has soltado completamente el control, una plegada, caerás en un árbol.
+
+Nunca confiarse.
+Comprobar siempre. Listas de comprobación.
+
+Tener siempre un plan B; siempre está bien decidir no volar después de llegar.
+
+260916 El viernes pasado aprobé el examen; ahora puedo volar legalmente solo, sin radio. Después del examen hice un par de vuelos más en Interlaken. Sábado: descanso. Domingo: a Charmey, 4 vuelos, uno de 44 min.
+
+@@ language-learning
+# Aprender idiomas
+> Encontrar tu energía en el proceso
+
+### ¿Por qué aprendo idiomas?
+
+Aprender idiomas abre nuevos horizontes, por dentro y por fuera.
+Me recuerda que debo ser... humilde, porque cuando empiezo un idioma no puedo ser perfecto. Hago algo que no me sale, que cuesta, repito las bases muchas veces seguidas.
+
+Los tutores ayudan mucho a mantener la constancia.
+
+Habrá historias y reflexiones sobre estos idiomas:
+- Ruso
+- Español
+- Danés
+- Francés
+- Portugués
+- Italiano
+- Alemán
+
+### Encontrar tu energía en el proceso
+
+Creo que lo más importante al aprender un idioma es conocerse. Escucharse, escuchar los propios niveles de energía. Y surfear esa ola, cambiar de método cada día si hace falta; si no apetece estudiar gramática, aprender con ejemplos, hacer ejercicios repetitivos. Si resulta aburrido, algo no va bien.
+
+### Método actual
+
+Clases con tutores, unas seis a diez horas a la semana.
+Leo o escucho historias escritas por inteligencia artificial, cualquier cosa interesante, a un nivel adecuado.
+Imprimo páginas de lo que me interesa para poder leer tranquilamente temprano, después de meditar y antes de la clase, con el teléfono apagado, subrayando con un rotulador lo que me llama la atención.
+Ejercicios repetitivos, escritos por inteligencia artificial
+
+@@ jiu-jitsu
+# Jiu Jitsu
+> ¿Dónde tengo palanca?
+
+El Jiu Jitsu me ayuda a ir hacia mi miedo. Combatir contra el más fuerte. Volver a la humildad cuando me estrangulan.
+Palanca, berimbolo, distancia corta, aprendizaje de por vida
+
+260915 Dejé trabajar a un cinturón blanco, no metí presión, cedí buenas posiciones... Y él estaba lleno de pánico. Y sin querer me golpeó en la nariz. OK. La amabilidad hay que ganársela. Mañana por la mañana, si viene... Presión, presión, presión... Primero tengo que enseñarle humildad. Luxaciones lentas, muy lentas... Tiene que aprender a rendirse.
+
+@@ relationships
+# Relaciones interpersonales
+> Destilar pensamientos
+
+Pensamientos, observaciones y lecciones sobre las relaciones y la comunicación.
+
+### La base es desearle el bien al otro
+
+### Sé amable, pero no dejes que te pisoteen
+
+### Percibe al otro
+
+### Pon límites
+
+### Dale al otro espacio para ser quien es
+No hace falta juzgar, imponer tu opinión...
+
+@@ health
+# Salud
+> La base de todo
+
+### El sueño es la base absoluta de todo
+
+### A veces basta con la constancia en el gimnasio
+Con calma se llega.
+
+### Otras veces, un objetivo concreto pone todo lo demás en su sitio
+
+### Azúcar, leche
+
+@@ better-decisions
+# Tomar decisiones
+> A favor y en contra...
+
+¿Cómo tomar las decisiones correctas?
+¿Qué sería más útil para el mayor número de personas en el horizonte más largo?
+
+Estructura... Preparar un documento de seis páginas; pre-mortem.
+
+Por ejemplo: trabajo, pros y contras; contrapartidas, ¿cuándo sería una buena decisión?
+
+Descomponer... analizar de forma MECE... ¿cuál es mi objetivo, qué palancas tengo? ¿Cuál es el coste de cada una?
+
+Por ejemplo... la idea de si merece la pena cambiar de trabajo: poco estrés, pocas mierdas, pero ningún progreso profesional... y una dinámica extraña de no hablar en absoluto con la jefa
+
+@@ expectations
+# No esperes de las personas lo que no pueden dar
+> Expectativas, realidad
+
+Una gran lección... no esperar de personas u organizaciones lo que no pueden dar.
+
+## Falta de liderazgo
+
+Cuando surgió un conflicto en el trabajo, observé lo que ocurría. Una compañera descontrolada que empezó a quejarse cada vez más de todo, mentir, llegar tarde, ofenderse con las preguntas más simples... Esperaba una actuación firme de mi jefa. Pero ya al principio había dicho que no le gustan nada los conflictos, que le cuestan las conversaciones difíciles. Ahora tocaba poner límites, tener una conversación difícil. Invité a mi jefa a una reunión porque es mi responsabilidad profesional hablar del riesgo para los resultados del equipo, la cultura de la empresa y las reputaciones individuales. Y... No pasó nada.
+
+Por una parte, me decepcioné, porque no se cumplió mi expectativa de que mi jefa hiciera su trabajo. Pero comprendí algo mucho más valioso: esperaba de ella algo que llevaba tiempo diciendo que no le gustaba, no quería hacer, no haría.
+
+Esperaba equivocadamente de una persona algo de lo que no es capaz. La lección es confiar de verdad en mi propio juicio sobre las personas, reconocer que todos tienen límites en sus capacidades y que muchas personas en puestos superiores no tienen las competencias que, en mi opinión, deberían tener.
+
+## Progreso profesional
+
+Había oído a otros que en esta empresa no haría carrera. Muchos familiares de los propietarios están cómodamente sentados arriba, y la mayoría de los empleados con estudios se relajan, trabajan un poco y ya. Tranquilitos en la oficina. La empresa da seguridad y estabilidad, y el precio es el estancamiento. Los sueldos no están mal, no te matas a trabajar... Pero no hay perspectivas, ni liderazgo, ni buenos ejemplos de los que aprender.
+
+Recursos Humanos dijo en una conversación que, desgraciadamente, por lamentable que fuera, la empresa todavía no ha madurado para tener procesos estables de desarrollo profesional, y al hijo del propietario no le gusta poner la etiqueta «Talento», así que no tenemos desarrollo del talento.
+
+@@ vibrations
+# Vibraciones
+> Todo son vibraciones
+
+Todo son vibraciones.
+Atraemos lo que vibramos.
+
+Seguir mi energía... no hablar de idiomas ni cambios de trabajo. Solo lo interno
+
+Atraemos lo que irradiamos al mundo
+
+Karma
+Conocer la situación
+Querer hacerlo
+Hacerlo o hacer que se haga
+Sentirse satisfecho después
+
+Principios... intentar de verdad ver cómo es la vida. Ver la realidad, no tus ideas sobre ella. Apertura radical.
+
+Máximo 3 cafés
+Ampliar las redes
+Gente tranquila
+Exitosa
+Que se expresa bien
+¿Imagen?
+Pedir ayuda / preguntar cómo puedo ayudar / contribuir
+Te conviertes en quien crees que eres, despréndete de la identidad anterior
+
+Impermanencia
+
+Mentalidad
+
+Historia de los aviones que volvieron: hay que reforzar las partes que no habían recibido disparos
+
+Cuanto más rápido cometes errores, más rápido aprendes; repetir lo que se te da bien no es tan útil
+
+El poder pertenece a quien nunca pierde la calma, al menos necesitado
+Céntrate en lo que quieres, no en lo negativo, fijación en el objetivo
+En el pánico, la gente sigue tu estado
+Espacio 1: situación frente a reacción
+Espacio 2: urgencia frente a importancia. Ralentizar la reacción
+Espacio 3: identidad frente a resultado
+Suspiro fisiológico
+Doble inhalación por la nariz, una exhalación larga por la boca
+Controlar el marco
+Qué juego se está jugando
+Poner nombre a lo que ocurre
+Absorber el golpe
+Son solo ondas sonoras, centrarse en las palabras
+Reducir lo que está en juego
+Es solo una conversación, no una amenaza personal
+Ellos se sienten amenazados, no yo
+Pedir aclaraciones
+Actuar con decisión
+Una acción clara, una frase clara
+La calma es una estrategia de supervivencia: IA, redes sociales.
+«Las malas noticias son el mejor amigo del inversor» W. Buffet
+
+La inteligencia es saber resolver un problema. La sabiduría es saber si merece la pena resolverlo.
+
+Sistemas
+Bucles de retroalimentación... pueden tener retraso (fumar tarda en hacer efecto)
+Partes ocultas, lo que sigue repitiéndose
+Incentivos equivocados: cobras en la India
+
+Sistemas claros: la causa y el efecto son evidentes y fáciles de observar
+LISTAS DE COMPROBACIÓN
+M&Ms de Van Halen
+Cocinar
+Ser preciso, seguir el proceso, los protocolos
+
+Sistema complicado: es difícil comprender la relación entre causa y efecto
+FRENAR Y ANALIZAR o ENCONTRAR AL ESPECIALISTA ADECUADO
+Hace falta análisis y/o conocimiento experto
+Mecánico, médico, etc.
+Sistemas complejos: la causa y el efecto solo se ven a posteriori
+Probar pequeños experimentos, ajustar en tiempo real
+Mantener la dirección correcta, corregir el rumbo sobre la marcha
+P. ej., integrar dos empresas con culturas diferentes
+Incluso los expertos pueden no ayudar... p. ej., integrar IA es complicado, pero conseguir que la gente la use es un sistema complejo: nadie sabe qué pasará
+No se puede criar a un adolescente con un procedimiento operativo estándar
+Sistema caótico: se rompe el vínculo entre causa y efecto
+Actuar primero, estabilizar primero, preguntar después
+El mayor error: parálisis por análisis
+J&J retiró 31 millones de frascos de medicamento.
+Es imposible conocer la causa y el efecto
+
+DART
+Descomponer
+Analizar: causa y efecto
+Reconocer: ¿he visto esto antes?, ver patrones
+Probar: hacer la prueba más pequeña posible antes de comprometerse
+
+El sistema en el que vives te está entrenando.
+¿Cómo tener una perspectiva externa?
+Mentor: externo, sin interés personal directo
+Datos: lo que hace el sistema frente a lo que creo que hace
+Tiempo: compararte con lo que hacías hace un día, una semana, un año
+
+Ya eres suficientemente bueno, no necesitas que una empresa te valide... quizá ni siquiera sería feliz allí
+La mayoría de la gente es tan mala en cosas sencillas
+Solo necesitas hacer bien las cosas sencillas
+Creer en ti; dudar de uno mismo es cómodo...
+Aceptar que eres uno de los mejores de todos los tiempos
+No pensar que es tan difícil y la tarea enorme... simplemente confiar en ti. Eres suficientemente bueno, déjame ser yo
+El mismo de siempre será un éxito increíble. Solo yo. El mismo de siempre, logrando un éxito desproporcionado
+Lo obvio, de forma estructurada
+Contar una historia
+Estructura
+
+Mejores hábitos
+Dividir objetivos abrumadores en acciones diminutas que sí se hagan
+Everest: paso a paso; mirar arriba te destroza
+Recuperarte rápido cuando vuelves a malos hábitos, en vez de caer en una espiral
+Controlar las entradas: eliminar el ruido mental y recuperar el control de la atención
+Ventanas para el correo
+Terminar, reenviar, posponer o borrar (para que no se quede ahí)
+Usar la escritura para pensar con más claridad y decidir mejor
+ANTES de cualquier cosa confusa...
+Qué sé
+Qué estoy suponiendo
+Cuál es la siguiente acción honesta
+Trabajar con los ciclos naturales de energía del cerebro en vez de luchar contra ellos
+Cuántico... la acción más pequeña es la más poderosa, empezar tan pequeño como sea posible
+Mejorar el sueño entendiendo cómo te afecta realmente la cafeína
+2 tazas, antes de las 12:00
+Surfear la ola
+Bloque de estudio de 60–90 min
+Bloque de recuperación real
+Descanso real: sin entradas
+Construir hábitos que sobrevivan a días malos, poca motivación y contratiempos
+Mal día... Por la noche... salir y mirar arriba... Pequeño, pequeño, pequeño...
+Crear más gratitud, perspectiva y resiliencia en la vida cotidiana
+
+Desarrollar sistemas que sigan funcionando mucho después de desaparecer la motivación
+Perdonarte cuando se rompen todos los hábitos
+Conciencia, gratitud, autoperdón.
+
+Gestión del tiempo: gestionar tu atención
+Lo que te ha traído hasta aquí no te llevará hasta allí
+El sistema 3-2-1: visión general
+Rol 1: el creador (Maker)
+Muchas prioridades, contribuidor individual, mantenerse en su ámbito, trabajo profundo, entregables claros y plazos claros
+Rol 2: el revisor (Marker)
+10–20 prioridades a la vez, miembros del equipo, socios, etc.
+Otros producen; tú editas, das feedback, construyes procesos, automatizas, delegas
+¿Delegar o hacerlo tú? Crítico para la misión
+Rol 3: el multiplicador (Multiplier)
+30–50 responsabilidades, grandes responsabilidades
+El enrutador más caro
+Reclutar, orquestar, alinear, conectar personas, hacer apuestas estratégicas
+No obsesionarse con el detalle, centrarse en el panorama general
+Las dos zonas: guerra y paz
+Guerra: comprimir el tiempo, entrar en los detalles
+Puedes pasar de multiplicador a revisor o de revisor a creador
+Paz: relajarse, ser multiplicador
+Lo innegociable: centrarse en lo que solo tú puedes hacer
+En qué debería centrarme, qué solo puedo hacer yo... delegar lo demás... relaciones, cultura, selección...
+Gestión de la confianza: el secreto de delegar bien
+Entrar en los detalles para aprender
+Revisar para acompañar
+Intervenir para desbloquear
+Gestión del tiempo: desarrollar y gestionar la confianza
+Nuevo: trabajar a su lado, dar tranquilidad
+Demasiada libertad a los principiantes = fracaso
+Algo de experiencia: guiar de cerca, dar claridad
+Experto: intervenir para desbloquear, dar contexto
+Microgestionar = se irán
+
+Definir un innegociable
+
+Marcos, mentalidad para la confianza
+Un análisis de por qué la confianza suele funcionar al revés: muchos de los mejores profesionales (incluso directores generales) se sienten impostores, mientras que el efecto Dunning-Kruger muestra cómo la ignorancia puede parecer certeza e incluso dar estatus.
+Explicar por qué «fíngelo hasta conseguirlo» solo genera confianza alquilada a corto plazo, y compartir mi modelo de tres anillos: confianza alquilada, ganada y propia.
+Cómo el rechazo y el ensayo construyen la confianza central, y defender que la confianza real puede ser silenciosa.
+
+Efecto Dunning-Kruger
+Los expertos subestiman su capacidad
+Los novatos la sobreestiman
+
+La ignorancia se siente como confianza
+Los excesivamente seguros adquieren más estatus en los grupos, la gente les cree
+Las personas incompetentes proyectan más confianza, la sala se lo recompensa
+
+Tres anillos de confianza
+Exterior: alquilada, voz, postura... reaccionar a la sala
+Actuar como si
+Intermedio: confianza ganada, autoeficacia. Más profunda que el exterior, pero específica de un ámbito limitado
+¿Dónde tengo menos confianza? Trabajar en ello (p. ej., finanzas corporativas, aprender una habilidad nueva, cubrir la carencia)
+Interior: confianza propia, no necesitar reconocimiento, solo mi capacidad de funcionar cuando las cosas no salen bien
+Éxito y rechazo... escribir una frase. Mis acciones tienen éxito o fracasan. Yo no. Mis acciones
+La confianza consiste en actuar. ¿En qué has fracasado hoy?
+En nada = decepción
+Tomar un pequeño riesgo. Probarlo.
+
+Actuar primero. Mucho.
+Ser amable contigo, hablarte como a un buen amigo. También en momentos difíciles.
+
+----
+Simular, visualizar
+
+TRAP
+Test (recordar)
+Repetir
+A
+P
+
+Facilidad frente a retención. Lo fácil no ayuda
+
+Ponerse a prueba es un gran mecanismo de aprendizaje
+
+Las mismas 3 preguntas antes de acostarse
+Qué aprendí hoy
+Qué fue bueno
+
+Escribir en papel
+
+Einstein: si tuviera 1 hora para resolver un problema, dedicaría 55 min a definirlo y 5 min a resolverlo
+
+Sentarse ante una página en blanco, mirarla fijamente
+Liderazgo: dar el mérito a otros... increíble lo que puedes lograr cuando no te importa quién se lleva el mérito
+Reconocer el esfuerzo, nombrar el problema, camino a seguir
+
+Necesito anotar buenos principios sobre las relaciones
+
+Un plan imperfecto con acción gana a la planificación perfecta que retrasa
+
+Hablar desde tu centro
+¿Pecho?
+¿Resonancia?
+Encontrar la respiración adecuada
+Escucharte. Tu voz es tu instrumento
+Encontrar tu resonancia
+
+Analizar y visualizar, practicar:
+Crucial Conversations
+Start with No
+Volere troppo e ottenerlo
+
+Hacer algo a diario, marcarlo a diario...
+
+@@ quotes
+# Citas
+> Pólvora para la mente
+
+Los asuntos del mundo continuarán para siempre. No retrases la práctica de la meditación. — Milarepa
+
+Pei
+Mantras: los pensamientos no se quedan pegados si repites mantras
+No dar energía, ni siquiera aceptar, castigar sin prestar atención, simplemente hacer lo que ibas a hacer de todos modos
+
+Lo que ocurre en nuestra vida es un reflejo de nuestro karma.
+Cómo reaccionamos a lo que ocurre es un reflejo de nuestra madurez.
+
+Intenta dejar que las cosas sean. Intenta dejar que el sol salga solo. Intenta dejar que el sol se ponga solo. Si estás enfermo, déjalo ser e intenta no obsesionarte demasiado. Si te estás muriendo, déjalo ser, no luches contra ello, porque es natural. No es algo malo en absoluto. Sabes, de alguna manera estamos destinados a seguir adelante, a ir cada vez más lejos. Nunca estamos destinados a quedarnos en un sitio y atascarnos allí.
+Así que intenta encontrar una manera de dejarlo ser, a tu manera. La que te funcione. Por supuesto somos individuos, cada uno tiene su manera de soltar y dejar ser las cosas. Intenta hacerlo, y al hacerlo, todo lo que deseamos viene automáticamente. No puedo explicar por qué. A menudo pensamos que, si queremos cosas, debemos hacer cosas, pero muchas veces no funciona. Y cuando por fin conseguimos lo que queremos, no estamos contentos y queremos otra cosa. Por eso, si lo dejas ser, las cosas que más queremos de hecho llegan. Es lo más curioso. No sabemos explicarlo, pero así es. Con ese espíritu, esa mentalidad, intenta dejar ser las cosas. Entonces, sea lo que sea lo que buscas, llegará.
+
+Los cambios duraderos se producen en quienes hacen postraciones, y no hay mejor forma de eliminar corrientes de energía confusas por años de sustancias intoxicantes, filosofías caseras o inactividad que someter el organismo a esta «cura de caballo».
+
+Libre de elaboración mental, nuestra mente es un espacio abierto y dichoso
+
+Este mundo lo crea nuestra mente
+
+Los conceptos y las casillas limitan nuestras capacidades
+
+La motivación es el poder más fuerte que tenemos
+
+Salir de la pequeña caja e identificarse con todo el potencial
+
+Todos son un buda. Ponerse siempre en una situación donde se pueda crecer y aprender
+
+Todo es fantástico simplemente porque puede ocurrir. Dificultades: oh, qué interesante. No experimentarte nunca como un blanco.
+
+Todo lo que haces agranda tu mundo; todo lo que no haces lo hace más pequeño
+
+Verlo todo como un sueño. La mente es luz clara pase lo que pase. Todo es fantástico, muestra el potencial del espacio
+
+Los enemigos son la pereza y el embotamiento
+
+El verdadero poder que tienes es ser un gran ejemplo
+
+Las personas modernas están sobreestimuladas. Sus conceptos aumentan constantemente y tienen poco acceso a su naturaleza atemporal. — XVI Karmapa
+
+Pelota de golf en la cabeza, corazón como espacio abierto. Mover la energía de la cabeza al corazón KAA
+
+Depender de la enseñanza, no del maestro
+Depender del significado, no de las palabras
+Depender de la profundidad, no de la superficie
+Depender de la sabiduría, no de los conceptos
+
+«¡Nunca te rindas! ¡Nunca dejes de buscar lo mejor! ¡Nunca te impidas dar un paso para ser amable con los demás! ¡Nunca te quedes ahí diciendo: “Lo estoy haciendo bastante bien, a medias”! ¡Tienes que hacerlo a lo grande! ¡Eso esperan los budas de nosotros, y os daré una patada en el trasero si no lo hacéis! El mundo es difícil y cambia muchas, muchas veces. Por tanto: ¡toma refugio cada día en tu linaje de transmisión! … ¡Cada día es el primer día del resto de tu vida! Es realmente importante que cada día cuente. Paso a paso. No ver a nadie como demasiado difícil, sino hacerle unos buenos deseos si no tienes tiempo para otra cosa. Y ser buenos ejemplos. Ser valientes. Ser felices. Dar energía a los demás. Bendecir a los demás con todo lo que tenéis y recibís aquí. Compartirlo. … Somos muy afortunados. No hay muchas personas como nosotros en el mundo. Gracias a nuestro linaje y a la bondad de nuestros maestros, tenemos cosas en las manos, estamos dotados, podemos hacer muchas cosas. ¡Así que hacedlo!» Lama Ole, EC 13.8.17
+
+Sin venganza: un regalo y decir que he decidido no conocerte más. Que tengas una vida feliz
+
+El objetivo de la vida no puede ser una existencia cómoda y vacía hasta el final, sino un desafío creciente de descubrir todo nuestro potencial
+
+«En el budismo, si sufres, no hay nada especial ni sagrado en ello; significa que has cometido un error en algún lugar». — Lama Ole Nydahl
+
+Aceptar que todo cambia todo el tiempo
+
+Empezar siempre el día con deseos muy conscientes de ser útil a los demás
+
+La clave es aceptar que todo es cambio, que ayer ya pasó. El pasado es pasado. Eso es «aceptar la impermanencia». La respuesta está ahí. Para convencernos, o poder «vendernos» esta idea, necesitamos pruebas, una garantía. Si miras a los que tienen experiencia, a los verdaderos budas y bodhisattvas, ellos son la prueba. Pero si ni siquiera ellos resultan convincentes, yo personalmente garantizo que funciona y que no tarda mucho. No hacen falta eones, ni años, ni siquiera días. Funciona aquí y ahora. Basta con entregarse de verdad al cambio, a la impermanencia, a esa verdad. Eso es todo. — XVII Karmapa
+
+Un consejo increíble para amigos que «a menudo no saben lo que quieren»...
+«El mejor consejo para quienes están principalmente obstaculizados por la confusión es usar el “método del salami”. Cuando construyes tu vida correctamente, loncha a loncha, día a día, deberías pensar lo menos posible, hacer y terminar lo que tienes justo delante de las narices. Si seguimos así, con el tiempo aparecerá la experiencia, se hará evidente la relación entre causa y efecto. En la práctica, esto significa querer emplear cada momento en las acciones más eficaces, comprendiendo a la vez lo mejor posible sus resultados, y no quedarse inmóvil, como un caballo viejo o un cocodrilo viejo que no sabe si arrastrarse hacia delante o hacia atrás».
+
+Lama Ole Nydahl
+
+«Por tanto, no me pondría nervioso periódicamente pensando: “¿Qué tengo que hacer ahora?”. Dejaría más bien que las condiciones se reunieran como una gran corriente, uniendo su potencial exterior e interior y encontrando su mejor camino. Cuando las cosas vienen naturalmente, crecen por su propia fuerza. Disfrútalas; son riqueza para compartir. No tengas la vida en un lugar y la cabeza en otro».
+
+Lama Ole Nydahl
+
+Karma:
+Conocer la situación, cómo es
+Desear hacerlo
+Hacerlo o hacer que se haga
+Sentirse satisfecho después
+
+Las situaciones se repetirán hasta que aprendas
+¿Intentas pasar por la vida de la forma más agradable o llegar de verdad a ser útil a los demás?

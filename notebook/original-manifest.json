@@ -1,0 +1,49 @@
+{
+  "sourceCommit": "f6c908af042eae267d6286783ce94c334ac288d3",
+  "files": [
+    {
+      "path": "src/content/Kalbos/04 Kalbu mokymasis.md",
+      "sha256": "987d81c96bd99da7ddbd42894d4ddf0a361c02d713fad80b837f02c6b2944910"
+    },
+    {
+      "path": "src/content/Protas/06 Santykiai.md",
+      "sha256": "dcff2cb05f4d1fec3dcc5e010585e30c345b766903c16484d67ccb8da81cdd38"
+    },
+    {
+      "path": "src/content/Protas/08 Sprendimai.md",
+      "sha256": "d4f201faee83607c874ca72fe2fc858dd06b242add7ac1ca500f797aa04fb022"
+    },
+    {
+      "path": "src/content/Protas/09 Nesitikek ko negali duoti.md",
+      "sha256": "cceb891ecae1a49946fc3a7898834f922081317fee8675693931c1c03179337d"
+    },
+    {
+      "path": "src/content/Protas/10 Vibracijos.md",
+      "sha256": "f74e64a18f09ead1c7ea6ca2f4f20db37d7e21e2052d7ff05895289aee934f4a"
+    },
+    {
+      "path": "src/content/Protas/99 Quotes.md",
+      "sha256": "7a33f8af0bd210a091d15e73037525f03bb40023f5a592bfd62875a91d73c40f"
+    },
+    {
+      "path": "src/content/Sportas/02 Freediving.md",
+      "sha256": "ac4f5559c2e998c2bbae947822580fb4bcf6445b1fbc922ec5435e23596ba64d"
+    },
+    {
+      "path": "src/content/Sportas/03 Parapente.md",
+      "sha256": "6d37e6f7f6e05e1a7177f151c445801d78d8eecbf9a4b0acf67d724273345f7c"
+    },
+    {
+      "path": "src/content/Sportas/05 Jiu Jitsu.md",
+      "sha256": "5ead4fe836b3011c190421c097059751e71bbb36586d0d97cadd3ee25a91755a"
+    },
+    {
+      "path": "src/content/Sportas/07 Sveikata.md",
+      "sha256": "159da8b142214bcd64f3ab3623a9fd1b88b6468d50d64ac58d074941c8d03e51"
+    },
+    {
+      "path": "src/content/blog/01 Apie ka.md",
+      "sha256": "f8bed8ef5ae3f8f26944df54245a13b6a2e925a09db29cebbaebe7c4881fd563"
+    }
+  ]
+}
