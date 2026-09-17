@@ -37,7 +37,7 @@ import { SITE_TITLE } from '../consts';
 	}
 	nav a {
 		padding: 1em 0.5em;
-		color: var(--black);
+		color: rgb(var(--black));
 		border-bottom: 4px solid transparent;
 		text-decoration: none;
 	}
@@ -50,6 +50,9 @@ import { SITE_TITLE } from '../consts';
 		display: flex;
 	}
 	@media (max-width: 720px) {
+        nav { flex-wrap: wrap; gap: 8px; padding: 16px 0; }
+        .internal-links { display: flex; flex-wrap: wrap; gap: 4px; }
+        nav a { padding: 8px 6px; font-size: 16px; }
 		.social-links {
 			display: none;
 		}
