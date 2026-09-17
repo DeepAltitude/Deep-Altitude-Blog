@@ -1,12 +1,9 @@
 ---
-title: "Kalbų mokymasis"
-description: "Atrasti savo energiją procese"
-pubDate: "2026.09.02"
-heroImage: "/blog-placeholder-4.jpg"
+title: Kalbų mokymasis
+description: Atrasti savo energiją procese
+pubDate: 2026-09-17
 ---
-
 ### Kodėl mokinuosi kalbas?
-
 
 Mokintis kalbas atveria naujus horizontus, tiek viduje, tiek išorėje.
 Primena būti... kukliam, nes pradėdamas mokintis kalbą negaliu būti tobulas, darau tai, kas nesigauna, kas sunku, kartoju pagrindus daug kartų iš eilės. 
@@ -14,6 +11,7 @@ Primena būti... kukliam, nes pradėdamas mokintis kalbą negaliu būti tobulas,
 Tutoriai labai padeda nuoseklumui. 
 
 Bus istorijos ir pamąstymai apie šias kalbas:
+
 - Rusų
 - Ispanų
 - Danų
