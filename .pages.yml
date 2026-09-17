@@ -1,26 +1,256 @@
-NEW ARTICLE
+media:
+  - name: images
+    label: Images
+    input: public/images
+    output: /images
+    categories: [image]
+    extensions: [jpg, jpeg, png, webp, gif]
+    rename: safe
 
-Title
-[________________________]
+content:
+  - name: sportas
+    label: Sportas
+    type: collection
+    path: src/content/Sportas
+    format: yaml-frontmatter
+    filename:
+      template: "{year}-{month}-{day}-{title}.md"
+      field: false
+    view:
+      fields: [title, pubDate]
+      primary: title
+      sort: [pubDate, title]
+      search: [title, description]
+      default:
+        sort: pubDate
+        order: desc
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
 
-Category
-[ Sportas ▼ ]
+      - name: description
+        label: Short description
+        type: text
+        required: true
+        options:
+          maxlength: 300
 
-Language
-[ Lithuanian ▼ ]
+      - name: pubDate
+        label: Date
+        type: date
+        required: true
+        options:
+          format: yyyy-MM-dd
 
-Date
-[ 17 September 2026 ]
+      - name: updatedDate
+        label: Updated
+        type: date
+        required: false
+        default: ""
+        options:
+          format: yyyy-MM-dd
 
-Cover image
-[ + Add photo ]
+      - name: heroImage
+        label: Cover image
+        type: image
+        required: false
+        options:
+          media: images
 
-Article
+      - name: body
+        label: Article
+        type: rich-text
+        required: true
+        options:
+          format: markdown
+          media: images
+          rename: safe
+          switcher: true
 
-[                                      ]
-[                                      ]
-[        large writing area            ]
-[                                      ]
-[                                      ]
 
-             SAVE / PUBLISH
+  - name: kalbos
+    label: Kalbos
+    type: collection
+    path: src/content/Kalbos
+    format: yaml-frontmatter
+    filename:
+      template: "{year}-{month}-{day}-{title}.md"
+      field: false
+    view:
+      fields: [title, pubDate]
+      primary: title
+      sort: [pubDate, title]
+      search: [title, description]
+      default:
+        sort: pubDate
+        order: desc
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+
+      - name: description
+        label: Short description
+        type: text
+        required: true
+        options:
+          maxlength: 300
+
+      - name: pubDate
+        label: Date
+        type: date
+        required: true
+        options:
+          format: yyyy-MM-dd
+
+      - name: updatedDate
+        label: Updated
+        type: date
+        required: false
+        default: ""
+        options:
+          format: yyyy-MM-dd
+
+      - name: heroImage
+        label: Cover image
+        type: image
+        required: false
+        options:
+          media: images
+
+      - name: body
+        label: Article
+        type: rich-text
+        required: true
+        options:
+          format: markdown
+          media: images
+          rename: safe
+          switcher: true
+
+
+  - name: protas
+    label: Protas
+    type: collection
+    path: src/content/Protas
+    format: yaml-frontmatter
+    filename:
+      template: "{year}-{month}-{day}-{title}.md"
+      field: false
+    view:
+      fields: [title, pubDate]
+      primary: title
+      sort: [pubDate, title]
+      search: [title, description]
+      default:
+        sort: pubDate
+        order: desc
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+
+      - name: description
+        label: Short description
+        type: text
+        required: true
+        options:
+          maxlength: 300
+
+      - name: pubDate
+        label: Date
+        type: date
+        required: true
+        options:
+          format: yyyy-MM-dd
+
+      - name: updatedDate
+        label: Updated
+        type: date
+        required: false
+        default: ""
+        options:
+          format: yyyy-MM-dd
+
+      - name: heroImage
+        label: Cover image
+        type: image
+        required: false
+        options:
+          media: images
+
+      - name: body
+        label: Article
+        type: rich-text
+        required: true
+        options:
+          format: markdown
+          media: images
+          rename: safe
+          switcher: true
+
+
+  - name: blog
+    label: Other Notes
+    type: collection
+    path: src/content/blog
+    format: yaml-frontmatter
+    filename:
+      template: "{year}-{month}-{day}-{title}.md"
+      field: false
+    view:
+      fields: [title, pubDate]
+      primary: title
+      sort: [pubDate, title]
+      search: [title, description]
+      default:
+        sort: pubDate
+        order: desc
+    fields:
+      - name: title
+        label: Title
+        type: string
+        required: true
+
+      - name: description
+        label: Short description
+        type: text
+        required: true
+        options:
+          maxlength: 300
+
+      - name: pubDate
+        label: Date
+        type: date
+        required: true
+        options:
+          format: yyyy-MM-dd
+
+      - name: updatedDate
+        label: Updated
+        type: date
+        required: false
+        default: ""
+        options:
+          format: yyyy-MM-dd
+
+      - name: heroImage
+        label: Cover image
+        type: image
+        required: false
+        options:
+          media: images
+
+      - name: body
+        label: Article
+        type: rich-text
+        required: true
+        options:
+          format: markdown
+          media: images
+          rename: safe
+          switcher: true
