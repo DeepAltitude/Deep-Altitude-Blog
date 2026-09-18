@@ -10,6 +10,13 @@ const sources=fs.readdirSync('src/content',{recursive:true}).filter(f=>/\.mdx?$/
 assert.equal(downloads.length,sources.length);
 for(const file of sources)assert.ok(downloads.includes(digest(fs.readFileSync(path.join('src/content',file)))),`Exact original download missing: ${file}`);
 const htmlFiles=fs.readdirSync(root,{recursive:true}).filter(f=>f.endsWith('.html'));
+const redirects=fs.readFileSync(path.join(root,'_redirects'),'utf8').trim().split('\n').filter(line=>line&&!line.startsWith('#')).map(line=>line.trim().split(/\s+/));
+const redirectSources=new Set(redirects.map(([source])=>source));
+for(const [source,target] of redirects){
+ assert.ok(fs.existsSync(path.join(root,target,'index.html')),`Missing redirect destination: ${source} → ${target}`);
+ const alternate=source.endsWith('/')?source.slice(0,-1):source+'/';
+ assert.ok(redirectSources.has(alternate),`Missing trailing-slash variant: ${alternate}`);
+}
 let links=0;
 for(const file of htmlFiles){
  const full=path.join(root,file),html=fs.readFileSync(full,'utf8');
@@ -26,4 +33,4 @@ for(const file of htmlFiles){
   }
  }
 }
-console.log(`Verified ${sources.length} exact source downloads and ${links} internal links across ${htmlFiles.length} HTML pages.`);
+console.log(`Verified ${sources.length} exact source downloads, ${redirects.length} redirects and ${links} internal links across ${htmlFiles.length} HTML pages.`);
