@@ -4,22 +4,31 @@ media:
     input: public/images
     output: /images
     categories: [image]
-    extensions: [jpg, jpeg, png, webp, gif]
+    extensions: [jpg, jpeg, png, webp, gif, avif]
     rename: safe
 
 content:
-  - name: sportas
-    label: Sportas
+  - name: articles
+    label: Articles
     type: collection
-    path: src/content/Sportas
+    path: src/content
     format: yaml-frontmatter
+    subfolders: true
+    exclude:
+      - pages
+      - about.md
+      - about-en.md
+      - markdown-style-guide.md
     filename:
       template: "{year}-{month}-{day}-{title}.md"
       field: false
+    operations:
+      rename: false
     view:
-      fields: [title, pubDate]
+      layout: list
       primary: title
-      sort: [pubDate, title]
+      fields: [title, category, language, pubDate]
+      sort: [pubDate, title, category]
       search: [title, description]
       default:
         sort: pubDate
@@ -29,36 +38,44 @@ content:
         label: Title
         type: string
         required: true
-
+      - name: category
+        label: Category
+        type: select
+        required: true
+        options:
+          values: [Sportas, Kalbos, Protas, Blog]
+      - name: language
+        label: Language
+        type: select
+        required: true
+        options:
+          values:
+            - {name: lt, label: Lietuvių}
+            - {name: en, label: English}
+            - {name: mul, label: Lietuvių + English}
+            - {name: es, label: Español}
+            - {name: pt, label: Português}
+            - {name: de, label: Deutsch}
+            - {name: fr, label: Français}
+            - {name: it, label: Italiano}
+            - {name: ru, label: Русский}
+            - {name: da, label: Dansk}
       - name: description
         label: Short description
         type: text
-        required: true
         options:
           maxlength: 300
-
       - name: pubDate
         label: Date
         type: date
         required: true
         options:
-          format: yyyy-MM-dd
-
-      - name: updatedDate
-        label: Updated
-        type: date
-        required: false
-        default: ""
-        options:
-          format: yyyy-MM-dd
-
+          format: yyyy.MM.dd
       - name: heroImage
-        label: Cover image
+        label: Optional cover image
         type: image
-        required: false
         options:
           media: images
-
       - name: body
         label: Article
         type: rich-text
@@ -68,189 +85,51 @@ content:
           media: images
           rename: safe
           switcher: true
+      - name: updatedDate
+        label: Updated date (optional)
+        type: date
+        default: ""
+        options:
+          format: yyyy.MM.dd
 
-
-  - name: kalbos
-    label: Kalbos
-    type: collection
-    path: src/content/Kalbos
+  - name: about
+    label: About · Lietuvių
+    type: file
+    path: src/content/pages/about.md
     format: yaml-frontmatter
-    filename:
-      template: "{year}-{month}-{day}-{title}.md"
-      field: false
-    view:
-      fields: [title, pubDate]
-      primary: title
-      sort: [pubDate, title]
-      search: [title, description]
-      default:
-        sort: pubDate
-        order: desc
+    operations: {delete: false}
     fields:
       - name: title
-        label: Title
+        label: Page title
         type: string
         required: true
-
       - name: description
-        label: Short description
+        label: Description
         type: text
-        required: true
-        options:
-          maxlength: 300
-
-      - name: pubDate
-        label: Date
-        type: date
-        required: true
-        options:
-          format: yyyy-MM-dd
-
-      - name: updatedDate
-        label: Updated
-        type: date
-        required: false
-        default: ""
-        options:
-          format: yyyy-MM-dd
-
-      - name: heroImage
-        label: Cover image
-        type: image
-        required: false
-        options:
-          media: images
-
       - name: body
-        label: Article
+        label: About
         type: rich-text
-        required: true
-        options:
-          format: markdown
-          media: images
-          rename: safe
-          switcher: true
+        options: {format: markdown, media: false}
 
-
-  - name: protas
-    label: Protas
-    type: collection
-    path: src/content/Protas
+  - name: about-en
+    label: About · English
+    type: file
+    path: src/content/pages/about-en.md
     format: yaml-frontmatter
-    filename:
-      template: "{year}-{month}-{day}-{title}.md"
-      field: false
-    view:
-      fields: [title, pubDate]
-      primary: title
-      sort: [pubDate, title]
-      search: [title, description]
-      default:
-        sort: pubDate
-        order: desc
+    operations: {delete: false}
     fields:
       - name: title
-        label: Title
+        label: Page title
         type: string
         required: true
-
       - name: description
-        label: Short description
+        label: Description
         type: text
-        required: true
-        options:
-          maxlength: 300
-
-      - name: pubDate
-        label: Date
-        type: date
-        required: true
-        options:
-          format: yyyy-MM-dd
-
-      - name: updatedDate
-        label: Updated
-        type: date
-        required: false
-        default: ""
-        options:
-          format: yyyy-MM-dd
-
-      - name: heroImage
-        label: Cover image
-        type: image
-        required: false
-        options:
-          media: images
-
       - name: body
-        label: Article
+        label: About
         type: rich-text
-        required: true
-        options:
-          format: markdown
-          media: images
-          rename: safe
-          switcher: true
+        options: {format: markdown, media: false}
 
-
-  - name: blog
-    label: Other Notes
-    type: collection
-    path: src/content/blog
-    format: yaml-frontmatter
-    filename:
-      template: "{year}-{month}-{day}-{title}.md"
-      field: false
-    view:
-      fields: [title, pubDate]
-      primary: title
-      sort: [pubDate, title]
-      search: [title, description]
-      default:
-        sort: pubDate
-        order: desc
-    fields:
-      - name: title
-        label: Title
-        type: string
-        required: true
-
-      - name: description
-        label: Short description
-        type: text
-        required: true
-        options:
-          maxlength: 300
-
-      - name: pubDate
-        label: Date
-        type: date
-        required: true
-        options:
-          format: yyyy-MM-dd
-
-      - name: updatedDate
-        label: Updated
-        type: date
-        required: false
-        default: ""
-        options:
-          format: yyyy-MM-dd
-
-      - name: heroImage
-        label: Cover image
-        type: image
-        required: false
-        options:
-          media: images
-
-      - name: body
-        label: Article
-        type: rich-text
-        required: true
-        options:
-          format: markdown
-          media: images
-          rename: safe
-          switcher: true
+settings:
+  content:
+    merge: true

@@ -4,10 +4,11 @@ import crypto from 'node:crypto';
 import assert from 'node:assert/strict';
 const root=path.resolve('dist');
 const digest=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
-const manifest=JSON.parse(fs.readFileSync('notebook/original-manifest.json','utf8'));
+// Compare downloads to CURRENT content: legitimate CMS edits and new posts must build.
 const downloads=fs.readdirSync(path.join(root,'original/files')).filter(f=>f.endsWith('.md')).map(f=>digest(fs.readFileSync(path.join(root,'original/files',f))));
-assert.equal(downloads.length,manifest.files.length);
-for(const file of manifest.files){assert.equal(digest(fs.readFileSync(file.path)),file.sha256,`Original changed: ${file.path}`);assert.ok(downloads.includes(file.sha256),`Original download missing: ${file.path}`);}
+const sources=fs.readdirSync('src/content',{recursive:true}).filter(f=>/\.mdx?$/.test(f)&&!f.startsWith('pages/'));
+assert.equal(downloads.length,sources.length);
+for(const file of sources)assert.ok(downloads.includes(digest(fs.readFileSync(path.join('src/content',file)))),`Exact original download missing: ${file}`);
 const htmlFiles=fs.readdirSync(root,{recursive:true}).filter(f=>f.endsWith('.html'));
 let links=0;
 for(const file of htmlFiles){
@@ -18,6 +19,11 @@ for(const file of htmlFiles){
   const raw=path.join(root,decodeURIComponent(u.pathname));
   let target=fs.existsSync(raw)&&fs.statSync(raw).isDirectory()?path.join(raw,'index.html'):raw;
   assert.ok(fs.existsSync(target),`Broken link in ${file}: ${href}`);links++;
+  if(u.hash&&target.endsWith('.html')){
+   const fragment=decodeURIComponent(u.hash.slice(1));
+   const ids=[...fs.readFileSync(target,'utf8').matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]);
+   assert.ok(ids.includes(fragment),`Missing fragment in ${file}: ${href}`);
+  }
  }
 }
-console.log(`Verified ${manifest.files.length} exact original downloads and ${links} internal links across ${htmlFiles.length} HTML pages.`);
+console.log(`Verified ${sources.length} exact source downloads and ${links} internal links across ${htmlFiles.length} HTML pages.`);

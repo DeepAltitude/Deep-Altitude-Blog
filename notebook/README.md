@@ -1,26 +1,31 @@
-# Deep Altitude notebook
+# Deep Altitude
 
-Nine static editions: Original-Raw, English, Spanish, Portuguese (Portugal), German, French, Italian, Russian and Danish. The existing Astro site and legacy article routes remain in place. `npm run build` builds Astro first, then adds the multilingual notebook and replaces the generated homepage.
+One Astro site, one shared visual system. The homepage, indexes, articles, About and 404 use `src/layouts/Site.astro` and `src/styles/global.css`. No postbuild page replacement, UI framework, search application or translation service is needed.
 
-## Content
+## Publishing with Pages CMS
 
-The 11 author posts in `src/content` are unchanged. `original-manifest.json` records their SHA-256 hashes and the source commit. The build verifies them and copies each file byte for byte to `/original/files/{id}.md`. Every Original-Raw article also includes the complete source in an expandable panel. The previous Lithuanian homepage remains at `/original/purpose/`.
+Open https://app.pagescms.org/ and sign in with GitHub. Select **DeepAltitude / Deep-Altitude-Blog**, branch **main**, then **Articles → Add an entry (the + button on a phone)**. Enter a title, category, language and date, optionally a description or cover image, then write in the large Article editor and press **Save** (the disk icon on a narrow phone screen). Saving commits to GitHub; the connected Cloudflare build publishes the site automatically.
 
-`translations/{language}.txt` contains all 11 complete translations, including unfinished notes and quoted passages. These are explicitly labelled AI-assisted translations. Original English passages remain as written in the English edition. Spelling and unfinished fragments remain untouched in the Original-Raw edition. Translations do not constitute editorial verification of claims or quote attributions.
+The same form works in an iPhone browser and on a laptop. Use the cover-image picker or the Article editor's image tool to upload an image from Photos/Files. Images go to `public/images/` and are served at `/images/`. Use JPEG, PNG, WebP, GIF or AVIF; export HEIC photos as JPEG first. Pages CMS generates safe media filenames. The article filename is generated automatically from the creation date and title and hidden from the form.
 
-When deliberately editing an original post, review and update all affected translations, then update its hash in the manifest. The build fails on unreviewed source changes, missing translations, duplicate IDs and unexpectedly short translations. New posts require an ID in `build.mjs`, a manifest entry and entries in all eight translation files.
+New notes are created directly in `src/content/` and served at `/notes/{filename-without-extension}/`. Category changes do not change these URLs. Existing articles stay in the Sportas, Kalbos, Protas and blog folders, visible inside Articles; their public URLs are unchanged. When editing an old article, choose its category and language if those fields have not previously been set. The CMS uses the existing dotted date format, while displaying a normal date picker. About has separate Lithuanian and English editors.
 
-## Navigation
+The CMS `settings.content.merge: true` preserves unlisted metadata, including future translation relationships. The visual Markdown editor may normalize Markdown formatting when **you** save a post; use its Source switch for precise Markdown editing. Saving on main publishes directly; there is no separate draft/approval workflow.
 
-Every language has a homepage, four category pages and eleven articles. Language links on articles keep the same article. Search covers the full text; category and original-language filters combine. Filter state is encoded in the URL and survives reloads, back/forward navigation and edition changes. Content and category navigation work without JavaScript.
+## Content and existing editions
 
-The original-language filter includes a mixed-language post in both LT and EN results. The LT+EN option selects the mixed-language posts only. Site edition and source language are separate choices.
+`src/utils/posts.ts` reads the existing four collections and new root-level notes. Category and language metadata have backward-compatible defaults. Optional fields include description, updatedDate, heroImage, heroImageAlt, heroCaption, originalLanguage and translationKey. Date parsing accepts old dotted dates, trailing whitespace and ISO dates.
 
-## Build and deployment
+`notebook/translations/` contains the existing eight sets of translations. They are preserved as supplied and rendered through the shared article template. Existing multilingual URLs and original-language downloads remain available. New articles need no translations: they appear in the Original-Raw index and, when applicable, the edition matching their language. Changing an original flags its existing translations as potentially older. There is no automatic translation or translation editor in Pages CMS.
+
+The historical `original-manifest.json` is a preservation baseline, not a build lock. Original downloads are generated byte for byte from the current content. `notebook/verify.mjs` verifies those downloads and all local page, asset and fragment links. Existing source files are not moved or rewritten by the site build. The old standalone first-post page keeps its content and uses the shared reading layout.
+
+## Development and deployment
 
 - `npm ci`
-- `npm run build`
-- `npm run check` (build, TypeScript and Cloudflare deployment dry run)
-- `npm run deploy` (existing Cloudflare Worker)
+- `npm run build` — generates all pages with Astro, refreshing its content cache so deleted notes are removed reliably.
+- `npm run check` — build, exact source downloads, internal links, TypeScript and Cloudflare deployment dry run.
+- `npm run dev` — Astro development server.
+- `npm run deploy` — existing Cloudflare Worker, when credentials are available.
 
-Production uses the existing GitHub repository and Cloudflare Worker configuration. Generated notebook pages are static assets served by Cloudflare's default assets-first routing. No database, translation service, tracking or browser translation API is required. Vendored Marked 17.0.5 is in `vendor/` with its license.
+Production uses the existing GitHub-to-Cloudflare connection. `wrangler.json` and the Worker name are unchanged. `public/og.svg` is the editable source of the matching PNG social preview. Vendored Marked in `notebook/vendor/` renders the existing translation files and retains its license.

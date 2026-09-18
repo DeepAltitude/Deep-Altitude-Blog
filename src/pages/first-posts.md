@@ -1,4 +1,5 @@
 ---
+layout: ../layouts/MarkdownPage.astro
 title: "Apie ka rasau?"
 description: "Minciu distiliavimas"
 pubDate: "2026.08.26"

@@ -1,7 +1,7 @@
 ---
 title: Kalbų mokymasis
 description: Atrasti savo energiją procese
-pubDate: 2026-09-17
+pubDate: "2026.09.17"
 ---
 ### Kodėl mokinuosi kalbas?
 

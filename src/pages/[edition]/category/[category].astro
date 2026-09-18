@@ -1,0 +1,7 @@
+---
+import {editions,categories} from '../../../utils/posts';
+import NotesIndex from '../../../components/NotesIndex.astro';
+export function getStaticPaths(){return editions.flatMap(edition=>categories.map(category=>({params:{edition,category:category.toLowerCase()},props:{edition,category}})));}
+const {edition,category}=Astro.props;
+---
+<NotesIndex edition={edition} category={category}/>

@@ -1,85 +1,25 @@
 ---
-import type { CollectionEntry } from 'astro:content';
-import BaseHead from '../components/BaseHead.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import FormattedDate from '../components/FormattedDate.astro';
-
-type Props = CollectionEntry<'blog'>['data'];
-
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+import {render} from 'astro:content';
+import Site from './Site.astro';
+import {marked} from '../../notebook/vendor/marked.mjs';
+import {getNotes,versionsFor,dateLabel,langLabel,bodyLanguage,indexUrl,copy,usableImage,type Note} from '../utils/posts';
+import {labels} from '../utils/editorial';
+interface Props {note:Note;canonical?:string}
+const {note,canonical=note.url}=Astro.props,t=copy[note.edition],l=labels[note.edition];
+const {Content}=await render(note.source);
+const versions=await versionsFor(note),siblings=(await getNotes(note.edition)).filter(n=>n.category===note.category);
+const position=siblings.findIndex(n=>n.id===note.id),previous=siblings[position+1],next=position>0?siblings[position-1]:undefined;
+const image=usableImage(note.heroImage);
 ---
-
-<html lang="en">
-	<head>
-		<BaseHead title={title} description={description} />
-		<style>
-			main {
-				width: calc(100% - 2em);
-				max-width: 100%;
-				margin: 0;
-			}
-			.hero-image {
-				width: 100%;
-			}
-			.hero-image img {
-				display: block;
-				margin: 0 auto;
-				border-radius: 12px;
-				box-shadow: var(--box-shadow);
-			}
-			.prose {
-				width: 720px;
-				max-width: calc(100% - 2em);
-				margin: auto;
-				padding: 1em;
-				color: rgb(var(--gray-dark));
-			}
-			.title {
-				margin-bottom: 1em;
-				padding: 1em 0;
-				text-align: center;
-				line-height: 1;
-			}
-			.title h1 {
-				margin: 0 0 0.5em 0;
-			}
-			.date {
-				margin-bottom: 0.5em;
-				color: rgb(var(--gray));
-			}
-			.last-updated-on {
-				font-style: italic;
-			}
-		</style>
-	</head>
-
-	<body>
-		<Header />
-		<main>
-			<article>
-				<div class="hero-image">
-					{heroImage && <img width={1020} height={510} src={heroImage} alt="" />}
-				</div>
-				<div class="prose">
-					<div class="title">
-						<div class="date">
-							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
-									</div>
-								)
-							}
-						</div>
-						<h1>{title}</h1>
-						<hr />
-					</div>
-					<slot />
-				</div>
-			</article>
-		</main>
-		<Footer />
-	</body>
-</html>
+<Site title={note.title} description={note.description} edition={note.edition} active={note.category} canonical={canonical} versions={versions} image={image} article pubDate={note.pubDate} updatedDate={note.updatedDate} noindex={note.example}>
+ <article class="reading-page">
+  <header class="article-header"><p class="article-meta"><a href={indexUrl(note.edition,note.category)}>{note.category}</a><span aria-hidden="true">/</span><time datetime={note.pubDate.toISOString()}>{dateLabel(note.pubDate)}</time><span aria-hidden="true">/</span><span>{l.original}: {langLabel(note.originalLanguage)}</span></p><h1>{note.title}</h1>{note.description&&<p class="standfirst">{note.description}</p>}{note.updatedDate&&<p class="updated-date">{l.updated}: <time datetime={note.updatedDate.toISOString()}>{dateLabel(note.updatedDate)}</time></p>}</header>
+  {image&&<figure class="article-hero"><img src={image} alt={note.heroImageAlt||''} decoding="async"/>{note.heroCaption&&<figcaption>{note.heroCaption}</figcaption>}</figure>}
+  <div class="prose article-body" lang={bodyLanguage(note)}>{note.translated?<Fragment set:html={marked.parse(note.body,{gfm:true,breaks:true})}/>:<Content/>}</div>
+  <div class="article-colophon">{note.translated&&<p>{t.translationNote} {note.stale&&l.older} <a href={versions.find(v=>v.edition==='original')?.href}>{t.viewOriginal} →</a></p>}
+   {!note.translated&&<details class="raw-source"><summary>{t.raw}</summary><pre>{note.raw}</pre></details>}
+   <a class="raw-download" href={`/original/files/${note.id}.md`} download>{t.download} ↓</a>
+  </div>
+  <nav class="page-turn" aria-label={t.notes}><a class="back-link" href={indexUrl(note.edition,note.category)}>← {note.category}</a><div class="adjacent-notes">{previous&&<a href={previous.url}><span>{l.previous}</span><strong>{previous.title}</strong></a>}{next&&<a class="next-note" href={next.url}><span>{l.next}</span><strong>{next.title}</strong></a>}</div></nav>
+ </article>
+</Site>

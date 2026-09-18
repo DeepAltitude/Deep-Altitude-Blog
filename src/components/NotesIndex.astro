@@ -1,0 +1,17 @@
+---
+import Site from '../layouts/Site.astro';
+import ArticleList from './ArticleList.astro';
+import {getNotes,editions,indexUrl,copy,type Edition,type Category} from '../utils/posts';
+import {labels} from '../utils/editorial';
+interface Props {edition?:Edition;category?:Category;canonical?:string}
+const {edition='original',category,canonical=indexUrl(edition,category)}=Astro.props;
+const notes=(await getNotes(edition)).filter(n=>!category||n.category===category),t=copy[edition];
+const title=category||t.back,description=category?labels[edition].intro[category]:t.notesIntro;
+---
+<Site title={title} description={description} edition={edition} active={category||'Blog'} canonical={canonical} versions={editions.map(e=>({edition:e,href:indexUrl(e,category)}))}>
+ <section class="index-page">
+  <header class="page-heading"><p class="eyebrow">DEEP ALTITUDE / {category||'INDEX'}</p><h1>{title}</h1><p class="standfirst">{description}</p></header>
+  <nav class="topic-nav" aria-label={t.notes}><a href={indexUrl(edition)} aria-current={!category?'page':undefined}>{t.all}</a>{(['Sportas','Kalbos','Protas','Blog'] as Category[]).map(c=><a href={indexUrl(edition,c)} aria-current={category===c?'page':undefined}>{c}</a>)}</nav>
+  <ArticleList notes={notes}/>
+ </section>
+</Site>

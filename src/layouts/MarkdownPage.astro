@@ -1,0 +1,5 @@
+---
+import Site from './Site.astro';
+const {frontmatter}=Astro.props;
+---
+<Site title={frontmatter.title} description={frontmatter.description} canonical="/blog/01-apie-ka/" active="Blog"><article class="reading-page"><header class="article-header"><p class="eyebrow">BLOG / ORIGINALAS: LT</p><h1>{frontmatter.title}</h1><p class="standfirst">{frontmatter.description}</p></header><div class="prose"><slot/></div><nav class="page-turn"><a href="/blog/">← Visi užrašai</a></nav></article></Site>

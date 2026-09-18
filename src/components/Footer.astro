@@ -1,29 +1,5 @@
 ---
-const today = new Date();
+import {copy,homeUrl,aboutUrl,type Edition} from '../utils/posts';
+const {edition='original'}=Astro.props as {edition?:Edition};
 ---
-
-<footer>
-	&copy; {today.getFullYear()} Kristupas. All rights reserved.
-
-</footer>
-<style>
-	footer {
-		padding: 2em 1em 6em 1em;
-		background: linear-gradient(var(--gray-gradient)) no-repeat;
-		color: rgb(var(--gray));
-		text-align: center;
-	}
-	.social-links {
-		display: flex;
-		justify-content: center;
-		gap: 1em;
-		margin-top: 1em;
-	}
-	.social-links a {
-		text-decoration: none;
-		color: rgb(var(--gray));
-	}
-	.social-links a:hover {
-		color: rgb(var(--gray-dark));
-	}
-</style>
+<footer class="site-footer"><a class="footer-wordmark" href={homeUrl(edition)}>deepaltitude <span aria-hidden="true">↗</span></a><p>{copy[edition].footer}</p><div><a href={aboutUrl(edition)}>{copy[edition].about}</a><a href="/rss.xml">RSS</a></div></footer>

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://deepaltitude.com/sitemap-index.xml
