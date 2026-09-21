@@ -2,4 +2,19 @@
 import {copy,homeUrl,aboutUrl,type Edition} from '../utils/posts';
 const {edition='original'}=Astro.props as {edition?:Edition};
 ---
-<footer class="site-footer"><a class="footer-wordmark" href={homeUrl(edition)}>deepaltitude <span aria-hidden="true">↗</span></a><p>{copy[edition].footer}</p><div><a href={aboutUrl(edition)}>{copy[edition].about}</a><a href="/rss.xml">RSS</a></div></footer>
+<footer class="site-footer">
+  <a class="footer-wordmark" href={homeUrl(edition)}>
+    deepaltitude
+    <svg class="footer-logo" viewBox="248 369 760 550" width="42" height="31" aria-hidden="true" focusable="false">
+      <defs>
+        <!-- Keep the supplied artwork intact; render its black background transparent. -->
+        <filter id="footer-logo-ink" color-interpolation-filters="sRGB">
+          <feColorMatrix type="matrix" values="0 0 0 0 .149 0 0 0 0 .227 0 0 0 0 .212 0 4.5 0 0 0" />
+        </filter>
+      </defs>
+      <image href="/deepaltitude-logo.png" width="1254" height="1254" filter="url(#footer-logo-ink)" />
+    </svg>
+  </a>
+  <p>{copy[edition].footer}</p>
+  <div><a href={aboutUrl(edition)}>{copy[edition].about}</a><a href="/rss.xml">RSS</a></div>
+</footer>

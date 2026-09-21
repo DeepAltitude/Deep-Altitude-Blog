@@ -653,6 +653,12 @@ main {
   align-items: center;
   min-height: 44px;
 }
+.footer-logo {
+  display: block;
+  width: 42px;
+  height: 31px;
+  flex: none;
+}
 .site-footer p {
   margin: 0;
 }
