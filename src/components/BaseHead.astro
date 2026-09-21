@@ -9,7 +9,8 @@ const url=new URL(canonical,Astro.site);
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>{title} — Deep Altitude</title>
 <meta name="description" content={description} />
-<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="/favicon.png?v=20260921" type="image/png" sizes="64x64" />
+<link rel="icon" href="/favicon.svg?v=20260921" type="image/svg+xml" sizes="any" />
 <link rel="canonical" href={url} />
 <link rel="alternate" type="application/rss+xml" title="Deep Altitude" href="/rss.xml" />
 {alternates.map(a=><link rel="alternate" hreflang={a.language} href={new URL(a.href,Astro.site)} />)}

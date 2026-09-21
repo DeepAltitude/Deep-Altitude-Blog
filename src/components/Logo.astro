@@ -1,0 +1,14 @@
+---
+interface Props { placement: 'header' | 'footer' }
+const { placement } = Astro.props;
+const filterId = `${placement}-logo-ink`;
+---
+<svg class={`${placement}-logo`} viewBox="248 369 760 550" width="42" height="31" aria-hidden="true" focusable="false">
+  <defs>
+    <!-- Keep the supplied artwork intact; render its black background transparent. -->
+    <filter id={filterId} color-interpolation-filters="sRGB">
+      <feColorMatrix type="matrix" values="0 0 0 0 .149 0 0 0 0 .227 0 0 0 0 .212 0 4.5 0 0 0" />
+    </filter>
+  </defs>
+  <image href="/deepaltitude-logo.png" width="1254" height="1254" filter={`url(#${filterId})`} />
+</svg>
