@@ -4,22 +4,28 @@ import Site from './Site.astro';
 import {marked} from '../../notebook/vendor/marked.mjs';
 import {getNotes,versionsFor,dateLabel,langLabel,bodyLanguage,indexUrl,copy,usableImage,type Note} from '../utils/posts';
 import {labels} from '../utils/editorial';
+import {domainNames} from '../utils/domains';
+import {knowledgeLabels} from '../utils/knowledge-labels';
+import {principlesFor} from '../utils/principles';
 interface Props {note:Note;canonical?:string}
 const {note,canonical=note.url}=Astro.props,t=copy[note.edition],l=labels[note.edition];
 const {Content}=await render(note.source);
-const versions=await versionsFor(note),siblings=(await getNotes(note.edition)).filter(n=>n.category===note.category);
+const versions=await versionsFor(note),siblings=(await getNotes(note.edition)).filter(n=>n.domain===note.domain);
 const position=siblings.findIndex(n=>n.id===note.id),previous=siblings[position+1],next=position>0?siblings[position-1]:undefined;
 const image=usableImage(note.heroImage);
+const principles=await principlesFor(note),backUrl=indexUrl(note.edition,note.domain),backLabel=note.domain?domainNames[note.domain]:t.back;
 ---
-<Site title={note.title} description={note.description} edition={note.edition} active={note.category} canonical={canonical} versions={versions} image={image} article pubDate={note.pubDate} updatedDate={note.updatedDate} noindex={note.example}>
+<Site title={note.title} description={note.description} edition={note.edition} active={note.domain||'Blog'} canonical={canonical} versions={versions} image={image} article pubDate={note.pubDate} updatedDate={note.updatedDate} noindex={note.example}>
  <article class="reading-page">
-  <header class="article-header"><p class="article-meta"><a href={indexUrl(note.edition,note.category)}>{note.category}</a><span aria-hidden="true">/</span><time datetime={note.pubDate.toISOString()}>{dateLabel(note.pubDate)}</time><span aria-hidden="true">/</span><span>{l.original}: {langLabel(note.originalLanguage)}</span></p><h1>{note.title}</h1>{note.description&&<p class="standfirst">{note.description}</p>}{note.updatedDate&&<p class="updated-date">{l.updated}: <time datetime={note.updatedDate.toISOString()}>{dateLabel(note.updatedDate)}</time></p>}</header>
+  <header class="article-header"><p class="article-meta">{note.domain&&<><a href={backUrl}>{domainNames[note.domain]}</a><span aria-hidden="true">/</span></>}<time datetime={note.pubDate.toISOString()}>{dateLabel(note.pubDate)}</time><span aria-hidden="true">/</span><span>{l.original}: {langLabel(note.originalLanguage)}</span></p><h1>{note.title}</h1>{note.description&&<p class="standfirst">{note.description}</p>}{note.updatedDate&&<p class="updated-date">{l.updated}: <time datetime={note.updatedDate.toISOString()}>{dateLabel(note.updatedDate)}</time></p>}</header>
   {image&&<figure class="article-hero"><img src={image} alt={note.heroImageAlt||''} decoding="async"/>{note.heroCaption&&<figcaption>{note.heroCaption}</figcaption>}</figure>}
   <div class="prose article-body" lang={bodyLanguage(note)}>{note.translated?<Fragment set:html={marked.parse(note.body,{gfm:true,breaks:true})}/>:<Content/>}</div>
+  {note.tags.length>0&&<p class="article-tags">{note.tags.join(' · ')}</p>}
+  {principles.length>0&&<section class="note-principles" aria-labelledby="deepaltitude-principles"><h2 id="deepaltitude-principles">{knowledgeLabels[note.edition].fromNote}</h2><ul>{principles.map(principle=><li><a href={principle.url}>{principle.title}</a></li>)}</ul></section>}
   <div class="article-colophon">{note.translated&&<p>{t.translationNote} {note.stale&&l.older} <a href={versions.find(v=>v.edition==='original')?.href}>{t.viewOriginal} →</a></p>}
    {!note.translated&&<details class="raw-source"><summary>{t.raw}</summary><pre>{note.raw}</pre></details>}
    <a class="raw-download" href={`/original/files/${note.id}.md`} download>{t.download} ↓</a>
   </div>
-  <nav class="page-turn" aria-label={t.notes}><a class="back-link" href={indexUrl(note.edition,note.category)}>← {note.category}</a><div class="adjacent-notes">{previous&&<a href={previous.url}><span>{l.previous}</span><strong>{previous.title}</strong></a>}{next&&<a class="next-note" href={next.url}><span>{l.next}</span><strong>{next.title}</strong></a>}</div></nav>
+  <nav class="page-turn" aria-label={t.notes}><a class="back-link" href={backUrl}>← {backLabel}</a><div class="adjacent-notes">{previous&&<a href={previous.url}><span>{l.previous}</span><strong>{previous.title}</strong></a>}{next&&<a class="next-note" href={next.url}><span>{l.next}</span><strong>{next.title}</strong></a>}</div></nav>
  </article>
 </Site>

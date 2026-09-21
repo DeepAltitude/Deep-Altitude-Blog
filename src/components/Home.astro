@@ -1,14 +1,16 @@
 ---
 import Site from '../layouts/Site.astro';
 import ArticleList from './ArticleList.astro';
-import {copy,editions,homeUrl,indexUrl,aboutUrl,getNotes,type Edition,type Category} from '../utils/posts';
+import {copy,editions,homeUrl,indexUrl,domainUrl,aboutUrl,getNotes,type Edition} from '../utils/posts';
+import {domains,domainNames} from '../utils/domains';
+import {knowledgeLabels} from '../utils/knowledge-labels';
 import {labels} from '../utils/editorial';
 import {landscape} from '../../notebook/landscape.mjs';
 const {edition='original'}=Astro.props as {edition?:Edition};
 const t=copy[edition],l=labels[edition],notes=(await getNotes(edition)).slice(0,6);
 ---
 <Site title={t.hero} description={t.intro} edition={edition} canonical={homeUrl(edition)} versions={editions.map(e=>({edition:e,href:homeUrl(e)}))}>
- <section class="hero"><div class="hero-copy"><p class="eyebrow"><span class="small-rule"></span>{t.notebook}</p><h1>{t.hero}</h1><p class="hero-intro">{t.intro}</p><a class="primary-link" href={indexUrl(edition)}>{t.explore}<span aria-hidden="true">↗</span></a><p class="hero-topics">SPORTAS <span>·</span> KALBOS <span>·</span> PROTAS</p></div><figure class="hero-art"><Fragment set:html={landscape.replace(/aria-label="[^"]+"/,`aria-label="${t.landscape}"`)}/><figcaption><span>DEEP / ALTITUDE</span><span>{t.notebook}</span></figcaption></figure></section>
+ <section class="hero"><div class="hero-copy"><p class="eyebrow"><span class="small-rule"></span>{t.notebook}</p><h1>{t.hero}</h1><p class="hero-intro">{t.intro}</p><a class="primary-link" href={indexUrl(edition)}>{t.explore}<span aria-hidden="true">↗</span></a><p class="hero-topics">{domains.map(domain=><a href={domainUrl(domain,edition)}>{domainNames[domain]}</a>)}</p></div><figure class="hero-art"><Fragment set:html={landscape.replace(/aria-label="[^"]+"/,`aria-label="${t.landscape}"`)}/><figcaption><span>DEEP / ALTITUDE</span><span>{t.notebook}</span></figcaption></figure></section>
  <section class="recent-notes" id="notes"><div class="section-heading"><div><p class="eyebrow">01 / {t.notes}</p><h2>{l.recent}</h2></div><a class="quiet-link" href={indexUrl(edition)}>{t.back} <span aria-hidden="true">→</span></a></div><ArticleList notes={notes} numbered/></section>
- <section class="about-strip" id="about"><div><p class="eyebrow">02 / DEEP ALTITUDE</p><h2>{t.aboutTitle}</h2></div><div><p>{t.aboutText}</p><a class="quiet-link" href={aboutUrl(edition)}>{l.aboutLink} <span aria-hidden="true">→</span></a><div class="category-key">{(['Sportas','Kalbos','Protas'] as Category[]).map(c=><a href={indexUrl(edition,c)}>{c}<span aria-hidden="true">↗</span></a>)}</div></div></section>
+ <section class="about-strip" id="about"><div><p class="eyebrow">02 / DEEP ALTITUDE</p><h2>{t.aboutTitle}</h2></div><div><p>{t.aboutText}</p><a class="quiet-link" href={aboutUrl(edition)}>{l.aboutLink} <span aria-hidden="true">→</span></a><div class="category-key">{domains.map(domain=><a href={domainUrl(domain,edition)}>{domainNames[domain]}</a>)}</div><a class="quiet-link principles-link" href="/principai/">{knowledgeLabels[edition].principles} <span aria-hidden="true">→</span></a></div></section>
 </Site>

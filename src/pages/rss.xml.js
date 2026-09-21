@@ -3,5 +3,9 @@ import {getNotes} from '../utils/posts';
 import {SITE_TITLE,SITE_DESCRIPTION} from '../consts';
 export async function GET(context){
  const notes=await getNotes();
- return rss({title:SITE_TITLE,description:SITE_DESCRIPTION,site:context.site,items:notes.map(note=>({title:note.title,description:note.description,pubDate:note.pubDate,link:note.url})),customData:'<language>lt</language>'});
+ return rss({title:SITE_TITLE,description:SITE_DESCRIPTION,site:context.site,items:notes.map(note=>({
+  title:note.title,description:note.description,pubDate:note.pubDate,link:note.url,
+  // Keep existing feed identifiers stable while article links become taxonomy-independent.
+  customData:`<guid isPermaLink="true">${new URL(`/${note.source.collection}/${note.source.id}/`,context.site).href}</guid>`,
+ })),customData:'<language>lt</language>'});
 }

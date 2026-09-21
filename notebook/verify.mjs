@@ -23,7 +23,8 @@ for(const file of htmlFiles){
  for(const [,href] of html.matchAll(/(?:href|src)="([^"]+)"/g)){
   const u=new URL(href.replaceAll('&amp;','&'),'https://deepaltitude.com/'+file.replace(/index\.html$/,''));
   if(u.origin!=='https://deepaltitude.com')continue;
-  const raw=path.join(root,decodeURIComponent(u.pathname));
+  const destination=redirects.find(([source])=>source===u.pathname)?.[1]??u.pathname;
+  const raw=path.join(root,decodeURIComponent(destination));
   let target=fs.existsSync(raw)&&fs.statSync(raw).isDirectory()?path.join(raw,'index.html'):raw;
   assert.ok(fs.existsSync(target),`Broken link in ${file}: ${href}`);links++;
   if(u.hash&&target.endsWith('.html')){

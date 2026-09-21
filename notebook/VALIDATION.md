@@ -1,4 +1,20 @@
-# Validation — 18 September 2026
+# Validation
+
+## Domains and principles — 21 September 2026
+
+Content baseline: `caab56b`, including the author's latest Freediving edit made during implementation.
+
+- All 23 existing content/page and translation files match the baseline byte for byte. No existing article metadata or wording was edited. No principle or tag was invented for an existing article.
+- The clean release build passes Astro, TypeScript and the Wrangler deployment dry run: 210 HTML pages, 9,300 internal links, 12 compatibility redirects and 13 exact original-file downloads.
+- All 178 previous HTML routes remain represented by a page or a redirect with an existing destination. Original articles now also have canonical `/blog/` URLs. Capitalized domain index routes redirect to their lowercase counterparts without duplicate Astro routes.
+- RSS keeps all 12 existing item identifiers while linking to the canonical article URLs.
+- Temporary content exercised five domains, an unclassified article, one article with several principles, one principle shared across three domains, an unused principle, optional tags, a minimal four-field article and explicit domain metadata overriding an old category. A principle title was changed without changing its URL or relationships.
+- 76 fixture page/viewport checks passed at 320, 390, 768 and 1440 pixels. Another 21 checks passed on the clean release. Checks covered filters, keyboard/Escape navigation, menu bounds, article-to-principle-to-article navigation, chronological order and absent optional sections. No horizontal document overflow, missing assets or JavaScript errors were found. Mobile and desktop screenshots were reviewed.
+- All eight fixture files were removed. No fixture pages or downloads remain in the release output. The author's principle collection starts empty.
+- The Pages CMS configuration and select/reference fields pass the official Pages CMS schemas. Only title, domain, date and body are required. The reference picker stores stable paths and displays titles; both article and principle filenames are automatic. The CMS interface itself was not automated through an authenticated browser session.
+- Wrangler's local server could not start because this execution environment cannot enumerate network interfaces. The deployment dry run passes; HTTP redirect behavior is checked against production after deployment.
+
+## Notebook layout — 18 September 2026
 
 Content baseline: `DeepAltitude/Deep-Altitude-Blog`, commit `1790ba0` (including the latest Pages CMS edit to Kalbų mokymasis).
 

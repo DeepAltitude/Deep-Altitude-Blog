@@ -1,17 +1,22 @@
 ---
 import Site from '../layouts/Site.astro';
 import ArticleList from './ArticleList.astro';
+import DomainNav from './DomainNav.astro';
 import {getNotes,editions,indexUrl,copy,type Edition,type Category} from '../utils/posts';
 import {labels} from '../utils/editorial';
-interface Props {edition?:Edition;category?:Category;canonical?:string}
-const {edition='original',category,canonical=indexUrl(edition,category)}=Astro.props;
-const notes=(await getNotes(edition)).filter(n=>!category||n.category===category),t=copy[edition];
-const title=category||t.back,description=category?labels[edition].intro[category]:t.notesIntro;
+import {asDomain,domainNames,type Domain} from '../utils/domains';
+import {domainIntro,knowledgeLabels} from '../utils/knowledge-labels';
+interface Props {edition?:Edition;domain?:Domain;category?:Category;canonical?:string}
+const {edition='original',category}=Astro.props;
+const domain=Astro.props.domain??asDomain(category),canonical=Astro.props.canonical??indexUrl(edition,domain??category);
+const notes=(await getNotes(edition)).filter(n=>domain?n.domain===domain:category==='Blog'?!n.domain:true),t=copy[edition];
+const title=domain?domainNames[domain]:category||t.back;
+const description=domain?domainIntro(domain,edition):category?labels[edition].intro[category]:knowledgeLabels[edition].archive;
 ---
-<Site title={title} description={description} edition={edition} active={category||'Blog'} canonical={canonical} versions={editions.map(e=>({edition:e,href:indexUrl(e,category)}))}>
+<Site title={title} description={description} edition={edition} active={domain||'Blog'} canonical={canonical} versions={editions.map(e=>({edition:e,href:indexUrl(e,domain??category)}))}>
  <section class="index-page">
-  <header class="page-heading"><p class="eyebrow">DEEP ALTITUDE / {category||'INDEX'}</p><h1>{title}</h1><p class="standfirst">{description}</p></header>
-  <nav class="topic-nav" aria-label={t.notes}><a href={indexUrl(edition)} aria-current={!category?'page':undefined}>{t.all}</a>{(['Sportas','Kalbos','Protas','Blog'] as Category[]).map(c=><a href={indexUrl(edition,c)} aria-current={category===c?'page':undefined}>{c}</a>)}</nav>
-  <ArticleList notes={notes}/>
+  <header class="page-heading"><p class="eyebrow">DEEP ALTITUDE / {domain?knowledgeLabels[edition].domains:'INDEX'}</p><h1>{title}</h1><p class="standfirst">{description}</p></header>
+  <DomainNav edition={edition} active={domain} all={!domain&&!category}/>
+  {notes.length?<ArticleList notes={notes} showDomain={!domain}/>:<p class="empty-index">{knowledgeLabels[edition].empty}</p>}
  </section>
 </Site>

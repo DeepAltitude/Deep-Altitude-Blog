@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import crypto from 'node:crypto';
 import {languages, htmlLang, copy} from '../../notebook/i18n.mjs';
 import manifest from '../../notebook/original-manifest.json';
+import {asDomain, resolveDomain, type Domain} from './domains';
 
 export {languages, htmlLang, copy};
 export type Edition = keyof typeof languages;
@@ -19,6 +20,7 @@ const aliases:Record<string,string> = {
 };
 export interface Note {
  source:Source; id:string; url:string; category:Category; language:string; originalLanguage:string;
+ domain?:Domain; principles:string[]; tags:string[];
  title:string; description:string; pubDate:Date; updatedDate?:Date;
  heroImage?:string; heroImageAlt?:string; heroCaption?:string;
  body:string; raw:string; edition:Edition; translated:boolean; stale:boolean; example:boolean;
@@ -33,8 +35,9 @@ export function getOriginals(){
    const raw=fs.readFileSync(source.filePath!,'utf8');
    const baseline=manifest.files.find(f=>f.path===source.filePath?.replace(/^\.\//,''));
    return {
-    ...source.data, source,id,url:`/${source.collection}/${source.id}/`,
+    ...source.data, source,id,url:`/blog/${source.id}/`,
     category:source.data.category||(categories.includes(source.collection as Category)?source.collection as Category:'Blog'),
+    domain:resolveDomain(source.data.domain,source.data.category,source.collection),
     language,originalLanguage:source.data.originalLanguage||language,
     body:source.body??'',raw,edition:'original' as Edition,translated:false,
     stale:!!baseline&&crypto.createHash('sha256').update(raw).digest('hex')!==baseline.sha256,
@@ -42,6 +45,7 @@ export function getOriginals(){
    } as Note;
   }).sort((a,b)=>b.pubDate.valueOf()-a.pubDate.valueOf()||a.source.id.localeCompare(b.source.id));
   if(new Set(notes.map(n=>n.id)).size!==notes.length)throw Error('Duplicate note identifiers');
+  if(new Set(notes.map(n=>n.url)).size!==notes.length)throw Error('Duplicate article URLs: article filenames must be unique across collections');
   return notes;
  })();
 }
@@ -67,9 +71,12 @@ export async function getNotes(edition:Edition='original',includeExamples=false)
 }
 export const getAllPosts=()=>getNotes();
 export const homeUrl=(edition:Edition='original')=>edition==='original'?'/':`/${edition}/`;
-export const indexUrl=(edition:Edition='original',category?:Category)=>edition==='original'
- ? category&&category!=='Blog'?`/${category}/`:category==='Blog'?'/original/category/blog/':'/blog/'
- : category?`/${edition}/category/${category.toLowerCase()}/`:`/${edition}/notes/`;
+export const domainUrl=(domain:Domain,edition:Edition='original')=>edition==='original'?`/${domain}/`:`/${edition}/category/${domain}/`;
+export const indexUrl=(edition:Edition='original',category?:Category|Domain)=>{
+ const domain=asDomain(category);
+ if(domain)return domainUrl(domain,edition);
+ return category==='Blog'?`/${edition}/category/blog/`:edition==='original'?'/blog/':`/${edition}/notes/`;
+};
 export const aboutUrl=(edition:Edition='original')=>edition==='original'?'/about/':'/en/about/';
 export const dateLabel=(date:Date)=>date.toISOString().slice(0,10).replaceAll('-','.');
 export const langLabel=(code:string)=>code==='mul'?'LT + EN':code.toUpperCase();

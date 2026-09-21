@@ -4,17 +4,27 @@ One Astro site, one shared visual system. The homepage, indexes, articles, About
 
 ## Publishing with Pages CMS
 
-Open https://app.pagescms.org/ and sign in with GitHub. Select **DeepAltitude / Deep-Altitude-Blog**, branch **main**, then **Articles → Add an entry (the + button on a phone)**. Enter a title, category, language and date, optionally a description or cover image, then write in the large Article editor and press **Save** (the disk icon on a narrow phone screen). Saving commits to GitHub; the connected Cloudflare build publishes the site automatically.
+Open https://app.pagescms.org/ and sign in with GitHub. Select **DeepAltitude / Deep-Altitude-Blog**, branch **main**, then **Articles → Add an entry (the + button on a phone)**. Enter a title, domain and date, write in the large Article editor and press **Save** (the disk icon on a narrow phone screen). These are the only required fields. Language, description, image, principles and tags are optional. Saving commits to GitHub; the connected Cloudflare build publishes the site automatically.
 
 The same form works in an iPhone browser and on a laptop. Use the cover-image picker or the Article editor's image tool to upload an image from Photos/Files. Images go to `public/images/` and are served at `/images/`. Use JPEG, PNG, WebP, GIF or AVIF; export HEIC photos as JPEG first. Pages CMS generates safe media filenames. The article filename is generated automatically from the creation date and title and hidden from the form.
 
-New notes are created directly in `src/content/` and served at `/notes/{filename-without-extension}/`. Category changes do not change these URLs. Existing articles stay in the Sportas, Kalbos, Protas and blog folders, visible inside Articles; their public URLs are unchanged. When editing an old article, choose its category and language if those fields have not previously been set. The CMS uses the existing dotted date format, while displaying a normal date picker. About has separate Lithuanian and English editors.
+New notes are created directly in `src/content/`. Every article has a canonical `/blog/{slug}/` address, independent of its domain. Existing articles stay in their current folders; their previous category-based URLs and `/notes/` aliases continue to work. Existing translation and raw-download URLs are unchanged. When editing an older article, select its domain if the new field is blank. Until then the site uses its existing category or collection; unclassified posts remain visible in All Notes. The CMS uses the existing dotted date format, while displaying a normal date picker. About has separate Lithuanian and English editors.
+
+## Domains and principles
+
+The five domains are Sportas, Kalbos, Protas, Darbas and Gyvenimas. Each article has at most one domain. The archive at `/blog/` includes every published note; its small text filter links to the five domain indexes. Posts without domain metadata are not guessed into a domain.
+
+Principles are separate reusable entries in `src/principles/`. To create one, open **Principles → Add an entry**, enter the principle as its title, optionally add a description or explanation, and **Save**. Then open an article and select one or several entries in **Principles (optional)**. The reference picker searches by title. The same principle can be selected in many articles and domains. A basic note needs no principles or tags.
+
+Pages CMS stores principle file paths as references. Filenames are generated automatically and renaming is disabled, so editing a principle's title keeps its URL and article relationships intact. Slug-only references are also accepted for manually maintained files. Removing a principle removes its rendered links; unused references never create broken public links. Remove its references from articles before deliberately deleting an entry.
+
+`/principai/` lists the author's principles and their connected domains. Each `/principai/{slug}/` page groups its articles by domain. Article endings show “Iš šio užrašo” only when at least one principle is linked. Principles are shown as authored and are not automatically translated or invented. Initially the collection is empty. Tags are optional plain text entries displayed as quiet metadata; they do not create another navigation system.
 
 The CMS `settings.content.merge: true` preserves unlisted metadata, including future translation relationships. The visual Markdown editor may normalize Markdown formatting when **you** save a post; use its Source switch for precise Markdown editing. Saving on main publishes directly; there is no separate draft/approval workflow.
 
 ## Content and existing editions
 
-`src/utils/posts.ts` reads the existing four collections and new root-level notes. Category and language metadata have backward-compatible defaults. Optional fields include description, updatedDate, heroImage, heroImageAlt, heroCaption, originalLanguage and translationKey. Date parsing accepts old dotted dates, trailing whitespace and ISO dates.
+`src/utils/posts.ts` reads the existing four article collections and new root-level notes. Domain and language metadata have backward-compatible defaults. New notes without a language default to Lithuanian. Optional fields include principles, tags, description, updatedDate, heroImage, heroImageAlt, heroCaption, originalLanguage and translationKey. Date parsing accepts old dotted dates, trailing whitespace and ISO dates. `src/utils/domains.ts` defines the five domains; `src/utils/principles.ts` resolves the reusable relationships. Shared indexes and the article template remain Astro components.
 
 `notebook/translations/` contains the existing eight sets of translations. They are preserved as supplied and rendered through the shared article template. Existing multilingual URLs and original-language downloads remain available. New articles need no translations: they appear in the Original-Raw index and, when applicable, the edition matching their language. Changing an original flags its existing translations as potentially older. There is no automatic translation or translation editor in Pages CMS.
 

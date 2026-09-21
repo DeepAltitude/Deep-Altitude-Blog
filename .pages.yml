@@ -27,8 +27,8 @@ content:
     view:
       layout: list
       primary: title
-      fields: [title, category, language, pubDate]
-      sort: [pubDate, title, category]
+      fields: [title, domain, language, pubDate]
+      sort: [pubDate, title, domain]
       search: [title, description]
       default:
         sort: pubDate
@@ -38,16 +38,27 @@ content:
         label: Title
         type: string
         required: true
-      - name: category
-        label: Category
+      - name: domain
+        label: Domain
         type: select
         required: true
         options:
-          values: [Sportas, Kalbos, Protas, Blog]
-      - name: language
-        label: Language
-        type: select
+          values:
+            - {name: sportas, label: Sportas}
+            - {name: kalbos, label: Kalbos}
+            - {name: protas, label: Protas}
+            - {name: darbas, label: Darbas}
+            - {name: gyvenimas, label: Gyvenimas}
+      - name: pubDate
+        label: Date
+        type: date
         required: true
+        options:
+          format: yyyy.MM.dd
+      - name: language
+        label: Language (optional)
+        type: select
+        description: New notes default to Lithuanian when this is left blank.
         options:
           values:
             - {name: lt, label: Lietuvių}
@@ -65,12 +76,6 @@ content:
         type: text
         options:
           maxlength: 300
-      - name: pubDate
-        label: Date
-        type: date
-        required: true
-        options:
-          format: yyyy.MM.dd
       - name: heroImage
         label: Optional cover image
         type: image
@@ -85,12 +90,60 @@ content:
           media: images
           rename: safe
           switcher: true
+      - name: principles
+        label: Principles (optional)
+        type: reference
+        description: Select reusable ideas. Add a new idea in Principles first, then select it here.
+        options:
+          collection: principles
+          multiple: true
+          search: title
+          value: "{path}"
+          label: "{title}"
+      - name: tags
+        label: Tags (optional)
+        type: string
+        list: true
+        description: Specific topics, such as paragliding, learning or career.
       - name: updatedDate
         label: Updated date (optional)
         type: date
         default: ""
         options:
           format: yyyy.MM.dd
+
+  - name: principles
+    label: Principles
+    type: collection
+    path: src/principles
+    format: yaml-frontmatter
+    subfolders: false
+    exclude: [.gitkeep]
+    filename:
+      template: "{title}.md"
+      field: false
+    operations:
+      rename: false
+    view:
+      primary: title
+      fields: [title]
+      sort: [title]
+      search: [title, description]
+      default:
+        sort: title
+        order: asc
+    fields:
+      - name: title
+        label: Principle
+        type: string
+        required: true
+      - name: description
+        label: Short description (optional)
+        type: text
+      - name: body
+        label: Explanation (optional)
+        type: rich-text
+        options: {format: markdown, media: false}
 
   - name: about
     label: About · Lietuvių

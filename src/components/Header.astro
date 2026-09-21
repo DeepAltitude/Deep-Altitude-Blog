@@ -1,19 +1,31 @@
 ---
 import Logo from './Logo.astro';
-import {copy,languages,htmlLang,homeUrl,indexUrl,aboutUrl,type Edition,type Category} from '../utils/posts';
+import {copy,languages,htmlLang,homeUrl,indexUrl,domainUrl,aboutUrl,type Edition} from '../utils/posts';
+import {domains,domainNames,asDomain} from '../utils/domains';
+import {knowledgeLabels} from '../utils/knowledge-labels';
 interface Props {edition?:Edition;active?:string;versions?:{edition:Edition;href:string}[]}
 const {edition='original',active='',versions=[]}=Astro.props,t=copy[edition];
-const links=[{label:'Blog',href:indexUrl(edition),key:'Blog'},...(['Sportas','Kalbos','Protas'] as Category[]).map(c=>({label:c,href:indexUrl(edition,c),key:c})),{label:t.about,href:aboutUrl(edition),key:'About'}];
+const k=knowledgeLabels[edition],activeDomain=asDomain(active);
 ---
 <a href="#main" class="skip-link">{t.skip}</a>
 <header class="site-header">
  <a class="wordmark" href={homeUrl(edition)} aria-label="Deep Altitude — Home"><Logo placement="header" /><span><strong>deep</strong>altitude<small>{t.notebook}</small></span></a>
- <nav aria-label={t.notes}>{links.map(l=><a href={l.href} aria-current={active===l.key?'page':undefined}>{l.label}</a>)}</nav>
- {versions.length>1&&<details class="edition-picker"><summary>{languages[edition]}<span aria-hidden="true">⌄</span></summary><div class="edition-menu">{versions.map(v=><a href={v.href} lang={htmlLang[v.edition]} aria-current={edition===v.edition?'true':undefined}>{languages[v.edition]}{edition===v.edition&&<span aria-hidden="true">✓</span>}</a>)}</div></details>}
+ <nav aria-label={t.notes}>
+  <a href={indexUrl(edition)} aria-current={active==='Blog'?'page':undefined}>{k.notes}</a>
+  <details class="domains-picker" data-header-menu>
+   <summary aria-current={activeDomain?'true':undefined}>{k.domains}</summary>
+   <div class="domains-menu">{domains.map(domain=><a href={domainUrl(domain,edition)} aria-current={activeDomain===domain?'page':undefined}>{domainNames[domain]}</a>)}</div>
+  </details>
+  <a href="/principai/" aria-current={active==='Principles'?'page':undefined}>{k.principles}</a>
+  <a href={aboutUrl(edition)} aria-current={active==='About'?'page':undefined}>{t.about}</a>
+ </nav>
+ {versions.length>1&&<details class="edition-picker" data-header-menu><summary>{languages[edition]}<span aria-hidden="true">⌄</span></summary><div class="edition-menu">{versions.map(v=><a href={v.href} lang={htmlLang[v.edition]} aria-current={edition===v.edition?'true':undefined}>{languages[v.edition]}{edition===v.edition&&<span aria-hidden="true">✓</span>}</a>)}</div></details>}
 </header>
 <script>
- document.querySelectorAll<HTMLDetailsElement>('.edition-picker').forEach(picker=>{
+ const menus=document.querySelectorAll<HTMLDetailsElement>('[data-header-menu]');
+ menus.forEach(picker=>{
   document.addEventListener('click',event=>{if(!picker.contains(event.target as Node))picker.open=false;});
   picker.addEventListener('keydown',event=>{if(event.key==='Escape'){picker.open=false;picker.querySelector('summary')?.focus();}});
+  picker.addEventListener('toggle',()=>{if(picker.open)menus.forEach(other=>{if(other!==picker)other.open=false;});});
  });
 </script>
