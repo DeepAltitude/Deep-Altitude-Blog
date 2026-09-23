@@ -23,6 +23,11 @@ for(const file of htmlFiles){
  for(const [,href] of html.matchAll(/(?:href|src)="([^"]+)"/g)){
   const u=new URL(href.replaceAll('&amp;','&'),'https://deepaltitude.com/'+file.replace(/index\.html$/,''));
   if(u.origin!=='https://deepaltitude.com')continue;
+  // The author login is an on-demand API route, not a static asset.
+  if(u.pathname==='/api/editor/login'){
+   assert.ok(fs.existsSync('src/pages/api/editor/[action].ts'),'Missing editor API route');
+   links++;continue;
+  }
   const destination=redirects.find(([source])=>source===u.pathname)?.[1]??u.pathname;
   const raw=path.join(root,decodeURIComponent(destination));
   let target=fs.existsSync(raw)&&fs.statSync(raw).isDirectory()?path.join(raw,'index.html'):raw;

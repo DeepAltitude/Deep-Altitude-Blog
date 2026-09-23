@@ -1,0 +1,40 @@
+.editor-page{max-width:760px;margin:0 auto;padding:48px 24px 80px}
+.editor-page [hidden]{display:none!important}
+.editor-header>a:last-child{font-size:.85rem;padding:12px 0}
+.editor-page .page-heading{margin-bottom:32px}
+.editor-page h1{font-size:clamp(2.25rem,7vw,3.6rem)}
+.editor-page button,.editor-page input,.editor-page textarea,.editor-page select{font:inherit;color:inherit}
+.editor-page button{cursor:pointer;border:0;border-bottom:1px solid transparent;background:none;min-height:44px;padding:10px 12px}
+.editor-page button:hover:not(:disabled){border-bottom-color:currentColor}
+.editor-page button:disabled{opacity:.45;cursor:default}
+.editor-page :is(button,input,textarea,select,a):focus-visible{outline:2px solid currentColor;outline-offset:4px}
+.editor-primary,.editor-page button.editor-primary{display:inline-block;background:var(--ink,#263a36);color:var(--paper,#f8f6ef);padding:12px 20px;min-height:44px;text-decoration:none;border:1px solid var(--ink,#263a36);line-height:1.4}
+.editor-label{display:block;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;margin:22px 0 10px}
+.editor-page :is(input,textarea,select){width:100%;max-width:100%;border:1px solid var(--line,#d7d8cf);border-radius:0;background:transparent;padding:12px;box-sizing:border-box}
+.editor-page select{min-height:48px;text-overflow:ellipsis}
+.editor-page textarea{resize:vertical;line-height:1.65}
+#editor-title{font-family:var(--serif,Georgia,serif);font-size:clamp(1.3rem,4vw,1.75rem)}
+.editor-account,.editor-note-meta,.editor-writing-heading,.editor-save-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.editor-account{font-size:.8rem;border-bottom:1px solid var(--line,#d7d8cf);padding-bottom:10px}
+.editor-note-meta{font-size:.75rem;margin:20px 0;color:var(--muted,#63716a)}
+.editor-note-meta a{padding:10px 0}
+.editor-description{margin:18px 0}
+.editor-description summary{font-size:.8rem;cursor:pointer;padding:10px 0}
+.editor-writing-heading .editor-label{margin:16px 0}
+.editor-mode{display:flex;font-size:.8rem}
+.editor-mode [aria-pressed=true]{border-bottom-color:currentColor}
+.editor-toolbar{display:flex;flex-wrap:wrap;gap:2px;border:1px solid var(--line,#d7d8cf);border-bottom:0;padding:3px}
+.editor-toolbar button{font-size:.8rem;padding:8px 12px;min-width:44px}
+.editor-page .editor-body{font-family:var(--serif,Georgia,serif);font-size:1.125rem;line-height:1.75;min-height:480px;padding:24px;tab-size:2}
+.editor-preview{border-top:1px solid var(--line,#d7d8cf);padding:24px 0;min-height:480px;overflow-wrap:anywhere}
+.editor-preview img{max-width:100%;height:auto}
+.editor-preview pre{max-width:100%;overflow:auto}
+.editor-preview table{display:block;max-width:100%;overflow:auto}
+.editor-help{font-size:.78rem;line-height:1.6;color:var(--muted,#63716a)}
+.editor-save-row{justify-content:flex-start;margin-top:24px}
+.editor-status{font-size:.9rem;line-height:1.6;overflow-wrap:anywhere}
+.editor-status[data-error=true]{color:#8b3e2b}
+.editor-conflict{border-left:2px solid #8b3e2b;padding:2px 16px;font-size:.85rem}
+.editor-login{padding:8px 0 36px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:480px){.editor-page{padding:28px 18px 56px}.editor-page .editor-body{padding:16px;font-size:1.05rem;min-height:420px}.editor-toolbar button{padding:8px 10px}.editor-account{gap:4px}}

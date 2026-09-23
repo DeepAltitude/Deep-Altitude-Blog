@@ -1,0 +1,47 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import Logo from '../../components/Logo.astro';
+import Footer from '../../components/Footer.astro';
+import {getNotes,langLabel} from '../../utils/posts';
+import '../../styles/editor.css';
+const notes=await getNotes();
+---
+<!doctype html>
+<html lang="en">
+ <head><BaseHead title="Edit original" description="The author’s original-language editor." canonical="/editor/"/><meta name="robots" content="noindex,nofollow"/></head>
+ <body>
+  <a class="skip-link" href="#main">Skip to editor</a>
+  <header class="site-header editor-header"><a class="wordmark" href="/" aria-label="DeepAltitude — Home"><Logo placement="header"/><span><strong>deep</strong>altitude<small>ASMENINIS UŽRAŠŲ SĄSIUVINIS</small></span></a><a href="/blog/">← Užrašai</a></header>
+  <main id="main" class="editor-page">
+   <header class="page-heading"><p class="eyebrow">DEEP ALTITUDE / AUTHOR</p><h1>Edit original</h1><p class="standfirst">Your own words, in their original language.</p></header>
+   <section id="editor-login" class="editor-login" aria-label="Author sign-in">
+    <p id="login-message" role="status">Checking author sign-in…</p>
+    <a id="login-link" class="editor-primary" href="/api/editor/login" hidden>Sign in with GitHub</a>
+    <p class="editor-help">Editing is reserved for the DeepAltitude author. Translations remain read-only.</p>
+   </section>
+   <section id="editor-workspace" hidden aria-label="Original article editor">
+    <div class="editor-account"><span id="editor-account-name"></span><button type="button" id="editor-logout">Sign out</button></div>
+    <label class="editor-label" for="editor-article">Article</label>
+    <select id="editor-article"><option value="">Choose an original article…</option>{notes.map(note=><option value={note.source.filePath?.replace(/^\.\//,'')} data-url={note.url} data-download={`/original/files/${note.id}.md`} data-language={langLabel(note.originalLanguage)}>{note.title}</option>)}</select>
+    <p id="editor-loading" role="status"></p>
+    <form id="editor-form" hidden>
+     <div class="editor-note-meta"><span id="editor-language"></span><a id="editor-view" href="/blog/" target="_blank" rel="noopener">View published article ↗</a></div>
+     <label class="editor-label" for="editor-title">Title</label><input id="editor-title" name="title" maxlength="500" required autocomplete="off"/>
+     <details class="editor-description"><summary>Short description</summary><label class="sr-only" for="editor-description">Short description</label><textarea id="editor-description" name="description" rows="3" maxlength="5000"></textarea></details>
+     <div class="editor-writing-heading"><label class="editor-label" for="editor-body">Article</label><div class="editor-mode"><button type="button" id="editor-write" aria-pressed="true">Write</button><button type="button" id="editor-preview-toggle" aria-pressed="false">Preview</button></div></div>
+     <div class="editor-toolbar" role="group" aria-label="Text formatting"><button type="button" data-format="bold" aria-label="Bold"><strong>B</strong></button><button type="button" data-format="italic" aria-label="Italic"><em>I</em></button><button type="button" data-format="heading">Heading</button><button type="button" data-format="quote">Quote</button><button type="button" data-format="list">List</button><button type="button" data-format="link">Link</button></div>
+     <textarea id="editor-body" name="body" class="editor-body" rows="24" required spellcheck="true" aria-describedby="editor-writing-help"></textarea>
+     <div id="editor-preview" class="prose editor-preview" hidden aria-label="Article preview"></div>
+     <p id="editor-writing-help" class="editor-help">Write normally. Use the formatting controls when useful. Existing formatting stays as written.</p>
+     <div class="editor-save-row"><button type="submit" id="editor-save" class="editor-primary" disabled>Save &amp; publish</button><button type="button" id="editor-download">Download draft</button><span id="editor-draft-status" class="editor-help"></span></div>
+     <p id="editor-status" class="editor-status" role="status" aria-live="polite"></p>
+     <div id="editor-conflict" class="editor-conflict" hidden><p>Your draft is still in the editor. Download it before loading the latest saved version.</p><button type="button" id="editor-reload">Load latest saved version</button></div>
+     <p class="editor-help">Save publishes the original article. Existing translations are not changed.</p>
+    </form>
+   </section>
+   <noscript><p>This editor needs JavaScript. Reading the notebook does not.</p></noscript>
+  </main>
+  <Footer edition="original"/>
+  <script>import '../../scripts/editor';</script>
+ </body>
+</html>
