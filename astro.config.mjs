@@ -13,7 +13,7 @@ export default defineConfig({
   "/Kalbos/metodai": "/blog/04-kalbu-mokymasis/",
   "/Protas/laikinumas": "/protas/",
 },
-	integrations: [mdx(), sitemap()],
+	integrations: [mdx(), sitemap({filter:page=>!new URL(page).pathname.startsWith('/editor/')} )],
 	adapter: cloudflare({
 		platformProxy: {
 			enabled: true,

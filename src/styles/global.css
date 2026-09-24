@@ -1120,3 +1120,4 @@ main {
     scroll-behavior: auto!important;
   }
 }
+.edit-original-link{display:inline-block;font-family:var(--sans,Arial,sans-serif);font-size:.75rem;color:var(--muted,#63716a);padding:12px 0;margin:0 0 20px;text-underline-offset:4px}

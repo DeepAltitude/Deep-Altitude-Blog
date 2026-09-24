@@ -2,6 +2,10 @@
 
 One Astro site, one shared visual system. The homepage, indexes, articles, About and 404 use `src/layouts/Site.astro` and `src/styles/global.css`. No postbuild page replacement, UI framework, search application or translation service is needed.
 
+## Editing an original on the website
+
+The on-site editor at `/editor/` lets the author edit an existing original's title, description and text, preview it, and save through GitHub. Original article pages link directly to it; translated pages remain read-only. It requires the one-time GitHub App and Cloudflare secret setup in [EDITOR.md](EDITOR.md) before sign-in works. Until then it is locked. Pages CMS remains available for creating articles, image uploads and metadata changes.
+
 ## Publishing with Pages CMS
 
 Open https://app.pagescms.org/ and sign in with GitHub. Select **DeepAltitude / Deep-Altitude-Blog**, branch **main**, then **Articles → Add an entry (the + button on a phone)**. Enter a title, domain and date, write in the large Article editor and press **Save** (the disk icon on a narrow phone screen). These are the only required fields. Language, description, image, principles and tags are optional. Saving commits to GitHub; the connected Cloudflare build publishes the site automatically.

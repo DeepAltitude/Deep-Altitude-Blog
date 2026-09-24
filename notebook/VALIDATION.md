@@ -30,3 +30,10 @@ Content baseline: `DeepAltitude/Deep-Altitude-Blog`, commit `1790ba0` (including
 - Browser checks served the built static assets locally through Playwright interception. Configuration and publishing format were validated; no authenticated Pages CMS editor session was automated.
 
 The historical manifest remains a baseline, not a restriction on author edits. Future article additions and edits do not require a manifest update or translated copies. Saving on main triggers the existing GitHub-to-Cloudflare deployment.
+# Original-only on-site editor — 23 September 2026
+
+- Implemented an author editor within the existing visual system, with original-only article links, title/description/body editing, formatting controls, safe preview, tab-local drafts, explicit Save & publish and publication verification.
+- Server tests use a mocked GitHub API: all 12 original articles pass byte-exact no-op checks; OAuth state/PKCE, encrypted cookies, pinned owner/repository, same-origin/CSRF checks, rejected translation/arbitrary paths, concurrent changes, deliberate saves and logout pass. No real article writes were made.
+- Browser checks use the built site and real editor handler against a mocked GitHub API, with normal browser security enabled. Widths 320, 390, 768 and 1440 pass without horizontal overflow. Draft recovery, unsafe preview HTML, conflicts, save/publication feedback, expired sessions, logout and absence of translation editing links pass.
+- Astro build, TypeScript, 9,351 internal links across 211 HTML pages, 13 exact original downloads, 12 legacy redirects and Cloudflare deployment dry run pass. The editor is noindex and excluded from the sitemap. All 23 existing content/translation file hashes match the preceding release baseline.
+- Author authentication is not yet configured: a repository-scoped GitHub App and two runtime Cloudflare secrets are needed as documented in `EDITOR.md`. Authenticated production login/save and deployment verification remain pending that setup. The editor fails closed without it.
