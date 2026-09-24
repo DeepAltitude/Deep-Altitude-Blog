@@ -1,8 +1,8 @@
 # Deep Altitude
 
-A public notebook about physical practice, languages and thinking.
+A notebook about physical practice, languages and thinking.
 
-**Rašau, kad pats suprasčiau.**
+**Rašymas išgrynina mąstymą.**
 
 Live at https://deepaltitude.com. Built with Astro; GitHub is the source of truth and the existing Cloudflare integration deploys the main branch.
 
