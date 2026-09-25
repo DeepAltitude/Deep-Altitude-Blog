@@ -1,0 +1,661 @@
+{
+  "requested": [
+    {
+      "title": "Leverage",
+      "domain": "veiksmas",
+      "topic": "bjj"
+    },
+    {
+      "title": "Relaxation under stress",
+      "domain": "veiksmas",
+      "topic": "bjj"
+    },
+    {
+      "title": "Breathing is a tool",
+      "domain": "veiksmas",
+      "topic": "freediving"
+    },
+    {
+      "title": "Let go of the goal to reach it",
+      "domain": "veiksmas",
+      "topic": "freediving"
+    },
+    {
+      "title": "Not my problem",
+      "domain": "veiksmas",
+      "topic": "freediving"
+    },
+    {
+      "title": "Drill safety",
+      "domain": "veiksmas",
+      "topic": "parachutes"
+    },
+    {
+      "title": "Relax to have control",
+      "domain": "veiksmas",
+      "topic": "parachutes"
+    },
+    {
+      "title": "Feel the wind",
+      "domain": "veiksmas",
+      "topic": "paragliding"
+    },
+    {
+      "title": "Not flying is a good decision",
+      "domain": "veiksmas",
+      "topic": "paragliding"
+    },
+    {
+      "title": "Lean into the curve",
+      "domain": "veiksmas",
+      "topic": "motorcycles"
+    },
+    {
+      "title": "Plan for conditions",
+      "domain": "veiksmas",
+      "topic": "motorcycles"
+    },
+    {
+      "title": "Calorie balance",
+      "domain": "veiksmas",
+      "topic": "gym"
+    },
+    {
+      "title": "Progressive overload",
+      "domain": "veiksmas",
+      "topic": "gym"
+    },
+    {
+      "title": "Consistency",
+      "domain": "veiksmas",
+      "topic": "gym"
+    },
+    {
+      "title": "Try different things",
+      "domain": "mokymasis",
+      "topic": "finding-your-energy"
+    },
+    {
+      "title": "Find energy in the process",
+      "domain": "mokymasis",
+      "topic": "finding-your-energy"
+    },
+    {
+      "title": "Engage tutors",
+      "domain": "mokymasis",
+      "topic": "finding-your-energy"
+    },
+    {
+      "title": "Set a goal",
+      "domain": "mokymasis",
+      "topic": "set-a-goal"
+    },
+    {
+      "title": "Drills",
+      "domain": "mokymasis",
+      "topic": "methods"
+    },
+    {
+      "title": "AI-generated drills",
+      "domain": "mokymasis",
+      "topic": "methods"
+    },
+    {
+      "title": "Podcasts",
+      "domain": "mokymasis",
+      "topic": "methods"
+    },
+    {
+      "title": "Audiobooks",
+      "domain": "mokymasis",
+      "topic": "methods"
+    },
+    {
+      "title": "Choosing a tutor",
+      "domain": "mokymasis",
+      "topic": "methods"
+    },
+    {
+      "title": "Asking tutors for specific structure",
+      "domain": "mokymasis",
+      "topic": "methods"
+    },
+    {
+      "title": "Letting go of structure and simply talking",
+      "domain": "mokymasis",
+      "topic": "methods"
+    },
+    {
+      "title": "Tutor frequency",
+      "domain": "mokymasis",
+      "topic": "methods"
+    },
+    {
+      "title": "Digital minimalism",
+      "domain": "protas",
+      "topic": "bandwidth"
+    },
+    {
+      "title": "What information is needed?",
+      "domain": "protas",
+      "topic": "bandwidth"
+    },
+    {
+      "title": "Identification with the best",
+      "domain": "protas",
+      "topic": "meditation"
+    },
+    {
+      "title": "See the limits",
+      "domain": "protas",
+      "topic": "inner-freedom"
+    },
+    {
+      "title": "Break through",
+      "domain": "protas",
+      "topic": "inner-freedom"
+    },
+    {
+      "title": "Do more",
+      "domain": "protas",
+      "topic": "inner-freedom"
+    },
+    {
+      "title": "Accept the feeling",
+      "domain": "protas",
+      "topic": "inner-freedom"
+    },
+    {
+      "title": "Priimti baimę, vis tiek veikti",
+      "domain": "protas",
+      "topic": "inner-freedom"
+    },
+    {
+      "title": "Top-down thinking",
+      "domain": "darbas",
+      "topic": "problem-solving"
+    },
+    {
+      "title": "Start with the end in mind",
+      "domain": "darbas",
+      "topic": "problem-solving"
+    },
+    {
+      "title": "Hypothesis-based problem solving",
+      "domain": "darbas",
+      "topic": "problem-solving"
+    },
+    {
+      "title": "Being an example",
+      "domain": "darbas",
+      "topic": "leadership"
+    },
+    {
+      "title": "Developing people",
+      "domain": "darbas",
+      "topic": "leadership"
+    },
+    {
+      "title": "Clarity in communication",
+      "domain": "darbas",
+      "topic": "leadership"
+    },
+    {
+      "title": "Emotional composure",
+      "domain": "darbas",
+      "topic": "leadership"
+    },
+    {
+      "title": "Not everyone at the top is competent",
+      "domain": "darbas",
+      "topic": "politics"
+    },
+    {
+      "title": "Nepotism exists, accept it",
+      "domain": "darbas",
+      "topic": "politics"
+    },
+    {
+      "title": "Increased scope only at a higher compensation",
+      "domain": "darbas",
+      "topic": "negotiation"
+    },
+    {
+      "title": "Visi nori būti laimingi",
+      "domain": "zmones",
+      "topic": "fundamental-motivations"
+    },
+    {
+      "title": "Avoid suffering",
+      "domain": "zmones",
+      "topic": "fundamental-motivations"
+    },
+    {
+      "title": "Feel seen",
+      "domain": "zmones",
+      "topic": "fundamental-motivations"
+    },
+    {
+      "title": "Feel important",
+      "domain": "zmones",
+      "topic": "fundamental-motivations"
+    },
+    {
+      "title": "Be invited",
+      "domain": "zmones",
+      "topic": "fundamental-motivations"
+    },
+    {
+      "title": "Vibracijos persiduoda ir pritraukia tokius pat",
+      "domain": "zmones",
+      "topic": "fundamental-motivations"
+    },
+    {
+      "title": "Atvirumas, nenorėjimas pakeisti kitų",
+      "domain": "zmones",
+      "topic": "fundamental-motivations"
+    },
+    {
+      "title": "Negotiation principles",
+      "domain": "zmones",
+      "topic": "negotiation"
+    },
+    {
+      "title": "Look at what is",
+      "domain": "zmones",
+      "topic": "conflict-resolution"
+    },
+    {
+      "title": "Find the right moment",
+      "domain": "zmones",
+      "topic": "conflict-resolution"
+    },
+    {
+      "title": "Show understanding",
+      "domain": "zmones",
+      "topic": "conflict-resolution"
+    },
+    {
+      "title": "Show your side",
+      "domain": "zmones",
+      "topic": "conflict-resolution"
+    },
+    {
+      "title": "Honesty",
+      "domain": "zmones",
+      "topic": "networking"
+    },
+    {
+      "title": "Openness",
+      "domain": "zmones",
+      "topic": "networking"
+    },
+    {
+      "title": "Take the first step",
+      "domain": "zmones",
+      "topic": "networking"
+    },
+    {
+      "title": "Setting boundaries",
+      "domain": "zmones",
+      "topic": "boundaries"
+    },
+    {
+      "title": "Respecting boundaries",
+      "domain": "zmones",
+      "topic": "boundaries"
+    },
+    {
+      "title": "Alignment",
+      "domain": "zmones",
+      "topic": "boundaries"
+    },
+    {
+      "title": "Start with No",
+      "domain": "zmones",
+      "topic": "boundaries"
+    }
+  ],
+  "covered": {
+    "Leverage": {
+      "file": "src/content/Sportas/05 Jiu Jitsu.md",
+      "reason": "The existing note is already framed around leverage and describes leverage in practice."
+    },
+    "Breathing is a tool": {
+      "file": "src/content/Sportas/02 Freediving.md",
+      "reason": "The original description names breathing as a tool; the body describes breath and bodily control."
+    },
+    "Feel the wind": {
+      "file": "src/content/Sportas/03 Parapente.md",
+      "reason": "The original discusses reading wind and thermal conditions, waiting, a plan B and choosing not to fly."
+    },
+    "Not flying is a good decision": {
+      "file": "src/content/Sportas/03 Parapente.md",
+      "reason": "The original discusses reading wind and thermal conditions, waiting, a plan B and choosing not to fly."
+    },
+    "Consistency": {
+      "file": "src/content/Sportas/07 Sveikata.md",
+      "reason": "The existing health note explicitly records consistency at the gym."
+    },
+    "Try different things": {
+      "file": "src/content/Kalbos/04 Kalbu mokymasis.md",
+      "reason": "Existing sections describe finding energy, varying methods, tutors, tutor frequency and AI drills."
+    },
+    "Find energy in the process": {
+      "file": "src/content/Kalbos/04 Kalbu mokymasis.md",
+      "reason": "Existing sections describe finding energy, varying methods, tutors, tutor frequency and AI drills."
+    },
+    "Engage tutors": {
+      "file": "src/content/Kalbos/04 Kalbu mokymasis.md",
+      "reason": "Existing sections describe finding energy, varying methods, tutors, tutor frequency and AI drills."
+    },
+    "Drills": {
+      "file": "src/content/Kalbos/04 Kalbu mokymasis.md",
+      "reason": "Existing sections describe finding energy, varying methods, tutors, tutor frequency and AI drills."
+    },
+    "AI-generated drills": {
+      "file": "src/content/Kalbos/04 Kalbu mokymasis.md",
+      "reason": "Existing sections describe finding energy, varying methods, tutors, tutor frequency and AI drills."
+    },
+    "Tutor frequency": {
+      "file": "src/content/Kalbos/04 Kalbu mokymasis.md",
+      "reason": "Existing sections describe finding energy, varying methods, tutors, tutor frequency and AI drills."
+    },
+    "Identification with the best": {
+      "file": "src/content/Protas/99 Quotes.md",
+      "reason": "The existing collection contains extended reflections on acceptance and identification with full potential."
+    },
+    "Accept the feeling": {
+      "file": "src/content/Protas/99 Quotes.md",
+      "reason": "The existing collection contains extended reflections on acceptance and identification with full potential."
+    },
+    "Not everyone at the top is competent": {
+      "file": "src/content/Protas/09 Nesitikek ko negali duoti.md",
+      "reason": "The existing essay develops both limits of senior competence and family influence in an organization."
+    },
+    "Nepotism exists, accept it": {
+      "file": "src/content/Protas/09 Nesitikek ko negali duoti.md",
+      "reason": "The existing essay develops both limits of senior competence and family influence in an organization."
+    },
+    "Vibracijos persiduoda ir pritraukia tokius pat": {
+      "file": "src/content/Protas/10 Vibracijos.md",
+      "reason": "The original opens with this idea and remains published intact."
+    },
+    "Emotional composure": {
+      "file": "src/content/Protas/10 Vibracijos.md",
+      "reason": "The original has a sustained section on composure, slowing reactions and lowering perceived stakes."
+    },
+    "Atvirumas, nenorėjimas pakeisti kitų": {
+      "file": "src/content/Protas/06 Santykiai.md",
+      "reason": "The original discusses setting limits and giving people space without imposing opinions or changing them."
+    },
+    "Setting boundaries": {
+      "file": "src/content/Protas/06 Santykiai.md",
+      "reason": "The original discusses setting limits and giving people space without imposing opinions or changing them."
+    },
+    "Respecting boundaries": {
+      "file": "src/content/Protas/06 Santykiai.md",
+      "reason": "The original discusses setting limits and giving people space without imposing opinions or changing them."
+    }
+  },
+  "created": [
+    {
+      "title": "Relaxation under stress",
+      "domain": "veiksmas",
+      "topic": "bjj",
+      "path": "src/content/articles/relaxation-under-stress.md"
+    },
+    {
+      "title": "Let go of the goal to reach it",
+      "domain": "veiksmas",
+      "topic": "freediving",
+      "path": "src/content/articles/let-go-of-the-goal-to-reach-it.md"
+    },
+    {
+      "title": "Not my problem",
+      "domain": "veiksmas",
+      "topic": "freediving",
+      "path": "src/content/articles/not-my-problem.md"
+    },
+    {
+      "title": "Drill safety",
+      "domain": "veiksmas",
+      "topic": "parachutes",
+      "path": "src/content/articles/drill-safety.md"
+    },
+    {
+      "title": "Relax to have control",
+      "domain": "veiksmas",
+      "topic": "parachutes",
+      "path": "src/content/articles/relax-to-have-control.md"
+    },
+    {
+      "title": "Lean into the curve",
+      "domain": "veiksmas",
+      "topic": "motorcycles",
+      "path": "src/content/articles/lean-into-the-curve.md"
+    },
+    {
+      "title": "Plan for conditions",
+      "domain": "veiksmas",
+      "topic": "motorcycles",
+      "path": "src/content/articles/plan-for-conditions.md"
+    },
+    {
+      "title": "Calorie balance",
+      "domain": "veiksmas",
+      "topic": "gym",
+      "path": "src/content/articles/calorie-balance.md"
+    },
+    {
+      "title": "Progressive overload",
+      "domain": "veiksmas",
+      "topic": "gym",
+      "path": "src/content/articles/progressive-overload.md"
+    },
+    {
+      "title": "Set a goal",
+      "domain": "mokymasis",
+      "topic": "set-a-goal",
+      "path": "src/content/articles/set-a-goal.md"
+    },
+    {
+      "title": "Podcasts",
+      "domain": "mokymasis",
+      "topic": "methods",
+      "path": "src/content/articles/podcasts.md"
+    },
+    {
+      "title": "Audiobooks",
+      "domain": "mokymasis",
+      "topic": "methods",
+      "path": "src/content/articles/audiobooks.md"
+    },
+    {
+      "title": "Choosing a tutor",
+      "domain": "mokymasis",
+      "topic": "methods",
+      "path": "src/content/articles/choosing-a-tutor.md"
+    },
+    {
+      "title": "Asking tutors for specific structure",
+      "domain": "mokymasis",
+      "topic": "methods",
+      "path": "src/content/articles/asking-tutors-for-specific-structure.md"
+    },
+    {
+      "title": "Letting go of structure and simply talking",
+      "domain": "mokymasis",
+      "topic": "methods",
+      "path": "src/content/articles/letting-go-of-structure-and-simply-talking.md"
+    },
+    {
+      "title": "Digital minimalism",
+      "domain": "protas",
+      "topic": "bandwidth",
+      "path": "src/content/articles/digital-minimalism.md"
+    },
+    {
+      "title": "What information is needed?",
+      "domain": "protas",
+      "topic": "bandwidth",
+      "path": "src/content/articles/what-information-is-needed.md"
+    },
+    {
+      "title": "See the limits",
+      "domain": "protas",
+      "topic": "inner-freedom",
+      "path": "src/content/articles/see-the-limits.md"
+    },
+    {
+      "title": "Break through",
+      "domain": "protas",
+      "topic": "inner-freedom",
+      "path": "src/content/articles/break-through.md"
+    },
+    {
+      "title": "Do more",
+      "domain": "protas",
+      "topic": "inner-freedom",
+      "path": "src/content/articles/do-more.md"
+    },
+    {
+      "title": "Priimti baimę, vis tiek veikti",
+      "domain": "protas",
+      "topic": "inner-freedom",
+      "path": "src/content/articles/priimti-baime-vis-tiek-veikti.md"
+    },
+    {
+      "title": "Top-down thinking",
+      "domain": "darbas",
+      "topic": "problem-solving",
+      "path": "src/content/articles/top-down-thinking.md"
+    },
+    {
+      "title": "Start with the end in mind",
+      "domain": "darbas",
+      "topic": "problem-solving",
+      "path": "src/content/articles/start-with-the-end-in-mind.md"
+    },
+    {
+      "title": "Hypothesis-based problem solving",
+      "domain": "darbas",
+      "topic": "problem-solving",
+      "path": "src/content/articles/hypothesis-based-problem-solving.md"
+    },
+    {
+      "title": "Being an example",
+      "domain": "darbas",
+      "topic": "leadership",
+      "path": "src/content/articles/being-an-example.md"
+    },
+    {
+      "title": "Developing people",
+      "domain": "darbas",
+      "topic": "leadership",
+      "path": "src/content/articles/developing-people.md"
+    },
+    {
+      "title": "Clarity in communication",
+      "domain": "darbas",
+      "topic": "leadership",
+      "path": "src/content/articles/clarity-in-communication.md"
+    },
+    {
+      "title": "Increased scope only at a higher compensation",
+      "domain": "darbas",
+      "topic": "negotiation",
+      "path": "src/content/articles/increased-scope-only-at-a-higher-compensation.md"
+    },
+    {
+      "title": "Visi nori būti laimingi",
+      "domain": "zmones",
+      "topic": "fundamental-motivations",
+      "path": "src/content/articles/visi-nori-buti-laimingi.md"
+    },
+    {
+      "title": "Avoid suffering",
+      "domain": "zmones",
+      "topic": "fundamental-motivations",
+      "path": "src/content/articles/avoid-suffering.md"
+    },
+    {
+      "title": "Feel seen",
+      "domain": "zmones",
+      "topic": "fundamental-motivations",
+      "path": "src/content/articles/feel-seen.md"
+    },
+    {
+      "title": "Feel important",
+      "domain": "zmones",
+      "topic": "fundamental-motivations",
+      "path": "src/content/articles/feel-important.md"
+    },
+    {
+      "title": "Be invited",
+      "domain": "zmones",
+      "topic": "fundamental-motivations",
+      "path": "src/content/articles/be-invited.md"
+    },
+    {
+      "title": "Negotiation principles",
+      "domain": "zmones",
+      "topic": "negotiation",
+      "path": "src/content/articles/negotiation-principles.md"
+    },
+    {
+      "title": "Look at what is",
+      "domain": "zmones",
+      "topic": "conflict-resolution",
+      "path": "src/content/articles/look-at-what-is.md"
+    },
+    {
+      "title": "Find the right moment",
+      "domain": "zmones",
+      "topic": "conflict-resolution",
+      "path": "src/content/articles/find-the-right-moment.md"
+    },
+    {
+      "title": "Show understanding",
+      "domain": "zmones",
+      "topic": "conflict-resolution",
+      "path": "src/content/articles/show-understanding.md"
+    },
+    {
+      "title": "Show your side",
+      "domain": "zmones",
+      "topic": "conflict-resolution",
+      "path": "src/content/articles/show-your-side.md"
+    },
+    {
+      "title": "Honesty",
+      "domain": "zmones",
+      "topic": "networking",
+      "path": "src/content/articles/honesty.md"
+    },
+    {
+      "title": "Openness",
+      "domain": "zmones",
+      "topic": "networking",
+      "path": "src/content/articles/openness.md"
+    },
+    {
+      "title": "Take the first step",
+      "domain": "zmones",
+      "topic": "networking",
+      "path": "src/content/articles/take-the-first-step.md"
+    },
+    {
+      "title": "Alignment",
+      "domain": "zmones",
+      "topic": "boundaries",
+      "path": "src/content/articles/alignment.md"
+    },
+    {
+      "title": "Start with No",
+      "domain": "zmones",
+      "topic": "boundaries",
+      "path": "src/content/articles/start-with-no.md"
+    }
+  ]
+}

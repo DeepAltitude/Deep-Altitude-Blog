@@ -1,0 +1,235 @@
+{
+  "commit": "54cbd1325252741204d838e7cd5db1f71ad20295",
+  "originals": [
+    {
+      "path": "src/content/blog/01 Apie ka.md",
+      "sha256": "f8bed8ef5ae3f8f26944df54245a13b6a2e925a09db29cebbaebe7c4881fd563",
+      "bodySha256": "9365989627a636fab5213ba7c7e99cc7facb7f6bda79a5ea29156c6b3bec49ad",
+      "metadata": {
+        "title": "Apie ka rasau?",
+        "description": "Minciu distiliavimas",
+        "pubDate": "2026.08.26",
+        "heroImage": "/blog-placeholder-3.jpg"
+      },
+      "domain": "protas",
+      "topic": "bandwidth",
+      "reason": "Writing as a way to distil and work through thoughts."
+    },
+    {
+      "path": "src/content/Sportas/02 Freediving.md",
+      "sha256": "d21c2985fca5b12e3f9f6344c58bbe739e0b47fe662869b23e061a62a523dd60",
+      "bodySha256": "8665a5bb3392a741cedc5ad70b38f075069ad9c6eaadadeee449f41a4f519bbc",
+      "metadata": {
+        "title": "Laisvasis Nardymas",
+        "description": "Kvepavimas yra įrankis",
+        "pubDate": "2026.09.02",
+        "heroImage": "/blog-placeholder-2.jpg"
+      },
+      "domain": "veiksmas",
+      "topic": "freediving",
+      "reason": "Breathing, bodily awareness and physical practice with a coach."
+    },
+    {
+      "path": "src/content/Sportas/03 Parapente.md",
+      "sha256": "dbd1102353cdaeaaf14e6e51df2be77ee85c344ada425cbb7db7ce0778b036bd",
+      "bodySha256": "305286e46d0cb1b6b5a517870ce33a3c44f74638c3667c21dc71ed3ab9366c7e",
+      "metadata": {
+        "title": "Parapente",
+        "description": "Ko išmoko oras?",
+        "pubDate": "2026.08.26",
+        "heroImage": "/images/1000114937.jpg",
+        "category": "Sportas",
+        "language": "lt"
+      },
+      "domain": "veiksmas",
+      "topic": "paragliding",
+      "reason": "Reading conditions, restraint and flying practice."
+    },
+    {
+      "path": "src/content/Kalbos/04 Kalbu mokymasis.md",
+      "sha256": "34b827dca9c5de3f8da0c71954e2e799f74cd63059aae0cef3c4963ba67a6871",
+      "bodySha256": "e8ccd846097b851610769f55bbb3ea1e9d7213b3051be6c0b77b2da111e4066a",
+      "metadata": {
+        "title": "Kalbų mokymasis",
+        "description": "Atrasti savo energiją procese",
+        "pubDate": "2026.09.17"
+      },
+      "domain": "mokymasis",
+      "topic": "finding-your-energy",
+      "reason": "The central insight is adapting learning to personal energy; methods are supporting examples."
+    },
+    {
+      "path": "src/content/Sportas/05 Jiu Jitsu.md",
+      "sha256": "5ead4fe836b3011c190421c097059751e71bbb36586d0d97cadd3ee25a91755a",
+      "bodySha256": "f65dd6bc8ee079dcfd1092eb556530b99a1eafd88a93dcbdebd1ef7d17da5c4a",
+      "metadata": {
+        "title": "Jiu Jitsu",
+        "description": "Kur turiu sverta?",
+        "pubDate": "2026.08.26",
+        "heroImage": "/blog-placeholder-3.jpg"
+      },
+      "domain": "veiksmas",
+      "topic": "bjj",
+      "reason": "Leverage, practice and experiences on the mat."
+    },
+    {
+      "path": "src/content/Protas/06 Santykiai.md",
+      "sha256": "dcff2cb05f4d1fec3dcc5e010585e30c345b766903c16484d67ccb8da81cdd38",
+      "bodySha256": "aaea40cbcbcd491f9f5208acda287698171c8f0b3fdfc0fd55472d9c3edc06d2",
+      "metadata": {
+        "title": "Tarpasmeniniai Santykiai",
+        "description": "Minciu distiliavimas",
+        "pubDate": "2026.08.26",
+        "heroImage": "/blog-placeholder-3.jpg"
+      },
+      "domain": "zmones",
+      "topic": "boundaries",
+      "reason": "Kindness, setting limits and giving another person room to be themselves."
+    },
+    {
+      "path": "src/content/Sportas/07 Sveikata.md",
+      "sha256": "159da8b142214bcd64f3ab3623a9fd1b88b6468d50d64ac58d074941c8d03e51",
+      "bodySha256": "a8c4ca2ff652421bc6792c3d39ced4d8a0deddfce78a46d89f018644926f3d76",
+      "metadata": {
+        "title": "Sveikata",
+        "description": "Pagrindas viskas",
+        "pubDate": "2026.08.26",
+        "heroImage": "/blog-placeholder-3.jpg"
+      },
+      "domain": "veiksmas",
+      "topic": "gym",
+      "reason": "Sleep, nutrition and consistency in training."
+    },
+    {
+      "path": "src/content/Protas/08 Sprendimai.md",
+      "sha256": "d4f201faee83607c874ca72fe2fc858dd06b242add7ac1ca500f797aa04fb022",
+      "bodySha256": "490d48835cd069cf3d80c3b90b15e718d8c8443f0dd3d77a4b3477b021b65522",
+      "metadata": {
+        "title": "Sprendimu priemimas",
+        "description": "Uz ir pries...",
+        "pubDate": "2026.08.26",
+        "heroImage": "/blog-placeholder-3.jpg"
+      },
+      "domain": "darbas",
+      "topic": "problem-solving",
+      "reason": "Structured analysis and tradeoffs, using a career decision as the main example."
+    },
+    {
+      "path": "src/content/Protas/09 Nesitikek ko negali duoti.md",
+      "sha256": "cceb891ecae1a49946fc3a7898834f922081317fee8675693931c1c03179337d",
+      "bodySha256": "eb908ed62616738a698613d2fd26de4bebccc5aa0bf3c5869b6dbcefeaa8e53e",
+      "metadata": {
+        "title": "Nesitikėk iš žmonių to, ko jie negali duoti",
+        "description": "Lūkesčiai, realybė",
+        "pubDate": "2026.09.02  ",
+        "heroImage": "/blog-placeholder-2.jpg"
+      },
+      "domain": "darbas",
+      "topic": "politics",
+      "reason": "Organizational realities, leadership limits and family influence on progression."
+    },
+    {
+      "path": "src/content/Protas/10 Vibracijos.md",
+      "sha256": "f74e64a18f09ead1c7ea6ca2f4f20db37d7e21e2052d7ff05895289aee934f4a",
+      "bodySha256": "6d1d3069be08f115fbe4c4d2f23edef1f2947efc2c660efbc0ded7eaf1790074",
+      "metadata": {
+        "title": "Vibracijos",
+        "description": "Viskas tik vibracijos",
+        "pubDate": "2026.09.08",
+        "heroImage": "/blog-placeholder-2.jpg"
+      },
+      "domain": "protas",
+      "topic": "inner-freedom",
+      "reason": "A broad living note whose sustained themes are composure, identity, confidence and freedom to act."
+    },
+    {
+      "path": "src/content/Protas/99 Quotes.md",
+      "sha256": "7a33f8af0bd210a091d15e73037525f03bb40023f5a592bfd62875a91d73c40f",
+      "bodySha256": "6c73abf58574f1554b5aeb808302b32994dc98dec3ec2662cc933faa0e1138f3",
+      "metadata": {
+        "title": "Citatos",
+        "description": "Parakas protui",
+        "pubDate": "2026.08.26",
+        "heroImage": "/blog-placeholder-3.jpg"
+      },
+      "domain": "protas",
+      "topic": "meditation",
+      "reason": "Collected reflections on Buddhist practice, mind and acceptance."
+    },
+    {
+      "path": "src/content/Protas/2026-09-18-snowball.md",
+      "sha256": "cb7be71deccfac6759383a74287eb2dc365a8d1368527c42886ae1dc420bd890",
+      "bodySha256": "026c618e8ebed1cb89161d7f137df0dd1bb0cdb5fef828ccf14548bc65707722",
+      "metadata": {
+        "title": "Snowball",
+        "category": "Protas",
+        "language": "lt",
+        "description": "Snowball is the most difficult to make in the beggining. Spinning of the flywheel.",
+        "pubDate": "2026.09.18",
+        "heroImage": "/images/1000117749.jpg"
+      },
+      "domain": "protas",
+      "topic": "inner-freedom",
+      "reason": "The difficulty of starting across activities and careers."
+    }
+  ],
+  "archive": [
+    {
+      "before": "notebook/i18n.mjs",
+      "path": "notebook/archive/multilingual/i18n.mjs",
+      "sha256": "478e4e819aeb2642b5349bd2c0bb7a077735ba398880d46721688a5dae6441f6"
+    },
+    {
+      "before": "notebook/translations/da.txt",
+      "path": "notebook/archive/multilingual/translations/da.txt",
+      "sha256": "142c80b4ba7ba316abbd67556fe5235c9f7b8b828791cc9157fc8a2d34eca16b"
+    },
+    {
+      "before": "notebook/translations/de.txt",
+      "path": "notebook/archive/multilingual/translations/de.txt",
+      "sha256": "c796e8fb75c8dbd8a894efd5604ac2a59cab88781ac5a0bf47281496b9c3c35a"
+    },
+    {
+      "before": "notebook/translations/en.txt",
+      "path": "notebook/archive/multilingual/translations/en.txt",
+      "sha256": "6db371d3d9265340ef4423924588bc8c4f26e8a20c326dca6832e67a232823dc"
+    },
+    {
+      "before": "notebook/translations/es.txt",
+      "path": "notebook/archive/multilingual/translations/es.txt",
+      "sha256": "ea6c239a51141e33acc517ba89f349000a32d33d1c49c21a5a67a37c7b970b74"
+    },
+    {
+      "before": "notebook/translations/fr.txt",
+      "path": "notebook/archive/multilingual/translations/fr.txt",
+      "sha256": "fea51d742420788c5b7778a96df66b84e7a8dbf77afc1fb78b7ad8c603731fc8"
+    },
+    {
+      "before": "notebook/translations/it.txt",
+      "path": "notebook/archive/multilingual/translations/it.txt",
+      "sha256": "a26d87058edb4043bbb40b113fafc3e055feb1df30234b63a39b277c74177bed"
+    },
+    {
+      "before": "notebook/translations/pt.txt",
+      "path": "notebook/archive/multilingual/translations/pt.txt",
+      "sha256": "1e458929a679a3a5d9fc7ed4ebd2d5cacc3399887c35b19bd19362bac97ae647"
+    },
+    {
+      "before": "notebook/translations/ru.txt",
+      "path": "notebook/archive/multilingual/translations/ru.txt",
+      "sha256": "2e9b51d225da70c1062971e06cb7883a474625fd3dbf0cfa67565f6622e814d1"
+    },
+    {
+      "before": "src/content/pages/about-en.md",
+      "path": "notebook/archive/multilingual/about-en.md",
+      "sha256": "0789c5d2a56449c08ad80d1d26281f179775970ba593a7c744901881d9cfad59"
+    }
+  ],
+  "aboutSha256": "7699a9b3ac494b9986e795869226c461f69a208b2d04efb0796d0d2c699d77f1",
+  "home": {
+    "title": "Rašau, kad pats suprasčiau.",
+    "description": "Sportas, kalbos ir mintys. Patirtys, prie kurių grįžtu, klausimai, kuriuos dar tyrinėju.",
+    "introTitle": "Mokytis. Patirti. Užrašyti.",
+    "body": "Viešas mokymosi sąsiuvinis apie sportą, kalbas, sprendimus ir santykius. Palieku vietos persigalvoti. Mintys keičiasi. Užrašai lieka."
+  }
+}

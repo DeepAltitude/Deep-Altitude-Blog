@@ -1,0 +1,48 @@
+---
+import Site from "../../layouts/Site.astro";
+import ArticleList from "../../components/ArticleList.astro";
+import {
+  domains,
+  domainNames,
+  topics,
+  domainUrl,
+  topicUrl,
+} from "../../utils/domains";
+import { getNotes } from "../../utils/posts";
+export function getStaticPaths() {
+  return domains.flatMap((domain) =>
+    topics[domain].map((topic) => ({
+      params: { domain, topic: topic.id },
+      props: { domain, topic },
+    })),
+  );
+}
+const { domain, topic } = Astro.props;
+const notes = (await getNotes()).filter(
+  (note) => note.domain === domain && note.topic === topic.id,
+);
+---
+
+<Site
+  title={topic.title}
+  description={`${domainNames[domain]} / ${topic.title}`}
+  active="Domains"
+  canonical={topicUrl(domain, topic.id)}
+>
+  <section class="index-page">
+    <header class="page-heading">
+      <p class="eyebrow">
+        <a href={domainUrl(domain)}>{domainNames[domain]}</a> / UŽRAŠAI
+      </p>
+      <h1>{topic.title}</h1>
+    </header>
+    {notes.length ? (
+      <ArticleList notes={notes} showDomain={false} />
+    ) : (
+      <p class="empty-index">Ši tema dar laukia užrašų.</p>
+    )}
+    <nav class="page-turn">
+      <a href={domainUrl(domain)}>← {domainNames[domain]}</a>
+    </nav>
+  </section>
+</Site>

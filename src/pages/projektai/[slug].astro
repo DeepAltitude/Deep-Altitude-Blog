@@ -1,0 +1,13 @@
+---
+import Pursuit from "../../components/Pursuit.astro";
+import { one } from "../../lib/data/store";
+export const prerender = false;
+const db = (Astro.locals.runtime?.env as any)?.DB;
+const record = db
+  ? await one(db, "projects", Astro.params.slug || "", true)
+  : null;
+if (!record) return Astro.redirect("/404/", 302);
+Astro.response.headers.set("Cache-Control", "no-cache");
+---
+
+<Pursuit record={record} kind="projects" />

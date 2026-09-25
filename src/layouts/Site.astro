@@ -1,13 +1,49 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import {htmlLang,type Edition} from '../utils/posts';
-interface Props {title:string;description?:string;edition?:Edition;active?:string;canonical?:string;image?:string;article?:boolean;pubDate?:Date;updatedDate?:Date;versions?:{edition:Edition;href:string}[];class?:string;language?:string;noindex?:boolean}
-const {edition='original',versions=[],language=htmlLang[edition],...props}=Astro.props;
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+interface Props {
+  title: string;
+  description?: string;
+  active?: string;
+  canonical?: string;
+  image?: string;
+  article?: boolean;
+  pubDate?: Date;
+  updatedDate?: Date;
+  class?: string;
+  language?: string;
+  noindex?: boolean;
+}
+const { language = "lt", ...props } = Astro.props;
 ---
+
 <!doctype html>
 <html lang={language}>
- <head><BaseHead {...props} alternates={versions.map(v=>({language:htmlLang[v.edition],href:v.href}))} />{Astro.props.noindex&&<meta name="robots" content="noindex"/>}</head>
- <body><Header edition={edition} active={Astro.props.active} versions={versions}/><main id="main" class={Astro.props.class}><slot /></main><Footer edition={edition}/></body>
+  <head>
+    <BaseHead {...props} />
+    {Astro.props.noindex && <meta name="robots" content="noindex" />}
+  </head>
+  <body>
+    <Header active={Astro.props.active} />
+    <main id="main" class={Astro.props.class}>
+      <slot />
+    </main>
+    <Footer />
+  </body>
 </html>
+<script>
+  if (document.querySelector("[data-author-link]"))
+    fetch("/api/editor/session", {
+      credentials: "same-origin",
+      cache: "no-store",
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((session: any) => {
+        if (session?.authenticated)
+          document
+            .querySelectorAll<HTMLElement>("[data-author-link]")
+            .forEach((link) => (link.hidden = false));
+      })
+      .catch(() => {});
+</script>

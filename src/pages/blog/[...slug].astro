@@ -1,9 +1,12 @@
 ---
-import {getOriginals} from '../../utils/posts';
-import BlogPost from '../../layouts/BlogPost.astro';
-export async function getStaticPaths() {
- return (await getOriginals()).map(note=>({params:{slug:note.source.id},props:{note}}));
-}
-const {note}=Astro.props;
+import { getNotes } from "../../utils/posts";
+import BlogPost from "../../layouts/BlogPost.astro";
+export const prerender = false;
+const note = (await getNotes()).find(
+  (note) => (note.source.data.slug || note.source.id) === Astro.params.slug,
+);
+if (!note) return Astro.redirect("/404/", 302);
+Astro.response.headers.set("Cache-Control", "no-cache");
 ---
-<BlogPost note={note}/>
+
+<BlogPost note={note} />

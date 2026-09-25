@@ -1,14 +1,40 @@
 ---
-import {dateLabel,langLabel,type Note} from '../utils/posts';
-import {domainNames} from '../utils/domains';
-interface Props {notes:Note[];numbered?:boolean;showDomain?:boolean;heading?:'h2'|'h3'}
-const {notes,numbered=false,showDomain=true,heading:Heading='h2'}=Astro.props;
+import { dateLabel, type Note } from "../utils/posts";
+import { domainNames, topicFor } from "../utils/domains";
+interface Props {
+  notes: Note[];
+  showDomain?: boolean;
+  heading?: "h2" | "h3";
+}
+const { notes, showDomain = true, heading: Heading = "h2" } = Astro.props;
 ---
-<ol class:list={['article-index',{'numbered':numbered}]}>
- {notes.map((note,i)=><li data-domain={note.domain}><a class="index-entry" href={note.url}>
-  {numbered&&<span class="entry-number" aria-hidden="true">{String(i+1).padStart(2,'0')}</span>}
-  <div class="entry-meta">{showDomain&&note.domain&&<span>{domainNames[note.domain]}</span>}<time datetime={note.pubDate.toISOString()}>{dateLabel(note.pubDate)}</time></div>
-  <div class="entry-copy"><Heading>{note.title}</Heading>{note.description&&<p>{note.description}</p>}{note.tags.length>0&&<p class="entry-tags">{note.tags.join(' · ')}</p>}</div>
-  <div class="entry-end"><span class="entry-language">{langLabel(note.language)}</span><span class="entry-arrow" aria-hidden="true">→</span></div>
- </a></li>)}
+
+<ol class="article-index">
+  {notes.map((note) => (
+    <li data-domain={note.domain} data-topic={note.topic}>
+      <a class="index-entry" href={note.url}>
+        <div class="entry-meta">
+          <time datetime={note.pubDate.toISOString()}>
+            {dateLabel(note.pubDate)}
+          </time>
+          {showDomain && note.domain && (
+            <span>
+              {domainNames[note.domain]} ·{" "}
+              {topicFor(note.domain, note.topic)?.title}
+            </span>
+          )}
+        </div>
+        <div class="entry-copy">
+          <Heading>{note.title}</Heading>
+          {note.description && <p>{note.description}</p>}
+          {note.tags.length > 0 && (
+            <p class="entry-tags">{note.tags.join(" · ")}</p>
+          )}
+        </div>
+        <span class="entry-arrow" aria-hidden="true">
+          →
+        </span>
+      </a>
+    </li>
+  ))}
 </ol>

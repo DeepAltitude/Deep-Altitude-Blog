@@ -1,0 +1,78 @@
+{
+  "baseCommit": "295fa8cdb5d33fa6a625e84cc4991c75e7bf785f",
+  "articles": [
+    {
+      "before": "src/content/blog/01 Apie ka.md",
+      "after": "src/content/articles/01-apie-ka.md",
+      "id": "why-this-notebook",
+      "slug": "01-apie-ka"
+    },
+    {
+      "before": "src/content/Sportas/02 Freediving.md",
+      "after": "src/content/articles/02-freediving.md",
+      "id": "freediving",
+      "slug": "02-freediving"
+    },
+    {
+      "before": "src/content/Sportas/03 Parapente.md",
+      "after": "src/content/articles/03-parapente.md",
+      "id": "paragliding",
+      "slug": "03-parapente"
+    },
+    {
+      "before": "src/content/Kalbos/04 Kalbu mokymasis.md",
+      "after": "src/content/articles/04-kalbu-mokymasis.md",
+      "id": "language-learning",
+      "slug": "04-kalbu-mokymasis"
+    },
+    {
+      "before": "src/content/Sportas/05 Jiu Jitsu.md",
+      "after": "src/content/articles/05-jiu-jitsu.md",
+      "id": "jiu-jitsu",
+      "slug": "05-jiu-jitsu"
+    },
+    {
+      "before": "src/content/Protas/06 Santykiai.md",
+      "after": "src/content/articles/06-santykiai.md",
+      "id": "relationships",
+      "slug": "06-santykiai"
+    },
+    {
+      "before": "src/content/Sportas/07 Sveikata.md",
+      "after": "src/content/articles/07-sveikata.md",
+      "id": "health",
+      "slug": "07-sveikata"
+    },
+    {
+      "before": "src/content/Protas/08 Sprendimai.md",
+      "after": "src/content/articles/08-sprendimai.md",
+      "id": "better-decisions",
+      "slug": "08-sprendimai"
+    },
+    {
+      "before": "src/content/Protas/09 Nesitikek ko negali duoti.md",
+      "after": "src/content/articles/09-nesitikek-ko-negali-duoti.md",
+      "id": "expectations",
+      "slug": "09-nesitikek-ko-negali-duoti"
+    },
+    {
+      "before": "src/content/Protas/10 Vibracijos.md",
+      "after": "src/content/articles/10-vibracijos.md",
+      "id": "vibrations",
+      "slug": "10-vibracijos"
+    },
+    {
+      "before": "src/content/Protas/99 Quotes.md",
+      "after": "src/content/articles/99-quotes.md",
+      "id": "quotes",
+      "slug": "99-quotes"
+    },
+    {
+      "before": "src/content/Protas/2026-09-18-snowball.md",
+      "after": "src/content/articles/2026-09-18-snowball.md",
+      "id": "Protas-2026-09-18-snowball",
+      "slug": "2026-09-18-snowball"
+    }
+  ],
+  "aboutSha256": "d87e50c3b1b91ef9733fa61c0de571dd2d2aec97a0c4fbdda603fe2a7f055dc7"
+}

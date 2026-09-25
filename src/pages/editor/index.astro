@@ -1,47 +1,214 @@
 ---
-import BaseHead from '../../components/BaseHead.astro';
-import Logo from '../../components/Logo.astro';
-import Footer from '../../components/Footer.astro';
-import {getNotes,langLabel} from '../../utils/posts';
-import '../../styles/editor.css';
-const notes=await getNotes();
+import Site from "../../layouts/Site.astro";
+import "../../styles/editor.css";
+export const prerender = false;
+Astro.response.headers.set("Cache-Control", "private, no-store");
+Astro.response.headers.set("X-Robots-Tag", "noindex, nofollow");
 ---
-<!doctype html>
-<html lang="en">
- <head><BaseHead title="Edit original" description="The author’s original-language editor." canonical="/editor/"/><meta name="robots" content="noindex,nofollow"/></head>
- <body>
-  <a class="skip-link" href="#main">Skip to editor</a>
-  <header class="site-header editor-header"><a class="wordmark" href="/" aria-label="DeepAltitude — Home"><Logo placement="header"/><span><strong>deep</strong>altitude<small>ASMENINIS UŽRAŠŲ SĄSIUVINIS</small></span></a><a href="/blog/">← Užrašai</a></header>
-  <main id="main" class="editor-page">
-   <header class="page-heading"><p class="eyebrow">DEEP ALTITUDE / AUTHOR</p><h1>Edit original</h1><p class="standfirst">Your own words, in their original language.</p></header>
-   <section id="editor-login" class="editor-login" aria-label="Author sign-in">
-    <p id="login-message" role="status">Checking author sign-in…</p>
-    <a id="login-link" class="editor-primary" href="/api/editor/login" hidden>Sign in with GitHub</a>
-    <p class="editor-help">Editing is reserved for the DeepAltitude author. Translations remain read-only.</p>
-   </section>
-   <section id="editor-workspace" hidden aria-label="Original article editor">
-    <div class="editor-account"><span id="editor-account-name"></span><button type="button" id="editor-logout">Sign out</button></div>
-    <label class="editor-label" for="editor-article">Article</label>
-    <select id="editor-article"><option value="">Choose an original article…</option>{notes.map(note=><option value={note.source.filePath?.replace(/^\.\//,'')} data-url={note.url} data-download={`/original/files/${note.id}.md`} data-language={langLabel(note.originalLanguage)}>{note.title}</option>)}</select>
-    <p id="editor-loading" role="status"></p>
-    <form id="editor-form" hidden>
-     <div class="editor-note-meta"><span id="editor-language"></span><a id="editor-view" href="/blog/" target="_blank" rel="noopener">View published article ↗</a></div>
-     <label class="editor-label" for="editor-title">Title</label><input id="editor-title" name="title" maxlength="500" required autocomplete="off"/>
-     <details class="editor-description"><summary>Short description</summary><label class="sr-only" for="editor-description">Short description</label><textarea id="editor-description" name="description" rows="3" maxlength="5000"></textarea></details>
-     <div class="editor-writing-heading"><label class="editor-label" for="editor-body">Article</label><div class="editor-mode"><button type="button" id="editor-write" aria-pressed="true">Write</button><button type="button" id="editor-preview-toggle" aria-pressed="false">Preview</button></div></div>
-     <div class="editor-toolbar" role="group" aria-label="Text formatting"><button type="button" data-format="bold" aria-label="Bold"><strong>B</strong></button><button type="button" data-format="italic" aria-label="Italic"><em>I</em></button><button type="button" data-format="heading">Heading</button><button type="button" data-format="quote">Quote</button><button type="button" data-format="list">List</button><button type="button" data-format="link">Link</button></div>
-     <textarea id="editor-body" name="body" class="editor-body" rows="24" required spellcheck="true" aria-describedby="editor-writing-help"></textarea>
-     <div id="editor-preview" class="prose editor-preview" hidden aria-label="Article preview"></div>
-     <p id="editor-writing-help" class="editor-help">Write normally. Use the formatting controls when useful. Existing formatting stays as written.</p>
-     <div class="editor-save-row"><button type="submit" id="editor-save" class="editor-primary" disabled>Save &amp; publish</button><button type="button" id="editor-download">Download draft</button><span id="editor-draft-status" class="editor-help"></span></div>
-     <p id="editor-status" class="editor-status" role="status" aria-live="polite"></p>
-     <div id="editor-conflict" class="editor-conflict" hidden><p>Your draft is still in the editor. Download it before loading the latest saved version.</p><button type="button" id="editor-reload">Load latest saved version</button></div>
-     <p class="editor-help">Save publishes the original article. Existing translations are not changed.</p>
+
+<Site title="Rašyti" noindex canonical="/editor/" class="author-page">
+  <header class="page-heading">
+    <p class="eyebrow">DEEP ALTITUDE / AUTHOR</p>
+    <h1 id="editor-heading">Sąsiuvinis</h1>
+  </header>
+  <section id="login">
+    <p id="login-message" role="status">
+      Checking author sign-in…
+    </p>
+    <a id="login-link" href="/api/editor/login" hidden>
+      Sign in with GitHub →
+    </a>
+  </section>
+  <section id="workspace" hidden>
+    <div class="editor-account">
+      <a href="/dabar/">Dabar →</a>
+      <button id="logout" type="button">
+        Sign out
+      </button>
+    </div>
+    <nav class="editor-nav" aria-label="Author notebook">
+      <a href="/editor/?kind=article">+ Note</a>
+      <a href="/editor/?kind=projects">+ Project</a>
+      <a href="/editor/?kind=experiments">+ Experiment</a>
+      <a href="/editor/?kind=experiments&idea=1">+ Experiment idea</a>
+      <a href="/editor/?kind=sprints">+ Sprint</a>
+      <a href="/editor/?kind=principle">+ Principle</a>
+      <a href="/editor/?kind=habits">Habits</a>
+      <a href="/editor/?file=src/content/pages/home.md">Homepage</a>
+      <a href="/editor/?file=src/content/pages/about.md">About</a>
+      <a href="/editor/?kind=settings">Settings</a>
+    </nav>
+    <details id="library" open>
+      <summary>Open an existing item</summary>
+      <div class="field-grid">
+        <label>
+          Collection
+          <select id="collection">
+            <option value="articles">Notes</option>
+            <option value="drafts">Private drafts</option>
+            <option value="projects">Projects</option>
+            <option value="experiments">Experiments</option>
+            <option value="sprints">Sprints</option>
+            <option value="principles">Principles</option>
+            <option value="habits">Habits</option>
+          </select>
+        </label>
+        <label>
+          Item
+          <select id="record-choice">
+            <option value="">Choose…</option>
+          </select>
+        </label>
+      </div>
+    </details>
+    <p id="catalog-warning" class="editor-help" role="status" hidden></p>
+    <p id="status" role="status" aria-live="polite"></p>
+    <form id="writing-form" hidden>
+      <div class="editor-context">
+        <p class="eyebrow" id="document-kind"></p>
+        <a id="published-link" hidden target="_blank" rel="noopener">
+          View published page ↗
+        </a>
+      </div>
+      <label>
+        Title
+        <input name="title" maxlength="500" required />
+      </label>
+      <label>
+        Description / introduction
+        <textarea name="description" rows="3" maxlength="5000"></textarea>
+      </label>
+      <details id="note-metadata">
+        <summary>Dates, domain, connections &amp; image</summary>
+        <div class="field-grid" id="writing-metadata"></div>
+        <label>
+          Principles<select id="note-principles" multiple size="4"></select>
+        </label>
+        <div class="inline-add">
+          <input
+            id="new-principle-title"
+            aria-label="New principle"
+            placeholder="A reusable idea…"
+          />
+          <button type="button" id="add-principle">
+            Add principle
+          </button>
+        </div>
+        <label>
+          Upload image
+          <input
+            id="image-upload"
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+          />
+        </label>
+        <p class="editor-help">
+          Images are published with this note. JPEG, PNG, GIF, WebP or AVIF; up
+          to 4 MB each.
+        </p>
+      </details>
+      <div class="editor-mode">
+        <button type="button" id="write-mode" aria-pressed="true">
+          Edit
+        </button>
+        <button type="button" id="preview-mode" aria-pressed="false">
+          Preview
+        </button>
+      </div>
+      <div class="writing-split">
+        <div class="writing-input">
+          <label>
+            Text
+            <textarea
+              id="writing-body"
+              name="body"
+              class="editor-body"
+              rows="25"
+              spellcheck="true"
+            ></textarea>
+          </label>
+        </div>
+        <article class="reading-page preview-page" id="preview">
+          <header class="article-header">
+            <p class="eyebrow" id="preview-meta"></p>
+            <h1 id="preview-title"></h1>
+            <p class="standfirst" id="preview-description"></p>
+          </header>
+          <figure class="article-hero" id="preview-hero" hidden>
+            <img id="preview-hero-image" alt="" />
+          </figure>
+          <div class="prose article-body" id="preview-body"></div>
+        </article>
+      </div>
+      <div class="save-row">
+        <button type="submit" class="editor-primary">
+          Save &amp; publish
+        </button>
+        <button type="button" id="save-draft">
+          Save private draft
+        </button>
+        <button type="button" id="download">
+          Download draft
+        </button>
+        <button type="button" id="reload-document">
+          Load saved version
+        </button>
+      </div>
     </form>
-   </section>
-   <noscript><p>This editor needs JavaScript. Reading the notebook does not.</p></noscript>
-  </main>
-  <Footer edition="original"/>
-  <script>import '../../scripts/editor';</script>
- </body>
-</html>
+    <form id="operational-form" hidden>
+      <div class="field-grid" id="operational-fields"></div>
+      <div class="save-row">
+        <button type="submit" class="editor-primary">
+          Save
+        </button>
+        <button type="button" id="start-experiment" hidden>
+          Pradėti eksperimentą
+        </button>
+      </div>
+    </form>
+    <section id="observations" hidden>
+      <h2>Pastebėjimai</h2>
+      <div id="observation-list"></div>
+      <form id="observation-form">
+        <label>
+          Date
+          <input type="date" name="date" required />
+        </label>
+        <label>
+          Observation<textarea name="body" rows="4" required></textarea>
+        </label>
+        <button type="submit">+ Add observation</button>
+      </form>
+    </section>
+    <section id="settings" hidden>
+      <h2>Google Calendar</h2>
+      <p id="calendar-connection"></p>
+      <a href="/api/calendar/connect" id="calendar-connect">
+        Connect Google Calendar →
+      </a>
+      <button id="calendar-disconnect" type="button" hidden>
+        Disconnect
+      </button>
+      <form id="calendar-settings" hidden>
+        <fieldset id="calendar-choices">
+          <legend>Calendars</legend>
+        </fieldset>
+        <label>
+          Default calendar<select name="default_calendar"></select>
+        </label>
+        <label>
+          Timezone
+          <input name="timezone" value="Europe/Zurich" required />
+        </label>
+        <button type="submit">Save settings</button>
+      </form>
+      <p class="editor-help">
+        Calendar permission is separate from your DeepAltitude sign-in.
+      </p>
+    </section>
+  </section>
+  <noscript>This authoring interface needs JavaScript.</noscript>
+</Site>
+<script>
+  import "../../scripts/editor";
+</script>

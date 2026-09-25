@@ -1,0 +1,17 @@
+---
+interface Props {
+  file: string;
+  label: string;
+}
+const { file, label } = Astro.props;
+---
+
+<a
+  class="edit-original-link"
+  href={`/editor/?file=${encodeURIComponent(file.replace(/^\.\//, ""))}`}
+  rel="nofollow"
+  data-author-link
+  hidden
+>
+  {label}
+</a>

@@ -1,11 +1,14 @@
 ---
-import {copy,indexUrl,domainUrl,type Edition} from '../utils/posts';
-import {domains,domainNames,type Domain} from '../utils/domains';
-import {knowledgeLabels} from '../utils/knowledge-labels';
-interface Props {edition?:Edition;active?:Domain;all?:boolean}
-const {edition='original',active,all=false}=Astro.props;
+import { domains, domainNames } from "../utils/domains";
 ---
-<nav class="topic-nav" aria-label={knowledgeLabels[edition].domains}>
-  <a href={indexUrl(edition)} aria-current={all?'page':undefined}>{copy[edition].all}</a>
-  {domains.map(domain=><a href={domainUrl(domain,edition)} aria-current={active===domain?'page':undefined}>{domainNames[domain]}</a>)}
+
+<nav class="topic-nav" aria-label="Filtruoti pagal sritį" data-domain-filter>
+  <a href="/uzrasai/" data-filter="" aria-current="page">
+    Visi
+  </a>
+  {domains.map((domain) => (
+    <a href={`/uzrasai/?domain=${domain}`} data-filter={domain}>
+      {domainNames[domain]}
+    </a>
+  ))}
 </nav>

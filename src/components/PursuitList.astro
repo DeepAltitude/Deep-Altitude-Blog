@@ -1,0 +1,23 @@
+---
+import { progress, todayIn } from "../lib/calendar/model";
+interface Props {
+  records: any[];
+  kind: "projects" | "experiments";
+}
+const { records, kind } = Astro.props,
+  base = kind === "projects" ? "/projektai/" : "/eksperimentai/";
+---
+
+<ul class="text-index">
+  {records.map((record) => (
+    <li>
+      <a href={base + record.slug + "/"}>
+        {record.title} <span aria-hidden="true">→</span>
+      </a>
+      {record.description && <p>{record.description}</p>}
+      {record.start_date && (
+        <p class="entry-tags">{progress(record, todayIn())}</p>
+      )}
+    </li>
+  ))}
+</ul>

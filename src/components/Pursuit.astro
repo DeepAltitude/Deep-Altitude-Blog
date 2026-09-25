@@ -1,0 +1,122 @@
+---
+import Site from "../layouts/Site.astro";
+import ArticleList from "./ArticleList.astro";
+import PursuitList from "./PursuitList.astro";
+import { getNotes } from "../utils/posts";
+import { getPrinciples } from "../utils/principles";
+import { list, one, observations } from "../lib/data/store";
+import { domainNames } from "../utils/domains";
+import { progress, todayIn } from "../lib/calendar/model";
+const { record, kind } = Astro.props,
+  db = (Astro.locals.runtime.env as any).DB;
+const isProject = kind === "projects",
+  notes = (await getNotes()).filter(
+    (n) => (isProject ? n.project : n.experiment) === record.id,
+  ),
+  base = isProject ? "/projektai/" : "/eksperimentai/";
+const related = isProject
+  ? (await list(db, "experiments", true)).filter((r) => r.project === record.id)
+  : [];
+const entries = isProject ? [] : await observations(db, record.id, true),
+  project = record.project
+    ? await one(db, "projects", record.project, true)
+    : null;
+const principles = (await getPrinciples()).filter((p) =>
+  record.principles?.some((ref: string) => p.references.includes(ref)),
+);
+const labels = isProject
+  ? [["outcome", "Siekiamas rezultatas"]]
+  : [
+      ["hypothesis", "Hipotezė"],
+      ["protocol", "Kaip bandau"],
+      ["observe", "Ką stebiu"],
+      ["conclusion", "Išvada"],
+    ];
+---
+
+<Site
+  title={record.title}
+  description={record.description}
+  active={isProject ? "Projects" : "Experiments"}
+  canonical={base + record.slug + "/"}
+>
+  <article class="reading-page">
+    <header class="article-header">
+      <p class="eyebrow">
+        <a href={base}>{isProject ? "PROJEKTAI" : "EKSPERIMENTAI"}</a>
+        {record.domain && (
+          <> / {domainNames[record.domain as keyof typeof domainNames]}</>
+        )}
+      </p>
+      <h1>{record.title}</h1>
+      {record.description && (
+        <p class="standfirst preserve-lines">{record.description}</p>
+      )}
+      <p class="entry-tags">{progress(record, todayIn())}</p>
+    </header>
+    <a
+      class="author-edit"
+      data-author-link
+      hidden
+      href={"/editor/?kind=" + kind + "&id=" + record.id}
+    >
+      Edit {isProject ? "project" : "experiment"}
+    </a>
+    {project && (
+      <p>
+        <a href={"/projektai/" + project.slug + "/"}>{project.title} →</a>
+      </p>
+    )}
+    <div class="prose">
+      {labels.map(
+        ([key, label]) =>
+          record[key] && (
+            <section>
+              <h2>{label}</h2>
+              <p class="preserve-lines">{record[key]}</p>
+            </section>
+          ),
+      )}
+    </div>
+    {entries.length > 0 && (
+      <section class="notebook-section">
+        <h2>Pastebėjimai</h2>
+        {entries.map((e) => (
+          <div class="observation">
+            <time class="eyebrow" datetime={e.date}>
+              {e.date}
+            </time>
+            <p class="preserve-lines">{e.body}</p>
+          </div>
+        ))}
+      </section>
+    )}
+    {related.length > 0 && (
+      <section class="notebook-section">
+        <h2>Eksperimentai</h2>
+        <PursuitList records={related} kind="experiments" />
+      </section>
+    )}
+    {notes.length > 0 && (
+      <section class="notebook-section">
+        <h2>Užrašai</h2>
+        <ArticleList notes={notes} />
+      </section>
+    )}
+    {principles.length > 0 && (
+      <section class="notebook-section">
+        <h2>Principai</h2>
+        <ul class="text-index">
+          {principles.map((p) => (
+            <li>
+              <a href={p.url}>{p.title} →</a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+    <nav class="page-turn">
+      <a href={base}>← {isProject ? "Projektai" : "Eksperimentai"}</a>
+    </nav>
+  </article>
+</Site>

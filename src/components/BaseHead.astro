@@ -1,28 +1,63 @@
 ---
-import '../styles/global.css';
-import {SITE_DESCRIPTION} from '../consts';
-interface Props {title:string;description?:string;image?:string;canonical?:string;article?:boolean;pubDate?:Date;updatedDate?:Date;alternates?:{language:string;href:string}[]}
-const {title,description=SITE_DESCRIPTION,image='/og.png',canonical=Astro.url.pathname,article=false,pubDate,updatedDate,alternates=[]}=Astro.props;
-const url=new URL(canonical,Astro.site);
+import "../styles/global.css";
+import { SITE_DESCRIPTION } from "../consts";
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  canonical?: string;
+  article?: boolean;
+  pubDate?: Date;
+  updatedDate?: Date;
+}
+const {
+  title,
+  description = SITE_DESCRIPTION,
+  image = "/og.png",
+  canonical = Astro.url.pathname,
+  article = false,
+  pubDate,
+  updatedDate,
+} = Astro.props;
+const url = new URL(canonical, Astro.site);
 ---
+
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>{title} — Deep Altitude</title>
 <meta name="description" content={description} />
-<link rel="icon" href="/favicon.png?v=20260921" type="image/png" sizes="64x64" />
-<link rel="icon" href="/favicon.svg?v=20260921" type="image/svg+xml" sizes="any" />
+<link
+  rel="icon"
+  href="/favicon.png?v=20260921"
+  type="image/png"
+  sizes="64x64"
+/>
+<link
+  rel="icon"
+  href="/favicon.svg?v=20260921"
+  type="image/svg+xml"
+  sizes="any"
+/>
 <link rel="canonical" href={url} />
-<link rel="alternate" type="application/rss+xml" title="Deep Altitude" href="/rss.xml" />
-{alternates.map(a=><link rel="alternate" hreflang={a.language} href={new URL(a.href,Astro.site)} />)}
-<meta property="og:type" content={article?'article':'website'} />
+<link
+  rel="alternate"
+  type="application/rss+xml"
+  title="Deep Altitude"
+  href="/rss.xml"
+/>
+<meta property="og:type" content={article ? "article" : "website"} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:url" content={url} />
 <meta property="og:site_name" content="Deep Altitude" />
-<meta property="og:image" content={new URL(image,Astro.site)} />
+<meta property="og:image" content={new URL(image, Astro.site)} />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
-<meta name="twitter:image" content={new URL(image,Astro.site)} />
-{pubDate&&<meta property="article:published_time" content={pubDate.toISOString()} />}
-{updatedDate&&<meta property="article:modified_time" content={updatedDate.toISOString()} />}
+<meta name="twitter:image" content={new URL(image, Astro.site)} />
+{pubDate && (
+  <meta property="article:published_time" content={pubDate.toISOString()} />
+)}
+{updatedDate && (
+  <meta property="article:modified_time" content={updatedDate.toISOString()} />
+)}

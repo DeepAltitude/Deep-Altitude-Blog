@@ -1,13 +1,17 @@
 ---
-import Logo from './Logo.astro';
-import {copy,homeUrl,aboutUrl,type Edition} from '../utils/posts';
-const {edition='original'}=Astro.props as {edition?:Edition};
+import Logo from "./Logo.astro";
 ---
+
 <footer class="site-footer">
-  <a class="footer-wordmark" href={homeUrl(edition)}>
+  <a class="footer-wordmark" href="/">
     deepaltitude
     <Logo placement="footer" />
   </a>
-  <p>{copy[edition].footer}</p>
-  <div><a href={aboutUrl(edition)}>{copy[edition].about}</a><a href="/rss.xml">RSS</a></div>
+  <p>Rašymas išgrynina mintis.</p>
+  <div>
+    <a href="/apie/">Apie</a>
+    <a href="/editor/" data-author-link hidden>
+      Rašyti
+    </a>
+  </div>
 </footer>

@@ -1,4 +1,19 @@
 ---
-import Site from '../layouts/Site.astro';
+import Site from "../layouts/Site.astro";
 ---
-<Site title="Puslapis nerastas" description="Grįžti prie DeepAltitude užrašų." canonical="/404.html" noindex><section class="not-found"><p class="eyebrow">404 / DEEP ALTITUDE</p><h1>Šio puslapio nėra.</h1><p>This page isn’t here. The notebook is a good place to start.</p><a class="primary-link" href="/blog/">Visi užrašai <span aria-hidden="true">→</span></a></section></Site>
+
+<Site
+  title="Puslapis nerastas"
+  description="Grįžti prie DeepAltitude užrašų."
+  canonical="/404.html"
+  noindex
+>
+  <section class="not-found">
+    <p class="eyebrow">404 / DEEP ALTITUDE</p>
+    <h1>Šio puslapio nėra.</h1>
+    <p>Grįžkime prie užrašų.</p>
+    <a class="primary-link" href="/uzrasai/">
+      Visi užrašai <span aria-hidden="true">→</span>
+    </a>
+  </section>
+</Site>
