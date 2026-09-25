@@ -22,10 +22,12 @@
     "cf-typegen": "wrangler types",
     "check": "astro check && tsc --noEmit && npm test && npm run build && node notebook/verify.mjs && wrangler deploy --dry-run",
     "deploy": "wrangler deploy",
+    "predeploy": "node scripts/redirects.mjs",
     "dev": "astro dev",
     "preview": "npm run build && wrangler dev",
-    "test": "node notebook/test-editor.mjs && node notebook/test-system.mjs && node notebook/test-calendar.mjs && node notebook/test-requests.mjs",
-    "test:runtime": "node notebook/test-routes.mjs"
+    "test": "node notebook/test-editor.mjs && node notebook/test-system.mjs && node notebook/test-calendar.mjs && node notebook/test-requests.mjs && node notebook/test-redirects.mjs",
+    "test:runtime": "node notebook/test-routes.mjs",
+    "test:worker": "node notebook/test-routes.mjs --worker"
   },
   "type": "module"
 }

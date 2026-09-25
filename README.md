@@ -100,16 +100,21 @@ Node 22+; the SQLite-backed test runner needs Node 22.13+ (Node 24 is used here)
 npm ci
 npm run check
 npm run test:runtime
+npm run test:worker
 npm run dev -- --host 127.0.0.1
 ```
 
-`npm run check` runs Astro/TypeScript checks, preservation/auth/storage/calendar tests, a fresh production build, generated-route/link checks and a Cloudflare dry run. Tests use an in-memory SQLite database, mocked GitHub and mocked Google; they do not edit real essays or accounts. The runtime test starts Astro and probes real HTTP routes, redirects and unauthenticated private endpoints. Real account consent, author UI workflows, mobile rendering and production D1 migration still require live verification after setup.
+`npm run check` runs Astro/TypeScript checks, preservation/auth/storage/calendar tests, redirect regression tests, a fresh production build, generated-route/link checks and a Cloudflare dry run. Tests use an in-memory SQLite database, mocked GitHub and mocked Google; they do not edit real essays or accounts. The runtime tests start Astro or the built Cloudflare Worker locally and probe real HTTP routes, every legacy redirect with and without a trailing slash, query strings and unauthenticated private endpoints. Real account consent, author UI workflows, mobile rendering and production D1 migration still require live verification after setup.
+
+Legacy redirects have one source: `notebook/legacy-routes.json`. The build generates `public/_redirects` with one exact rule per canonical source. A small SSR fallback reads the same map to serve both trailing-slash forms and preserve query strings when a request reaches the Worker; other unknown URLs receive the existing 404 page. Do not also add these rules to Astro's `redirects` configuration: the adapter would append duplicates. The build and `npm run deploy` validate the final `dist/_redirects` artifact, rejecting duplicate URL-normalized sources, conflicting destinations, missing rules and self-redirects. Article routes are not changed by this generation.
 
 For local D1 development, add the real binding first and run `npx wrangler d1 migrations apply deepaltitude-private --local`. Put development secrets only in an ignored `.dev.vars` file. The application never has a production authentication bypass.
 
 Production is the existing `main` → Cloudflare Git integration. GitHub writes create one atomic commit including any new principles/images. SHA checks and non-forced reference updates prevent lost edits. D1 changes do not trigger builds. Public operational pages render on request so visibility changes apply without a rebuild. The sitemap queries only public records; RSS remains available without a visible footer control.
 
-The Cloudflare account/dashboard security challenge prevented provisioning or reading new bindings during this implementation; automatic approval review stopped further dashboard attempts. Browser access to local previews was also blocked. Those external/live checks are explicitly separate from the passing automated tests. PR #3 remains the implementation branch. Its Cloudflare build check failed without a detailed error being exposed through GitHub; a fresh dependency install and full local check passed. Obtain the Cloudflare build log and resolve its reported cause before merging. Do not merge a failing deployment check or treat these local checks as proof of live authoring.
+The Cloudflare account/dashboard security challenge prevented provisioning or reading new bindings during this implementation; automatic approval review stopped further dashboard attempts. Browser access to local previews was also blocked. Those external/live checks are explicitly separate from the passing automated tests. The supplied Cloudflare log identified duplicate redirect emitters as the initial deployment failure; the generation and validation described above address that cause. Do not merge a failing deployment check or treat local checks as proof of live authoring.
+
+In this managed execution environment, the optional local Worker test currently cannot start Wrangler because the operating system rejects its network-interface enumeration (`uv_interface_addresses`). Astro HTTP tests, redirect artifact validation and the deployment dry run pass independently. The local Worker test is not recorded as passed; validate the deployed Worker as well.
 
 ## Recovery
 

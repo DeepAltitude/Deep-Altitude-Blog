@@ -1,0 +1,13 @@
+---
+import NotFound from "./404.astro";
+import { legacyDestination } from "../utils/legacy-redirects.mjs";
+
+// An explicit dynamic fallback retains the original request, including its
+// query string. A prerendered 404 middleware context strips search parameters.
+export const prerender = false;
+const destination = legacyDestination(Astro.url);
+if (destination) return Astro.redirect(destination, 301);
+Astro.response.status = 404;
+---
+
+<NotFound />

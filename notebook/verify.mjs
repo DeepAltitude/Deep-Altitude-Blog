@@ -2,6 +2,14 @@ import fs from "node:fs";
 import path from "node:path";
 import assert from "node:assert/strict";
 import { parse } from "yaml";
+import {
+  legacyRedirects,
+  validateRedirects,
+} from "../src/utils/legacy-redirects.mjs";
+assert.deepEqual(
+  validateRedirects(fs.readFileSync("dist/_redirects", "utf8")),
+  legacyRedirects,
+);
 const root = path.resolve("dist"),
   redirects = JSON.parse(fs.readFileSync("notebook/legacy-routes.json"));
 const routes = new Set([
