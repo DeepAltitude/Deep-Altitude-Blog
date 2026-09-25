@@ -139,12 +139,13 @@ try {
     assert.equal(response.status, 401, route);
     assert.equal(response.headers.get("Cache-Control"), "private, no-store");
   }
-  const about = await fetch(origin + "/about/", { redirect: "manual" });
-  assert.equal(about.status, 301);
-  assert.equal(about.headers.get("Location"), "/apie/");
-  const archive = await fetch(origin + "/blog/", { redirect: "manual" });
-  assert.equal(archive.status, 301);
-  assert.equal(archive.headers.get("Location"), "/uzrasai/");
+  for (const [source, destination] of [["/about/", "/apie/"], ["/blog/", "/uzrasai/"]]) {
+    for (const search of ["", "?ref=legacy"]) {
+      const response = await fetch(origin + source + search, { redirect: "manual" });
+      assert.equal(response.status, 301, source);
+      assert.equal(response.headers.get("Location"), destination + search, source);
+    }
+  }
   if (output)
     fs.writeFileSync(
       path.join(output, "runtime-routes.json"),

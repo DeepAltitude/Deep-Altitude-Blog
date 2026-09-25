@@ -49,6 +49,10 @@ for (const filename of fs
   .readdirSync(root, { recursive: true })
   .filter((f) => f.endsWith(".html"))) {
   const html = fs.readFileSync(path.join(root, filename), "utf8");
+  assert.ok(
+    !/<meta\b[^>]*http-equiv=["']refresh["']/i.test(html),
+    `Redirect emitted as status-200 HTML instead of an HTTP redirect: ${filename}`,
+  );
   for (const [, raw] of html.matchAll(/(?:href|src)="([^"]+)"/g)) {
     const url = new URL(
       raw.replaceAll("&amp;", "&"),
