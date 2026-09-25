@@ -1,3 +1,4 @@
 ---
-return Astro.redirect("/apie/", 301);
+export const prerender = false;
+return Astro.redirect("/apie/" + Astro.url.search, 301);
 ---
