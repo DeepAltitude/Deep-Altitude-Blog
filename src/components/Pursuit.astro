@@ -6,7 +6,7 @@ import { getNotes } from "../utils/posts";
 import { getPrinciples } from "../utils/principles";
 import { list, one, observations } from "../lib/data/store";
 import { domainNames } from "../utils/domains";
-import { progress, todayIn } from "../lib/calendar/model";
+import { pursuitProgress, todayIn } from "../lib/calendar/model";
 const { record, kind } = Astro.props,
   db = (Astro.locals.runtime.env as any).DB;
 const isProject = kind === "projects",
@@ -52,16 +52,10 @@ const labels = isProject
       {record.description && (
         <p class="standfirst preserve-lines">{record.description}</p>
       )}
-      <p class="entry-tags">{progress(record, todayIn())}</p>
+      <p class="entry-tags">{pursuitProgress(record, kind, todayIn())}</p>
     </header>
-    <a
-      class="author-edit"
-      data-author-link
-      hidden
-      href={"/editor/?kind=" + kind + "&id=" + record.id}
-    >
-      Edit {isProject ? "project" : "experiment"}
-    </a>
+    <div class="canonical-author" data-inline-operation={kind} data-id={record.id}></div>
+    <div data-canonical-content>
     {project && (
       <p>
         <a href={"/projektai/" + project.slug + "/"}>{project.title} →</a>
@@ -115,6 +109,7 @@ const labels = isProject
         </ul>
       </section>
     )}
+    </div>
     <nav class="page-turn">
       <a href={base}>← {isProject ? "Projektai" : "Eksperimentai"}</a>
     </nav>

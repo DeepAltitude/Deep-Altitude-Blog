@@ -10,19 +10,25 @@ export async function loadCatalogPages(
   let cursor: string | undefined;
   do {
     const page = await request(
-      "editor/catalog" + (cursor ? "?cursor=" + encodeURIComponent(cursor) : ""),
+      "editor/catalog" +
+        (cursor ? "?cursor=" + encodeURIComponent(cursor) : ""),
     );
     result.articles.push(...page.articles);
     result.principles.push(...page.principles);
     result.drafts.push(...page.drafts);
+    result.privateLinks = { ...result.privateLinks, ...page.privateLinks };
     if (page.warning) result.warning = page.warning;
     cursor = page.next;
     if (cursor && seen.has(cursor))
-      throw new Error("The notebook index could not finish loading. Try again; your draft is still here.");
+      throw new Error(
+        "The notebook index could not finish loading. Try again; your text is still here.",
+      );
     if (cursor) seen.add(cursor);
   } while (cursor);
   result.articles.sort(
-    (a, b) => String(b.pubDate || "").localeCompare(String(a.pubDate || "")) || a.title.localeCompare(b.title),
+    (a, b) =>
+      String(b.pubDate || "").localeCompare(String(a.pubDate || "")) ||
+      a.title.localeCompare(b.title),
   );
   result.principles.sort((a, b) => a.title.localeCompare(b.title));
   return result;

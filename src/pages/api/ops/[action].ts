@@ -7,6 +7,11 @@ import {
 } from "../../../server/guard";
 import { EditorError } from "../../../server/errors";
 import {
+  removeRecord,
+  focusHistory,
+  saveOneFocus,
+  removeFocus,
+  notebookSnapshot,
   database,
   kinds,
   list,
@@ -33,7 +38,11 @@ export const ALL: APIRoute = async ({ request, params, locals }) => {
     let result: any;
     const kind = u.searchParams.get("kind") as RecordKind;
     if (request.method === "GET") {
-      if (action === "snapshot")
+      if (action === "notebook")
+        result = await notebookSnapshot(db, u.searchParams.get("week") || "");
+      else if (action === "focus-history")
+        result = await focusHistory(db, u.searchParams.get("before") || "");
+      else if (action === "snapshot")
         result = await privateSnapshot(db, u.searchParams.get("week") || "");
       else if (action === "list" && kinds.includes(kind))
         result = await list(db, kind);
@@ -47,7 +56,16 @@ export const ALL: APIRoute = async ({ request, params, locals }) => {
       else throw new EditorError(404, "Not found.");
     } else {
       const body = await input(request);
-      if (action === "save" && kinds.includes(body.kind))
+      if (action === "delete") {
+        if (body.confirm !== true)
+          throw new EditorError(422, "Confirm deletion first.");
+        result = await removeRecord(db, body.kind, body.record);
+      } else if (action === "focus-delete") {
+        if (body.confirm !== true)
+          throw new EditorError(422, "Confirm deletion first.");
+        result = await removeFocus(db, body);
+      } else if (action === "focus-save") result = await saveOneFocus(db, body);
+      else if (action === "save" && kinds.includes(body.kind))
         result = await save(db, body.kind, body.record);
       else if (action === "observation")
         result = await addObservation(db, body);
@@ -60,6 +78,11 @@ export const ALL: APIRoute = async ({ request, params, locals }) => {
           throw new EditorError(
             409,
             "This experiment changed. Reload it first.",
+          );
+        if (!["idea", "planned"].includes(record.status))
+          throw new EditorError(
+            409,
+            "This experiment has already started. Reopen its latest state.",
           );
         result = await save(db, "experiments", {
           ...record,

@@ -48,7 +48,7 @@ interface TreeItem {
   sha: string;
   type: string;
 }
-interface Snapshot {
+export interface Snapshot {
   head: string;
   tree: string;
   files: Map<string, TreeItem>;
@@ -60,7 +60,7 @@ interface Change {
   content?: string;
   sha?: string | null;
 }
-async function snapshot(git: Git): Promise<Snapshot> {
+export async function snapshot(git: Git): Promise<Snapshot> {
   const ref = await git<{ object: { sha: string } }>(
     repo + "/git/ref/heads/main",
   );
@@ -83,7 +83,7 @@ async function snapshot(git: Git): Promise<Snapshot> {
     ),
   };
 }
-async function readFile(
+export async function readFile(
   file: string,
   snap: Snapshot,
   git: Git,
@@ -101,7 +101,7 @@ async function readFile(
     throw new EditorError(413, "This document is too large for the editor.");
   return { raw: decoder.decode(unb64(result.content)), sha: item.sha };
 }
-async function commit(
+export async function commit(
   changes: Change[],
   snap: Snapshot,
   git: Git,
@@ -133,11 +133,11 @@ const change = (path: string, content: string): Change => ({
   mode: "100644",
   type: "blob",
 });
-function pick(input: any): Editable {
+export function pick(input: any): Editable {
   if (!input || !uuidPattern.test(input.key))
     throw new EditorError(
       422,
-      "The editing document is invalid. Reload it without discarding your draft.",
+      "The editing document is invalid. Reload it without discarding your text.",
     );
   const kind = input.file
     ? kindOf(input.file)
@@ -176,12 +176,12 @@ function pick(input: any): Editable {
     throw new EditorError(422, "A new principle is invalid.");
   validateAttachments(attachments);
   if (input.draftFile !== undefined && !draftPath(input.draftFile))
-    throw new EditorError(403, "This is not an author draft.");
+    throw new EditorError(403, "This is not an author document.");
   if (
     input.draftSha != null &&
     (typeof input.draftSha !== "string" || !/^\d+$/.test(input.draftSha))
   )
-    throw new EditorError(422, "The draft revision is invalid.");
+    throw new EditorError(422, "The saved revision is invalid.");
   if (kind !== "article" && (newPrinciples.length || attachments.length))
     throw new EditorError(
       422,
@@ -287,9 +287,16 @@ async function catalog(
   let offset = 0;
   if (cursor !== null) {
     const parts = /^([a-f0-9]{40}):([1-9]\d{0,7})$/.exec(cursor);
-    if (!parts) throw new EditorError(400, "The notebook page is invalid. Reload the editor.");
+    if (!parts)
+      throw new EditorError(
+        400,
+        "The notebook page is invalid. Reload the editor.",
+      );
     if (parts[1] !== snap.head)
-      throw new EditorError(409, "The notebook changed while its index was loading. Reload the editor; your draft stays in this tab.");
+      throw new EditorError(
+        409,
+        "The notebook changed while its index was loading. Reload the editor; your text stays in this tab.",
+      );
     offset = Number(parts[2]);
   }
   const publicFiles = [...snap.files.values()]
@@ -310,6 +317,9 @@ async function catalog(
         domain: data.domain,
         topic: data.topic,
         pubDate: data.pubDate,
+        principles: data.principles || [],
+        project: data.project,
+        experiment: data.experiment,
         id: f.path.split("/").at(-1)!.slice(0, -3),
         url: documentUrl(f.path, raw),
       } as any;
@@ -319,6 +329,7 @@ async function catalog(
     return { ...meta, file: f.path, sha: f.sha } as CatalogItem;
   });
   let drafts: CatalogItem[] = [];
+  const privateLinks: Record<string, any> = {};
   let warning: string | undefined;
   if (env.DB && offset === 0) {
     try {
@@ -326,21 +337,39 @@ async function catalog(
         await env.DB.prepare(
           "SELECT id, document, version FROM content_drafts ORDER BY updated_at DESC",
         ).all()
-      ).results.map((row: any) => {
-        const d = JSON.parse(row.document);
-        return {
-          kind: d.kind,
-          file: "draft:" + row.id,
-          sha: String(row.version),
-          title: d.title || "Untitled note",
-          url: "",
-          domain: d.domain,
-          topic: d.topic,
-        };
-      });
+      ).results
+        .filter((row: any) => {
+          const d = JSON.parse(row.document);
+          if (!d.deleted && d.visibility === "public" && d.file)
+            privateLinks[d.file] = {
+              principles: d.privatePrinciples || [],
+              ...d.privateRelations,
+            };
+          return !d.deleted && d.visibility !== "public";
+        })
+        .map((row: any) => {
+          const d = JSON.parse(row.document);
+          return {
+            kind: d.kind,
+            file: "draft:" + row.id,
+            sha: String(row.version),
+            title: d.title || "Untitled note",
+            url: "",
+            domain: d.domain,
+            topic: d.topic,
+            pubDate: d.pubDate,
+            description: d.description,
+            visibility: "private",
+            sourceFile: d.file,
+            pending: d.pending,
+            principles: d.principles || [],
+            project: d.project,
+            experiment: d.experiment,
+          };
+        });
     } catch {
       warning =
-        "Private drafts are temporarily unavailable. Your published writing can still be edited. Try opening drafts again later.";
+        "Private notes are temporarily unavailable. Your published writing can still be edited. Try opening private notes again later.";
     }
   }
   return {
@@ -355,6 +384,7 @@ async function catalog(
       .filter((i) => i.kind === "principle")
       .sort((a, b) => a.title.localeCompare(b.title)),
     drafts,
+    privateLinks,
     ...(warning ? { warning } : {}),
     ...(end < publicFiles.length ? { next: `${snap.head}:${end}` } : {}),
   };
@@ -373,11 +403,11 @@ async function requireDraft(
   if (!stored || String(stored.version) !== document.draftSha)
     throw new EditorError(
       409,
-      "This draft changed on another device. Your local text is still here.",
+      "This item changed on another device. Your local text is still here.",
     );
   const content = JSON.parse(stored.document);
   if (content.key !== document.key || content.file !== document.file)
-    throw new EditorError(409, "This draft belongs to another document.");
+    throw new EditorError(409, "This saved copy belongs to another document.");
 }
 export async function handleContent(
   action: string,
@@ -385,10 +415,16 @@ export async function handleContent(
   input: any,
   git: Git,
   env: ContentEnvironment,
+  options: {
+    snapshot?: Snapshot;
+    retainPrivate?: boolean;
+    originalRaw?: string;
+  } = {},
 ) {
   const url = new URL(request.url),
-    snap = await snapshot(git);
-  if (action === "catalog") return catalog(snap, git, env, url.searchParams.get("cursor"));
+    snap = options.snapshot || (await snapshot(git));
+  if (action === "catalog")
+    return catalog(snap, git, env, url.searchParams.get("cursor"));
   if (action === "document") {
     const file = url.searchParams.get("file");
     if (!file) {
@@ -436,14 +472,14 @@ export async function handleContent(
   if (action !== "publish") throw new EditorError(404, "Not found.");
   validateFields(document, document.kind, true);
   await requireDraft(document, snap, git, env);
-  const isNew = !document.file;
+  const isNew = !document.sha;
   let file =
     document.file ||
     (document.kind === "article"
       ? `src/content/articles/${document.key}.md`
       : `src/content/principles/${slugify(document.title)}-${document.key.slice(0, 8)}.md`);
   const previous = snap.files.get(file);
-  let original: string | undefined;
+  let original: string | undefined = options.originalRaw;
   if (!isNew) {
     if (!previous || previous.sha !== document.sha)
       throw new EditorError(
@@ -551,7 +587,7 @@ export async function handleContent(
       commit: snap.head,
     };
   }
-  if (original !== raw) changes.push(change(file, raw));
+  if (!previous || original !== raw) changes.push(change(file, raw));
 
   const commitSha = await commit(
     changes,
@@ -561,7 +597,7 @@ export async function handleContent(
       document.title.replace(/[\r\n\x00-\x1f]/g, " ").slice(0, 100),
   );
   let warning: string | undefined;
-  if (document.draftFile) {
+  if (document.draftFile && !options.retainPrivate) {
     try {
       const removed = await database(env)
         .prepare("DELETE FROM content_drafts WHERE id = ? AND version = ?")
@@ -569,12 +605,12 @@ export async function handleContent(
         .run();
       if (removed.meta.changes !== 1)
         warning =
-          "A newer private draft was kept. This version is saved to GitHub.";
+          "A newer private copy was kept. This version is saved to GitHub.";
     } catch {
       // Git publication already succeeded. D1 housekeeping must not turn it into
       // a reported save failure or encourage a duplicate publication.
       warning =
-        "This version is saved to GitHub. Private draft cleanup failed; its older copy is still available.";
+        "This version is saved to GitHub. Private copy cleanup failed; its older copy is still available.";
     }
   }
   const bytes = encoder.encode(raw),

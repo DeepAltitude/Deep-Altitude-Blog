@@ -38,6 +38,19 @@ export interface Editable extends Fields {
   draftSha?: string | null;
   newPrinciples: NewPrinciple[];
   attachments: Attachment[];
+  visibility?: "private" | "public";
+  originalRaw?: string;
+  privatePrinciples?: string[];
+  privateRelations?: Partial<Pick<Fields, "project" | "experiment" | "sprint">>;
+  principleId?: string;
+  deleted?: boolean;
+  pending?: {
+    direction: "public" | "private" | "delete";
+    file: string;
+    revision?: string;
+    commit: string;
+    sequence?: number;
+  };
 }
 export interface CatalogItem {
   kind: Kind;
@@ -50,12 +63,22 @@ export interface CatalogItem {
   pubDate?: string;
   description?: string;
   id?: string;
+  visibility?: "private" | "public";
+  sourceFile?: string;
+  principles?: string[];
+  project?: string;
+  experiment?: string;
+  pending?: Editable["pending"];
 }
 export interface Catalog {
   articles: CatalogItem[];
   principles: CatalogItem[];
   drafts: CatalogItem[];
   warning?: string;
+  privateLinks?: Record<
+    string,
+    { principles: string[]; project?: string; experiment?: string }
+  >;
 }
 export interface CatalogPage extends Catalog {
   next?: string;

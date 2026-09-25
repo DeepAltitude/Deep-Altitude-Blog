@@ -35,6 +35,7 @@ const fields: Record<RecordKind, string[]> = {
     "title",
     "description",
     "outcome",
+    "progress",
     "status",
     "start_date",
     "end_date",
@@ -48,6 +49,7 @@ const fields: Record<RecordKind, string[]> = {
     "title",
     "description",
     "hypothesis",
+    "show_progress",
     "protocol",
     "observe",
     "conclusion",
@@ -145,10 +147,27 @@ function clean(kind: RecordKind, input: any) {
       v[key] = JSON.stringify([...new Set(value)]);
       continue;
     }
-    if (["featured", "active"].includes(key)) {
+    if (["featured", "active", "show_progress"].includes(key)) {
       if (![true, false, 0, 1].includes(value))
         throw new EditorError(422, "Invalid selection.");
       v[key] = value ? 1 : 0;
+      continue;
+    }
+    if (key === "progress") {
+      if (value === null || value === "") {
+        v[key] = null;
+        continue;
+      }
+      if (
+        !Number.isInteger(Number(value)) ||
+        Number(value) < 0 ||
+        Number(value) > 100
+      )
+        throw new EditorError(
+          422,
+          "Progress must be between 0 and 100, or left empty.",
+        );
+      v[key] = Number(value);
       continue;
     }
     if (key === "weekly_target") {
@@ -208,7 +227,7 @@ export async function list(db: Database, kind: RecordKind, publicOnly = false) {
     return [];
   const result = await db
     .prepare(
-      `SELECT * FROM ${kind}${publicOnly ? " WHERE visibility = 'public'" : ""} ORDER BY updated_at DESC, id`,
+      `SELECT * FROM ${kind}${["projects", "experiments"].includes(kind) ? " WHERE deleted_at IS NULL" : ""}${publicOnly ? " AND visibility = 'public'" : ""} ORDER BY updated_at DESC, id`,
     )
     .all();
   return result.results.map(decode);
@@ -227,7 +246,7 @@ export async function one(
   return decode(
     await db
       .prepare(
-        `SELECT * FROM ${kind} WHERE (id = ? OR ${kind === "habits" ? "id" : "slug"} = ?)${publicOnly ? " AND visibility = 'public'" : ""}`,
+        `SELECT * FROM ${kind} WHERE (id = ? OR ${kind === "habits" ? "id" : "slug"} = ?)${["projects", "experiments"].includes(kind) ? " AND deleted_at IS NULL" : ""}${publicOnly ? " AND visibility = 'public'" : ""}`,
       )
       .bind(id, id)
       .first(),
@@ -264,7 +283,7 @@ export async function save(db: Database, kind: RecordKind, input: any) {
     const columns = Object.keys(v),
       result = await db
         .prepare(
-          `UPDATE ${kind} SET ${columns.map((k) => k + " = ?").join(", ")}, updated_at = ?, version = version + 1 WHERE id = ? AND version = ?`,
+          `UPDATE ${kind} SET ${columns.map((k) => k + " = ?").join(", ")}, updated_at = ?, version = version + 1 WHERE id = ? AND version = ?${["projects", "experiments"].includes(kind) ? " AND deleted_at IS NULL" : ""}`,
         )
         .bind(...Object.values(v), now, id, input.version)
         .run();
@@ -308,7 +327,7 @@ export async function observations(
   return (
     await db
       .prepare(
-        `SELECT o.* FROM experiment_observations o JOIN experiments e ON e.id = o.experiment WHERE e.id = ?${publicOnly ? " AND e.visibility = 'public'" : ""} ORDER BY o.date, o.created_at`,
+        `SELECT o.* FROM experiment_observations o JOIN experiments e ON e.id = o.experiment WHERE e.id = ? AND e.deleted_at IS NULL${publicOnly ? " AND e.visibility = 'public'" : ""} ORDER BY o.date, o.created_at`,
       )
       .bind(id)
       .all()
@@ -346,7 +365,7 @@ export async function focus(db: Database, week: string) {
     .bind(week)
     .first();
   return found
-    ? { ...found, items: JSON.parse(found.items) }
+    ? { ...found, items: found.deleted_at ? [] : JSON.parse(found.items) }
     : { week, items: [], version: 0 };
 }
 export async function saveFocus(db: Database, input: any) {
@@ -371,7 +390,7 @@ export async function saveFocus(db: Database, input: any) {
           .run()
       : await db
           .prepare(
-            "UPDATE weekly_focus SET items = ?, updated_at = ?, version = version + 1 WHERE week = ? AND version = ?",
+            "UPDATE weekly_focus SET items = ?, deleted_at = NULL, updated_at = ?, version = version + 1 WHERE week = ? AND version = ?",
           )
           .bind(
             JSON.stringify(input.items),
@@ -440,4 +459,77 @@ export async function privateSnapshot(db: Database, week: string) {
     focus: weekly,
     entries: entries.results,
   };
+}
+
+export async function removeRecord(db: Database, kind: RecordKind, input: any) {
+  if (
+    !["projects", "experiments"].includes(kind) ||
+    !uuidPattern.test(input?.id) ||
+    !Number.isInteger(input.version)
+  )
+    throw new EditorError(422, "Choose a saved Project or Experiment.");
+  const result = await db
+    .prepare(
+      `UPDATE ${kind} SET deleted_at = ?, version = version + 1 WHERE id = ? AND version = ? AND deleted_at IS NULL`,
+    )
+    .bind(new Date().toISOString(), input.id, input.version)
+    .run();
+  if (result.meta.changes !== 1)
+    throw new EditorError(
+      409,
+      "This item changed elsewhere. Reopen it before deleting.",
+    );
+  return { deleted: true };
+}
+export async function focusHistory(db: Database, before: string, limit = 5) {
+  day(before);
+  const rows = await db
+    .prepare(
+      "SELECT * FROM weekly_focus WHERE week < ? AND deleted_at IS NULL AND items <> '[]' ORDER BY week DESC LIMIT ?",
+    )
+    .bind(before, Math.min(20, Math.max(1, limit)) + 1)
+    .all();
+  return {
+    items: rows.results
+      .slice(0, limit)
+      .map((r) => ({ ...r, items: JSON.parse(r.items) })),
+    more: rows.results.length > limit,
+  };
+}
+export async function saveOneFocus(db: Database, input: any) {
+  if (
+    typeof input.text !== "string" ||
+    input.text.length > 1000 ||
+    /[\r\n]/.test(input.text)
+  )
+    throw new EditorError(422, "Use one short focus line.");
+  if (new Date(day(input.week) + "T12:00:00Z").getUTCDay() !== 1)
+    throw new EditorError(422, "Choose an ISO week beginning on Monday.");
+  const result = await saveFocus(db, {
+    ...input,
+    items: input.text.trim() ? [input.text.trim()] : [],
+  });
+  return result;
+}
+export async function removeFocus(db: Database, input: any) {
+  const result = await db
+    .prepare(
+      "UPDATE weekly_focus SET deleted_at = ?, version = version + 1 WHERE week = ? AND version = ? AND deleted_at IS NULL",
+    )
+    .bind(new Date().toISOString(), day(input.week), input.version)
+    .run();
+  if (result.meta.changes !== 1)
+    throw new EditorError(
+      409,
+      "Weekly focus changed elsewhere. Reopen it before deleting.",
+    );
+  return { deleted: true };
+}
+export async function notebookSnapshot(db: Database, week: string) {
+  const [projects, experiments, weekly] = await Promise.all([
+    list(db, "projects"),
+    list(db, "experiments"),
+    focus(db, week),
+  ]);
+  return { projects, experiments, focus: weekly };
 }

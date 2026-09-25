@@ -1,6 +1,6 @@
 ---
 import Site from "../../layouts/Site.astro";
-import ArticleList from "../../components/ArticleList.astro";
+import NotebookSurface from "../../components/NotebookSurface.astro";
 import {
   domains,
   domainNames,
@@ -36,11 +36,7 @@ const notes = (await getNotes()).filter(
       </p>
       <h1>{topic.title}</h1>
     </header>
-    {notes.length ? (
-      <ArticleList notes={notes} showDomain={false} />
-    ) : (
-      <p class="empty-index">Ši tema dar laukia užrašų.</p>
-    )}
+    <NotebookSurface notes={notes} domain={domain} topic={topic.id} />
     <nav class="page-turn">
       <a href={domainUrl(domain)}>← {domainNames[domain]}</a>
     </nav>

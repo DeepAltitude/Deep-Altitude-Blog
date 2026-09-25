@@ -472,7 +472,7 @@ export async function events(
     return {
       items: [],
       timezone: p.timezone,
-      warning: "Google Calendar neprijungtas.",
+      warning: "Google Calendar is disconnected. DeepAltitude dates are still shown.",
     };
   const key = JSON.stringify([
       row.updated_at,

@@ -140,6 +140,26 @@ assert.throws(() =>
   updateOriginal(raw, { title: "", description: "", body: "text" }),
 );
 
+// New inline endpoints must enforce the same real session guard before storage.
+for (const action of [
+  "note?kind=article",
+  "save-note",
+  "delete-note",
+  "settle-note",
+]) {
+  const response = await call(
+    action,
+    action.startsWith("note?")
+      ? {}
+      : {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Origin: origin },
+          body: "{}",
+        },
+  );
+  assert.equal(response.status, 401, action);
+  assert.equal(response.headers.get("Cache-Control"), "private, no-store");
+}
 const start = await call(
   "login?returnTo=" +
     encodeURIComponent("/editor/?file=" + encodeURIComponent(file)),

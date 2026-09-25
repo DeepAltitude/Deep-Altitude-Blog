@@ -1,4 +1,5 @@
 ---
+import NotebookSurface from "../../components/NotebookSurface.astro";
 import Site from "../../layouts/Site.astro";
 import {
   domains,
@@ -45,6 +46,7 @@ const notes = (await getNotes()).filter((note) => note.domain === domain);
         </li>
       ))}
     </ol>
+    <NotebookSurface notes={notes} domain={domain} />
     <nav class="page-turn">
       <a href={`/uzrasai/?domain=${domain}`}>Visi srities užrašai →</a>
     </nav>

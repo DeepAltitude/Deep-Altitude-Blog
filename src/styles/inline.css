@@ -1,0 +1,309 @@
+/* A thin writing layer on the existing notebook typography. */
+.inline-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 2rem 0 0;
+}
+.inline-heading h2 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  margin: 0;
+}
+.notebook-entry {
+  min-width: 0;
+}
+.notebook-entry > summary {
+  cursor: pointer;
+  list-style: none;
+  min-height: 48px;
+}
+.notebook-entry > summary::-webkit-details-marker {
+  display: none;
+}
+.notebook-entry[open] > summary .entry-arrow {
+  transform: rotate(180deg);
+}
+.notebook-entry .entry-copy h3 {
+  margin: 0;
+}
+.inline-content {
+  max-width: 720px;
+  padding: 0 0 2.5rem;
+  margin-left: clamp(0px, 15%, 130px);
+  overflow-wrap: anywhere;
+}
+.inline-content .prose {
+  font-size: 1.12rem;
+}
+.inline-content .prose > :first-child {
+  margin-top: 0;
+}
+.inline-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.3rem;
+  margin: 1rem 0;
+}
+.quiet-action,
+.notebook-plus {
+  font: inherit;
+  color: var(--green);
+  cursor: pointer;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0.6rem 0;
+  min-height: 44px;
+  text-align: left;
+}
+.notebook-plus {
+  min-width: 44px;
+  text-align: center;
+  font-size: 1.8rem;
+}
+.quiet-action:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+.quiet-action:disabled,
+.inline-primary:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.inline-primary {
+  font: inherit;
+  color: var(--paper);
+  background: var(--green);
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--green);
+  border-radius: 0;
+  min-height: 44px;
+  cursor: pointer;
+}
+.inline-form {
+  max-width: 720px;
+  margin: 1rem 0 2rem;
+}
+.inline-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin: 1rem 0;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+}
+.inline-form :is(input, textarea, select) {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  font: inherit;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  padding: 0.7rem;
+}
+.inline-form :is(input, select) {
+  min-height: 44px;
+}
+.inline-form textarea {
+  line-height: 1.7;
+  resize: vertical;
+}
+.inline-form .note-input {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  min-height: 220px;
+}
+.inline-form .inline-check {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.65rem;
+}
+.inline-form input:is([type="radio"], [type="checkbox"]) {
+  width: 20px;
+  min-height: 20px;
+  height: 20px;
+  margin: 0;
+  flex: 0 0 auto;
+}
+.visibility-control {
+  border: 0;
+  padding: 0;
+  margin: 1.5rem 0;
+  display: flex;
+  gap: 1.5rem;
+}
+.visibility-control legend {
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+.visibility-control label {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  min-height: 44px;
+}
+.inline-more {
+  border-top: var(--rule);
+  padding: 0.5rem 0;
+  margin-top: 1.25rem;
+}
+.inline-more summary {
+  cursor: pointer;
+  padding: 0.7rem 0;
+  min-height: 44px;
+  font-size: 0.9rem;
+}
+.inline-status {
+  font-size: 0.88rem;
+  color: var(--muted);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.inline-status:empty {
+  display: none;
+}
+.inline-status[data-error="true"] {
+  color: #84442e;
+}
+.private-label {
+  font-style: italic;
+  text-transform: none;
+}
+.inline-related {
+  margin-top: 1.8rem;
+}
+.inline-related h3 {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+.inline-form .editor-help {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.notebook-entry :is(button, input, textarea, select, a, summary):focus-visible,
+.inline-form :focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+.inline-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 1.5rem;
+}
+.inline-progress {
+  font-family: var(--mono);
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.inline-progress progress {
+  width: 8rem;
+  height: 3px;
+  accent-color: var(--green);
+  margin-right: 0.8rem;
+}
+@media (max-width: 650px) {
+  .inline-content {
+    margin-left: 0;
+    padding-bottom: 1.8rem;
+  }
+  .inline-form :is(input, textarea, select) {
+    font-size: 16px;
+  }
+  .inline-form .note-input {
+    font-size: 1.08rem;
+    min-height: 260px;
+  }
+  .inline-fields {
+    grid-template-columns: 1fr;
+  }
+  .inline-heading {
+    gap: 0.5rem;
+  }
+  .inline-actions {
+    gap: 0.25rem 1rem;
+  }
+  .inline-content .prose {
+    font-size: 1.05rem;
+  }
+}
+
+.daily-page,
+.settings-page {
+  max-width: 1200px;
+}
+.daily-page button,
+.daily-page select,
+dialog button {
+  font: inherit;
+  color: var(--green);
+  background: transparent;
+  border: var(--rule);
+  border-radius: 0;
+  min-height: 44px;
+  padding: 0.6rem 0.8rem;
+  cursor: pointer;
+}
+.daily-page select {
+  font-size: 16px;
+}
+.daily-page .quiet-action,
+.settings-page .quiet-action {
+  border: 0;
+}
+.editor-account,
+.editor-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem 2rem;
+  flex-wrap: wrap;
+}
+.editor-account {
+  justify-content: space-between;
+}
+.editor-nav {
+  border-block: var(--rule);
+  margin: 1rem 0 2rem;
+  padding: 0.5rem 0;
+}
+.editor-nav a {
+  padding: 0.6rem 0;
+}
+.focus-history {
+  margin-top: 2rem;
+}
+.focus-history > summary,
+.focus-history-entry > summary {
+  cursor: pointer;
+  padding: 0.75rem 0;
+  min-height: 44px;
+}
+.focus-history-entry {
+  border-top: var(--rule);
+}
+.focus-history-entry > summary {
+  overflow-wrap: anywhere;
+}
+.focus-history-entry > div {
+  padding: 0.5rem 0 1.5rem;
+}
+.canonical-author {
+  margin-bottom: 1rem;
+}
+.canonical-author .inline-form {
+  margin-inline: 0;
+}
+.canonical-author .inline-content {
+  margin: 0;
+  padding: 0;
+}
+.canonical-author .notebook-entry > summary {
+  display: none;
+}

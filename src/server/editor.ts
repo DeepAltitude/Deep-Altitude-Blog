@@ -1,3 +1,4 @@
+import { handleNotebook } from "./notebook";
 import type { DataEnvironment } from "../lib/data/store";
 import { EditorError } from "./errors";
 import {
@@ -187,18 +188,18 @@ async function github<T>(
       503,
       data === undefined
         ? "GitHub is unavailable. Try again shortly."
-        : "The save could not be confirmed. Reload the saved version before trying again. Your draft is still here.",
+        : "The save could not be confirmed. Reload the saved version before trying again. Your text is still here.",
     );
   }
   if (response.status === 401)
     throw new EditorError(
       401,
-      "Your sign-in has expired. Sign in again; your draft stays in this tab.",
+      "Your sign-in has expired. Sign in again; your text stays in this tab.",
     );
   if (response.status === 409 || response.status === 422)
     throw new EditorError(
       409,
-      "The original changed elsewhere. Your draft has been kept. Review the latest saved version before saving again.",
+      "The original changed elsewhere. Your text has been kept. Review the latest saved version before saving again.",
     );
   if (response.status === 404)
     throw new EditorError(
@@ -321,13 +322,24 @@ export async function handleEditor(
         "document",
         "draft",
         "publish",
+        "note",
+        "save-note",
+        "delete-note",
+        "settle-note",
       ].includes(action)
     )
       return json({ error: "Not found." }, 404);
     const allowed =
       action === "article"
         ? ["GET", "POST"]
-        : ["logout", "draft", "publish"].includes(action)
+        : [
+              "logout",
+              "draft",
+              "publish",
+              "save-note",
+              "delete-note",
+              "settle-note",
+            ].includes(action)
           ? ["POST"]
           : ["GET"];
     if (!allowed.includes(request.method))
@@ -451,6 +463,18 @@ export async function handleEditor(
         privateDrafts: !!env.DB,
         operational: !!env.DB,
       });
+    if (["note", "save-note", "delete-note", "settle-note"].includes(action))
+      return json(
+        await handleNotebook(
+          action,
+          request,
+          request.method === "POST" ? await readJson(request) : null,
+          <T>(path: string, data?: unknown, method?: string) =>
+            github<T>(path, session.token, fetcher, data, method),
+          env,
+          fetcher,
+        ),
+      );
     if (["catalog", "document", "draft", "publish"].includes(action))
       return json(
         await handleContent(
@@ -483,7 +507,7 @@ export async function handleEditor(
     if (input.sha !== file.sha)
       throw new EditorError(
         409,
-        "The original changed elsewhere. Your draft has been kept. Review the latest saved version before saving again.",
+        "The original changed elsewhere. Your text has been kept. Review the latest saved version before saving again.",
       );
     const updated = updateOriginal(raw, input);
     const digest = base64url(
@@ -516,7 +540,7 @@ export async function handleEditor(
       {
         error: known
           ? error.message
-          : "The editor could not complete this request. Your draft has not been discarded.",
+          : "The editor could not complete this request. Your text has not been discarded.",
       },
       known ? error.status : 500,
     );

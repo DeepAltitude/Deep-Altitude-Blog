@@ -1,212 +1,35 @@
 ---
 import Site from "../../layouts/Site.astro";
-import "../../styles/editor.css";
 export const prerender = false;
 Astro.response.headers.set("Cache-Control", "private, no-store");
 Astro.response.headers.set("X-Robots-Tag", "noindex, nofollow");
 ---
-
-<Site title="Rašyti" noindex canonical="/editor/" class="author-page">
-  <header class="page-heading">
-    <p class="eyebrow">DEEP ALTITUDE / AUTHOR</p>
-    <h1 id="editor-heading">Sąsiuvinis</h1>
-  </header>
+<Site title="Settings" noindex canonical="/editor/" class="settings-page">
+  <header class="page-heading"><p class="eyebrow">DEEP ALTITUDE / AUTHOR</p><h1 id="editor-heading">Settings</h1></header>
   <section id="login">
-    <p id="login-message" role="status">
-      Checking author sign-in…
-    </p>
-    <a id="login-link" href="/api/editor/login" hidden>
-      Sign in with GitHub →
-    </a>
+    <p id="login-message" role="status">Checking author sign-in…</p>
+    <a id="login-link" href="/api/editor/login" hidden>Sign in with GitHub →</a>
   </section>
   <section id="workspace" hidden>
-    <div class="editor-account">
-      <a href="/dabar/">Dabar →</a>
-      <button id="logout" type="button">
-        Sign out
-      </button>
-    </div>
-    <nav class="editor-nav" aria-label="Author notebook">
-      <a href="/editor/?kind=article">+ Note</a>
-      <a href="/editor/?kind=projects">+ Project</a>
-      <a href="/editor/?kind=experiments">+ Experiment</a>
-      <a href="/editor/?kind=experiments&idea=1">+ Experiment idea</a>
-      <a href="/editor/?kind=sprints">+ Sprint</a>
-      <a href="/editor/?kind=principle">+ Principle</a>
-      <a href="/editor/?kind=habits">Habits</a>
-      <a href="/editor/?file=src/content/pages/home.md">Homepage</a>
+    <div class="editor-account"><a href="/dabar/">Dabar →</a><button id="logout" class="quiet-action" type="button">Sign out</button></div>
+    <nav class="editor-nav" aria-label="Site settings">
+      <a href="/editor/?file=src/content/pages/home.md">Home</a>
       <a href="/editor/?file=src/content/pages/about.md">About</a>
       <a href="/editor/?kind=settings">Settings</a>
     </nav>
-    <details id="library" open>
-      <summary>Open an existing item</summary>
-      <div class="field-grid">
-        <label>
-          Collection
-          <select id="collection">
-            <option value="articles">Notes</option>
-            <option value="drafts">Private drafts</option>
-            <option value="projects">Projects</option>
-            <option value="experiments">Experiments</option>
-            <option value="sprints">Sprints</option>
-            <option value="principles">Principles</option>
-            <option value="habits">Habits</option>
-          </select>
-        </label>
-        <label>
-          Item
-          <select id="record-choice">
-            <option value="">Choose…</option>
-          </select>
-        </label>
-      </div>
-    </details>
-    <p id="catalog-warning" class="editor-help" role="status" hidden></p>
     <p id="status" role="status" aria-live="polite"></p>
-    <form id="writing-form" hidden>
-      <div class="editor-context">
-        <p class="eyebrow" id="document-kind"></p>
-        <a id="published-link" hidden target="_blank" rel="noopener">
-          View published page ↗
-        </a>
-      </div>
-      <label>
-        Title
-        <input name="title" maxlength="500" required />
-      </label>
-      <label>
-        Description / introduction
-        <textarea name="description" rows="3" maxlength="5000"></textarea>
-      </label>
-      <details id="note-metadata">
-        <summary>Dates, domain, connections &amp; image</summary>
-        <div class="field-grid" id="writing-metadata"></div>
-        <label>
-          Principles<select id="note-principles" multiple size="4"></select>
-        </label>
-        <div class="inline-add">
-          <input
-            id="new-principle-title"
-            aria-label="New principle"
-            placeholder="A reusable idea…"
-          />
-          <button type="button" id="add-principle">
-            Add principle
-          </button>
-        </div>
-        <label>
-          Upload image
-          <input
-            id="image-upload"
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
-          />
-        </label>
-        <p class="editor-help">
-          Images are published with this note. JPEG, PNG, GIF, WebP or AVIF; up
-          to 4 MB each.
-        </p>
-      </details>
-      <div class="editor-mode">
-        <button type="button" id="write-mode" aria-pressed="true">
-          Edit
-        </button>
-        <button type="button" id="preview-mode" aria-pressed="false">
-          Preview
-        </button>
-      </div>
-      <div class="writing-split">
-        <div class="writing-input">
-          <label>
-            Text
-            <textarea
-              id="writing-body"
-              name="body"
-              class="editor-body"
-              rows="25"
-              spellcheck="true"
-            ></textarea>
-          </label>
-        </div>
-        <article class="reading-page preview-page" id="preview">
-          <header class="article-header">
-            <p class="eyebrow" id="preview-meta"></p>
-            <h1 id="preview-title"></h1>
-            <p class="standfirst" id="preview-description"></p>
-          </header>
-          <figure class="article-hero" id="preview-hero" hidden>
-            <img id="preview-hero-image" alt="" />
-          </figure>
-          <div class="prose article-body" id="preview-body"></div>
-        </article>
-      </div>
-      <div class="save-row">
-        <button type="submit" class="editor-primary">
-          Save &amp; publish
-        </button>
-        <button type="button" id="save-draft">
-          Save private draft
-        </button>
-        <button type="button" id="download">
-          Download draft
-        </button>
-        <button type="button" id="reload-document">
-          Load saved version
-        </button>
-      </div>
-    </form>
-    <form id="operational-form" hidden>
-      <div class="field-grid" id="operational-fields"></div>
-      <div class="save-row">
-        <button type="submit" class="editor-primary">
-          Save
-        </button>
-        <button type="button" id="start-experiment" hidden>
-          Pradėti eksperimentą
-        </button>
-      </div>
-    </form>
-    <section id="observations" hidden>
-      <h2>Pastebėjimai</h2>
-      <div id="observation-list"></div>
-      <form id="observation-form">
-        <label>
-          Date
-          <input type="date" name="date" required />
-        </label>
-        <label>
-          Observation<textarea name="body" rows="4" required></textarea>
-        </label>
-        <button type="submit">+ Add observation</button>
-      </form>
-    </section>
+    <div id="page-editor"></div>
     <section id="settings" hidden>
-      <h2>Google Calendar</h2>
-      <p id="calendar-connection"></p>
-      <a href="/api/calendar/connect" id="calendar-connect">
-        Connect Google Calendar →
-      </a>
-      <button id="calendar-disconnect" type="button" hidden>
-        Disconnect
-      </button>
-      <form id="calendar-settings" hidden>
-        <fieldset id="calendar-choices">
-          <legend>Calendars</legend>
-        </fieldset>
-        <label>
-          Timezone
-          <input name="timezone" value="Europe/Zurich" required />
-        </label>
-        <button type="submit">Save settings</button>
+      <h2>Google Calendar</h2><p id="calendar-connection"></p>
+      <div class="inline-actions"><a href="/api/calendar/connect" id="calendar-connect" hidden>Connect Google Calendar →</a><button id="calendar-disconnect" class="quiet-action" type="button" hidden>Disconnect</button></div>
+      <form id="calendar-settings" class="inline-form" hidden>
+        <fieldset id="calendar-choices"><legend>Calendars</legend></fieldset>
+        <label>Timezone<input name="timezone" value="Europe/Zurich" required /></label>
+        <button type="submit" class="inline-primary">Save</button>
       </form>
-      <p class="editor-help">
-        DeepAltitude only reads your selected calendars. Create and manage events
-        in Google Calendar. This connection is separate from your author sign-in.
-      </p>
+      <p class="editor-help">DeepAltitude only reads your selected calendars. Create and manage events in Google Calendar. This connection is separate from your author sign-in.</p>
+      <details class="inline-more"><summary>Advanced</summary><p>Notes, principles, projects and experiments are edited where you read them.</p><ul class="text-index"><li><a href="/uzrasai/">Užrašai →</a></li><li><a href="/principai/">Principai →</a></li><li><a href="/projektai/">Projektai →</a></li><li><a href="/eksperimentai/">Eksperimentai →</a></li></ul></details>
     </section>
   </section>
-  <noscript>This authoring interface needs JavaScript.</noscript>
 </Site>
-<script>
-  import "../../scripts/editor";
-</script>
+<script>import "../../scripts/editor";</script>

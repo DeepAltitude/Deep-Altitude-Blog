@@ -65,13 +65,14 @@ const range = model.eventWhen({ allDay: true, start: "2026-09-24", end: "2026-09
 assert.match(range, /24/);
 assert.match(range, /26/);
 assert.doesNotMatch(range, /27/);
-assert.match(range, /Visa diena/);
+assert.match(range, /All day/);
 const timed = model.eventWhen({ allDay: false, start: "2026-09-25T08:00:00+02:00", end: "2026-09-25T09:00:00+02:00" }, "Europe/Zurich");
 assert.match(timed, /08:00/);
 assert.match(timed, /09:00/);
 assert.match(timed, /Europe\/Zurich/);
 const sql = new DatabaseSync(":memory:");
 sql.exec(fs.readFileSync("migrations/0001_operational.sql", "utf8"));
+sql.exec(fs.readFileSync("migrations/0002_inline_notebook.sql", "utf8"));
 const db = {
   prepare(s) {
     let args = [];

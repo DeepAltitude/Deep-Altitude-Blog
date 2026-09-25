@@ -8,12 +8,14 @@ import {
 import { EditorError } from "../../../server/errors";
 import {
   settings,
+  prefs,
   connect,
   oauthCallback,
   disconnect,
   saveSettings,
   events,
 } from "../../../lib/calendar/google";
+import { database } from "../../../lib/data/store";
 export const prerender = false;
 export const ALL: APIRoute = async ({ request, params, locals }) => {
   try {
@@ -26,6 +28,10 @@ export const ALL: APIRoute = async ({ request, params, locals }) => {
     if (request.method === "GET") {
       if (action === "connect") return connect(env);
       if (action === "callback") return oauthCallback(request, env);
+      if (action === "preferences")
+        return Response.json(await prefs(database(env)), {
+          headers: privateHeaders,
+        });
       if (action === "settings")
         return Response.json(await settings(env), { headers: privateHeaders });
       if (action === "events")
