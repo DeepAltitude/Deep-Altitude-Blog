@@ -9,6 +9,10 @@ export interface GoogleEnvironment extends DataEnvironment {
 }
 const callback = "https://deepaltitude.com/api/calendar/callback",
   cookieName = "__Host-deepaltitude-calendar";
+const readScopes = [
+  "https://www.googleapis.com/auth/calendar.events.readonly",
+  "https://www.googleapis.com/auth/calendar.calendarlist.readonly",
+];
 const encoder = new TextEncoder(),
   decoder = new TextDecoder();
 const b64 = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes));
@@ -75,9 +79,9 @@ export async function prefs(db: Database) {
     .prepare("SELECT * FROM calendar_preferences WHERE id = 1")
     .first();
   return {
-    ...row,
     calendars: JSON.parse(row?.calendars || "[]"),
     timezone: row?.timezone || "Europe/Zurich",
+    version: row?.version || 0,
   };
 }
 async function connection(env: GoogleEnvironment) {
@@ -158,22 +162,16 @@ async function api(
   env: GoogleEnvironment,
   path: string,
   fetcher: typeof fetch,
-  method = "GET",
-  body?: any,
-  etag?: string,
   retry = true,
 ): Promise<any> {
   const token = await access(env, fetcher);
   let response: Response;
   try {
     response = await fetcher("https://www.googleapis.com/calendar/v3/" + path, {
-      method,
+      method: "GET",
       headers: {
         Authorization: "Bearer " + token,
-        "Content-Type": "application/json",
-        ...(etag ? { "If-Match": etag } : {}),
       },
-      body: body === undefined ? undefined : JSON.stringify(body),
       signal: AbortSignal.timeout(15000),
     });
   } catch {
@@ -184,21 +182,16 @@ async function api(
   }
   if (response.status === 401 && retry) {
     await access(env, fetcher, true);
-    return api(env, path, fetcher, method, body, etag, false);
+    return api(env, path, fetcher, false);
   }
-  if (response.status === 412)
-    throw new EditorError(
-      409,
-      "This event changed in Google Calendar. Reload it before saving.",
-    );
   if (!response.ok)
     throw new EditorError(
       response.status === 401 ? 409 : 502,
       response.status === 401
         ? "Reconnect Google Calendar."
-        : "Google Calendar could not complete this action. Check calendar permissions and retry.",
+        : "Google Calendar could not be read. Check calendar permissions and retry.",
     );
-  return response.status === 204 ? {} : response.json();
+  return response.json();
 }
 export async function calendars(
   env: GoogleEnvironment,
@@ -222,7 +215,6 @@ export async function calendars(
       id: c.id,
       name: c.summaryOverride || c.summary,
       primary: !!c.primary,
-      writable: ["owner", "writer"].includes(c.accessRole),
       timeZone: c.timeZone,
     }));
 }
@@ -281,8 +273,7 @@ export async function connect(env: GoogleEnvironment) {
     client_id: env.GOOGLE_CLIENT_ID!,
     redirect_uri: callback,
     response_type: "code",
-    scope:
-      "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.calendarlist.readonly",
+    scope: readScopes.join(" "),
     access_type: "offline",
     prompt: "consent",
     state,
@@ -339,6 +330,9 @@ export async function oauthCallback(
         400,
         "Offline permission is required. Reconnect Calendar.",
       );
+    const granted = new Set(String(result.scope || "").split(/\s+/));
+    if (readScopes.some((scope) => !granted.has(scope)))
+      throw new EditorError(400, "Calendar read permissions were not granted.");
     await store(env, {
       access: result.access_token,
       refresh: result.refresh_token,
@@ -351,12 +345,9 @@ export async function oauthCallback(
       if (primary)
         await database(env)
           .prepare(
-            "UPDATE calendar_preferences SET calendars = ?, default_calendar = ?, version = version + 1 WHERE id = 1",
+            "UPDATE calendar_preferences SET calendars = ?, version = version + 1 WHERE id = 1",
           )
-          .bind(
-            JSON.stringify([primary.id]),
-            primary.writable ? primary.id : "",
-          )
+          .bind(JSON.stringify([primary.id]))
           .run();
     }
     target = "/editor/?kind=settings&calendar=connected";
@@ -418,11 +409,6 @@ export async function saveSettings(
     value.calendars.some((id: any) => !all.some((c) => c.id === id))
   )
     throw new EditorError(422, "Choose calendars from the connected account.");
-  if (
-    value.default_calendar &&
-    !all.some((c) => c.id === value.default_calendar && c.writable)
-  )
-    throw new EditorError(422, "Choose a writable default calendar.");
   try {
     new Intl.DateTimeFormat("en", { timeZone: value.timezone }).format();
   } catch {
@@ -430,11 +416,10 @@ export async function saveSettings(
   }
   const result = await database(env)
     .prepare(
-      "UPDATE calendar_preferences SET calendars = ?, default_calendar = ?, timezone = ?, version = version + 1 WHERE id = 1 AND version = ?",
+      "UPDATE calendar_preferences SET calendars = ?, timezone = ?, version = version + 1 WHERE id = 1 AND version = ?",
     )
     .bind(
       JSON.stringify(value.calendars),
-      value.default_calendar || "",
       value.timezone,
       value.version,
     )
@@ -459,8 +444,6 @@ export function normalizeEvent(event: any, calendar: any): CalendarItem | null {
     calendarName: calendar.name,
     location: event.location || "",
     description: event.description || "",
-    etag: event.etag,
-    writable: calendar.writable,
   };
 }
 export async function events(
@@ -535,66 +518,4 @@ export async function events(
   if (cache.size > 20) cache.clear();
   cache.set(key, { items, expires: Date.now() + 60000 });
   return { items, timezone: p.timezone };
-}
-export async function writeEvent(
-  env: GoogleEnvironment,
-  input: any,
-  fetcher: typeof fetch = fetch,
-) {
-  const all = await calendars(env, fetcher);
-  if (!all.some((c) => c.id === input.calendarId && c.writable))
-    throw new EditorError(403, "Choose a calendar you can edit.");
-  const base = "calendars/" + encodeURIComponent(input.calendarId) + "/events";
-  if (
-    input.id &&
-    (typeof input.id !== "string" || input.id.length > 1024 || !input.etag)
-  )
-    throw new EditorError(422, "Reload the event before changing it.");
-  if (input.remove) {
-    if (!input.id) throw new EditorError(422, "Choose an event.");
-    await api(
-      env,
-      base + "/" + encodeURIComponent(input.id),
-      fetcher,
-      "DELETE",
-      undefined,
-      input.etag,
-    );
-    cache.clear();
-    return { deleted: true };
-  }
-  if (
-    typeof input.title !== "string" ||
-    !input.title.trim() ||
-    input.title.length > 1000 ||
-    !validDate(input.start) ||
-    !validDate(input.end) ||
-    input.end <= input.start
-  )
-    throw new EditorError(422, "Enter a title and a valid start and end.");
-  const p = await prefs(database(env));
-  const body = {
-    summary: input.title,
-    location: String(input.location || "").slice(0, 2000),
-    description: String(input.description || "").slice(0, 100000),
-    start: input.allDay
-      ? { date: input.start.slice(0, 10) }
-      : { dateTime: input.start, timeZone: p.timezone },
-    end: input.allDay
-      ? { date: input.end.slice(0, 10) }
-      : { dateTime: input.end, timeZone: p.timezone },
-  };
-  const result = await api(
-    env,
-    base + (input.id ? "/" + encodeURIComponent(input.id) : ""),
-    fetcher,
-    input.id ? "PATCH" : "POST",
-    body,
-    input.etag,
-  );
-  cache.clear();
-  return normalizeEvent(
-    result,
-    all.find((c) => c.id === input.calendarId),
-  );
 }

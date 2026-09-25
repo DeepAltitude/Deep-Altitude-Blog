@@ -857,16 +857,6 @@ async function openSettings() {
     label.prepend(input);
     checks.append(label);
   }
-  const select = fields(
-    el("calendar-settings"),
-    "default_calendar",
-  ) as HTMLSelectElement;
-  select.replaceChildren(
-    option("", "Choose…"),
-    ...settings.calendars
-      .filter((c: any) => c.writable)
-      .map((c: any) => option(c.id, c.name)),
-  );
   fill(el("calendar-settings"), settings.preferences);
 }
 el("calendar-settings").addEventListener("submit", (e) => {
@@ -928,6 +918,11 @@ async function boot() {
     message("");
     if (kind === "settings") {
       await openSettings();
+      if (query.get("calendar") === "failed")
+        message(
+          "Google Calendar connection was not completed. Reconnect and allow both read-only permissions. Author access is unchanged.",
+          true,
+        );
       return;
     }
     if (["projects", "experiments", "sprints", "habits"].includes(kind)) {

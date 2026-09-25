@@ -10,8 +10,39 @@ export interface CalendarItem {
   calendarName?: string;
   location?: string;
   description?: string;
-  etag?: string;
-  writable?: boolean;
+}
+export function eventWhen(item: CalendarItem, timeZone: string) {
+  if (item.allDay) {
+    const { start, end } = datesOf(item, timeZone),
+      format = new Intl.DateTimeFormat("lt-LT", {
+        dateStyle: "medium",
+        timeZone: "UTC",
+      });
+    return (
+      format.formatRange(
+        new Date(start + "T12:00:00Z"),
+        new Date(end + "T12:00:00Z"),
+      ) + " · Visa diena"
+    );
+  }
+  return (
+    new Intl.DateTimeFormat("lt-LT", {
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone,
+    }).formatRange(new Date(item.start), new Date(item.end)) + " · " + timeZone
+  );
+}
+export function googleEventHref(value?: string) {
+  try {
+    const url = new URL(value || "");
+    return url.protocol === "https:" &&
+      ["calendar.google.com", "www.google.com"].includes(url.hostname)
+      ? url.href
+      : null;
+  } catch {
+    return null;
+  }
 }
 export const isoDay = (date: Date) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;

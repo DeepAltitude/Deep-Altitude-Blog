@@ -2,7 +2,7 @@
 
 **Rašymas išgrynina mintis.**
 
-A public notebook and a private daily reference. Astro renders the interface; the existing Cloudflare Worker serves it. The public GitHub repository holds durable writing. Private operational state belongs in D1. Google Calendar owns ordinary scheduled events.
+A public notebook and a private daily reference. Astro renders the interface; the existing Cloudflare Worker serves it. The public GitHub repository holds durable writing. Private operational state belongs in D1. Google Calendar owns ordinary scheduled events. DeepAltitude only reads and displays them; create, edit and delete events in Google Calendar itself.
 
 ## How it works
 
@@ -50,7 +50,7 @@ Operational dates use native date pickers with optional time fields. Times use t
 
 `/dabar/` is guarded on the server. It brings together the calendar, weekly focus, active projects / experiments / sprints, and habits. Calendar offers Monday-first month grids. The 3 / 6 / 12 views stack full-size months vertically. Dense mobile days open an agenda.
 
-Calendar is a projection: Google owns appointments; D1 owns pursuit dates. Sources can be hidden without changing data. Google recurrence is expanded by the API within the requested range. Event edits/deletes affect the selected occurrence, not the whole recurring series. A short private in-memory event cache reduces repeat requests. Google failure leaves DeepAltitude dates visible.
+Calendar is a projection: Google owns appointments; D1 owns pursuit dates. Sources can be hidden without changing data. Google recurrence is expanded by the API within the requested range. Event details are read-only and link back to Google Calendar. A short private in-memory event cache reduces repeat requests. Google failure leaves DeepAltitude dates visible.
 
 ## Authentication and privacy
 
@@ -60,9 +60,9 @@ The sign-in uses OAuth state + PKCE. Session cookies are AES-GCM encrypted, `Sec
 
 Google Calendar consent is separate from author sign-in. Disconnecting Calendar does not revoke editor access. Google refresh tokens are dynamic D1 data encrypted with a dedicated stable key; they are not deployment variables. Never rotate the token encryption key without first disconnecting/reconnecting Google or migrating the encrypted values.
 
-## One-time Cloudflare setup — still required
+## Cloudflare and Google setup
 
-The source is prepared for the following binding and secrets. They are **not provisioned by this repository**. The production editor currently reports that author sign-in is not connected. Do not infer successful infrastructure setup from a green build.
+Production D1 and GitHub author authentication are configured. The steps below also document setup for a fresh environment; do not recreate working production bindings or author credentials. Google Calendar requires its separate OAuth setup. A green build does not confirm a connected Google account.
 
 1. Create a D1 database named `deepaltitude-private` in the existing Cloudflare account, then add this entry to `wrangler.json`, using the actual returned database ID:
 
@@ -80,15 +80,16 @@ The source is prepared for the following binding and secrets. They are **not pro
 
    | Name | Value |
    | --- | --- |
-   | `DEEPALTITUDE_EDITOR_CLIENT_ID` | The installed GitHub App client ID |
    | `DEEPALTITUDE_EDITOR_CLIENT_SECRET` | A client secret generated in that GitHub App's settings |
    | `GOOGLE_CLIENT_ID` | A Google web-application OAuth client ID |
    | `GOOGLE_CLIENT_SECRET` | That Google OAuth client's secret |
    | `TOKEN_ENCRYPTION_KEY` | A stable, independently generated random secret of at least 32 characters |
 
+The non-secret GitHub App client ID is declared in `wrangler.json`. Keep the Google client ID and both Google secrets in Worker Secrets so deployment preserves them; never commit their values.
+
 4. GitHub App callback: `https://deepaltitude.com/api/editor/callback`. The App needs Contents read/write and is installed only on this repository. No App private key is used.
-5. Enable Google Calendar API in the Google Cloud project. Configure the OAuth consent screen for the author and register exactly `https://deepaltitude.com/api/calendar/callback`. The requested scopes are Calendar events and read-only Calendar list; offline access is required. Keep Google OAuth's publishing/test-user configuration appropriate for durable personal use; test-mode grants can expire.
-6. Commit the real D1 binding configuration and deploy. Sign in at `/editor/`, then connect Calendar separately in Settings and select the calendars/default/timezone.
+5. Enable Google Calendar API in the Google Cloud project. Configure the OAuth consent screen for the author and register exactly `https://deepaltitude.com/api/calendar/callback`. The only requested scopes are `https://www.googleapis.com/auth/calendar.events.readonly` and `https://www.googleapis.com/auth/calendar.calendarlist.readonly`; offline access is required for token refresh. No event write permission is requested. Both read permissions must be granted. Keep Google OAuth's publishing/test-user configuration appropriate for durable personal use; test-mode grants can expire.
+6. Commit the real D1 binding configuration and deploy. Sign in at `/editor/`, then connect Calendar separately in Settings and select the calendars to display and the timezone. Google event details link back to Google Calendar; the application has no Google event create/edit/delete endpoint.
 
 Never put real secrets in GitHub, chat, screenshots or logs. No private operational data is placed in this public repository.
 

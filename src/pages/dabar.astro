@@ -32,9 +32,6 @@ try {
         <p class="eyebrow">01 / KALENDORIUS</p>
         <h2>Kalendorius</h2>
       </div>
-      <button type="button" id="new-event">
-        + Įvykis
-      </button>
     </div>
     <div class="calendar-toolbar">
       <div class="calendar-nav">
@@ -129,60 +126,19 @@ try {
     </button>
     <h2 id="day-title"></h2>
     <ul id="day-agenda" class="text-index"></ul>
-    <button type="button" id="day-add-event">
-      + Įvykis
-    </button>
   </dialog>
   <dialog id="event-dialog" aria-labelledby="event-title">
     <button class="dialog-close" type="button" data-close aria-label="Uždaryti">
       ×
     </button>
-    <h2 id="event-title">Google Calendar</h2>
-    <p id="event-status" role="status"></p>
-    <form id="event-form">
-      <label>
-        Title
-        <input name="title" required />
-      </label>
-      <label>
-        Calendar<select name="calendarId" required></select>
-      </label>
-      <label class="check-label">
-        <input name="allDay" type="checkbox" />
-        All day
-      </label>
-      <div class="field-grid">
-        <label>
-          Start
-          <input name="start" type="datetime-local" required />
-        </label>
-        <label>
-          End
-          <input name="end" type="datetime-local" required />
-        </label>
-      </div>
-      <p class="editor-help" id="event-date-help">
-        Times use your calendar timezone.
-      </p>
-      <label>
-        Location
-        <input name="location" />
-      </label>
-      <label>
-        Notes<textarea name="description" rows="3"></textarea>
-      </label>
-      <div class="save-row">
-        <button type="submit" id="event-save" class="editor-primary">
-          Save
-        </button>
-        <button type="button" id="event-delete" hidden>
-          Delete event
-        </button>
-        <a id="event-google" target="_blank" rel="noopener" hidden>
-          Open in Google Calendar ↗
-        </a>
-      </div>
-    </form>
+    <p class="eyebrow" id="event-calendar"></p>
+    <h2 id="event-title"></h2>
+    <p id="event-when"></p>
+    <p id="event-location" class="preserve-lines" hidden></p>
+    <p id="event-description" class="preserve-lines" hidden></p>
+    <a id="event-google" target="_blank" rel="noopener noreferrer" hidden>
+      Atidaryti Google Calendar ↗
+    </a>
   </dialog>
 </Site>
 <script>
