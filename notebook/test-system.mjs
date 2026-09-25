@@ -605,7 +605,8 @@ assert.equal(
 // per note in a single request; the previous small fixture did not expose it.
 const catalogClient = await module("src/scripts/catalog.ts");
 for (let i = 0; i < 125; i++) {
-  const raw = `---\ntitle: Catalog fixture ${i}\npubDate: 2026-09-${String(i % 25 + 1).padStart(2, "0")}\n---\nDisposable local test text.\n`;
+  const date = `2026-09-${String(i % 25 + 1).padStart(2, "0")}`;
+  const raw = `---\ntitle: Catalog fixture ${i}\npubDate: ${i % 2 ? date.replaceAll("-", ".") : date}\n---\nDisposable local test text.\n`;
   files.set(`src/content/articles/catalog-fixture-${i}.md`, {
     raw,
     sha: createHash("sha1").update("blob " + Buffer.byteLength(raw) + "\0" + raw).digest("hex"),
@@ -623,6 +624,12 @@ async function catalogPage(endpoint, environment = { DB: db }) {
   return content.handleContent("catalog", new Request("https://deepaltitude.com/api/" + endpoint), null, limitedGit, environment);
 }
 const fullCatalog = await catalogClient.loadCatalogPages(catalogPage);
+for (const item of fullCatalog.articles.filter((item) => item.file.includes("catalog-fixture-"))) {
+  assert.match(item.pubDate, /^\d{4}-\d{2}-\d{2}$/);
+  const i = Number(/catalog-fixture-(\d+)/.exec(item.file)[1]);
+  assert.equal(item.pubDate, `2026-09-${String(i % 25 + 1).padStart(2, "0")}`);
+  if (i % 2) assert.ok(files.get(item.file).raw.includes(item.pubDate.replaceAll("-", ".")), "Catalog normalization must not rewrite original metadata");
+}
 const expectedArticles = [...files.keys()].filter((file) => docs.kindOf(file) === "article");
 assert.ok(catalogPages > 1);
 assert.deepEqual(fullCatalog.articles.map((item) => item.file).sort(), expectedArticles.sort());

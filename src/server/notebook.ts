@@ -17,6 +17,35 @@ import {
 } from "./content";
 import { uuidPattern } from "./documents";
 
+interface NotebookEnvironment extends DataEnvironment {
+  ASSETS?: { fetch(request: Request): Promise<Response> };
+}
+async function deployedJson(
+  path: string,
+  commit: string,
+  env: NotebookEnvironment,
+  fetcher: typeof fetch,
+) {
+  try {
+    const request = new Request(
+      "https://deepaltitude.com/" + path + "?verify=" + commit,
+      { signal: AbortSignal.timeout(15000) },
+    );
+    // Read this deployed Worker's assets directly: an outbound request to our
+    // own domain can be rejected before it ever reaches the public manifest.
+    const response = env.ASSETS
+      ? await env.ASSETS.fetch(request)
+      : await fetcher(request);
+    if (!response.ok) throw Error();
+    return await response.json();
+  } catch {
+    throw new EditorError(
+      503,
+      "The live deployment could not be checked. Your saved copy is safe; try again shortly.",
+    );
+  }
+}
+
 const privateId = (file: unknown) =>
   typeof file === "string" &&
   file.startsWith("draft:") &&
@@ -109,7 +138,7 @@ export async function handleNotebook(
   request: Request,
   input: any,
   git: Git,
-  env: DataEnvironment,
+  env: NotebookEnvironment,
   fetcher: typeof fetch = fetch,
 ) {
   const url = new URL(request.url);
@@ -157,13 +186,12 @@ export async function handleNotebook(
     if (!doc.pending) return { saved: true, document: doc };
     let manifest: Record<string, string>;
     try {
-      const response = await fetcher(
-        "https://deepaltitude.com/publication.json?verify=" +
-          doc.pending.commit,
-        { cache: "no-store", signal: AbortSignal.timeout(15000) },
-      );
-      if (!response.ok) throw Error();
-      manifest = await response.json();
+      manifest = (await deployedJson(
+        "publication.json",
+        doc.pending.commit,
+        env,
+        fetcher,
+      )) as Record<string, string>;
       if (
         !manifest ||
         typeof manifest !== "object" ||
@@ -183,12 +211,12 @@ export async function handleNotebook(
         ? manifest[pending.file] === pending.revision
         : false;
     if (pending.direction !== "public" && !(pending.file in manifest)) {
-      const response = await fetcher(
-        "https://deepaltitude.com/visibility-revision.json?verify=" +
-          pending.commit,
-        { cache: "no-store", signal: AbortSignal.timeout(15000) },
+      const marker: any = await deployedJson(
+        "visibility-revision.json",
+        pending.commit,
+        env,
+        fetcher,
       );
-      const marker: any = response.ok ? await response.json() : null;
       verified =
         Number.isSafeInteger(marker?.sequence) &&
         marker.sequence >= (pending.sequence || 1);
