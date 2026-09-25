@@ -57,6 +57,9 @@ export interface Catalog {
   drafts: CatalogItem[];
   warning?: string;
 }
+export interface CatalogPage extends Catalog {
+  next?: string;
+}
 export const blankFields = (): Fields => ({
   title: "",
   description: "",

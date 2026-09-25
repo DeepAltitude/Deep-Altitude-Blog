@@ -599,6 +599,53 @@ assert.equal(
     .start_date,
   timed.start_date,
 );
+// A cold catalog must fit the Worker subrequest budget and still return every
+// note in order. The real deployment failed when this required one blob fetch
+// per note in a single request; the previous small fixture did not expose it.
+const catalogClient = await module("src/scripts/catalog.ts");
+for (let i = 0; i < 125; i++) {
+  const raw = `---\ntitle: Catalog fixture ${i}\npubDate: 2026-09-${String(i % 25 + 1).padStart(2, "0")}\n---\nDisposable local test text.\n`;
+  files.set(`src/content/articles/catalog-fixture-${i}.md`, {
+    raw,
+    sha: createHash("sha1").update("blob " + Buffer.byteLength(raw) + "\0" + raw).digest("hex"),
+  });
+}
+let catalogPages = 0;
+const writesBeforeCatalog = writes;
+async function catalogPage(endpoint, environment = { DB: db }) {
+  let subrequests = 2; // /user and repository write-permission verification.
+  const limitedGit = async (...args) => {
+    assert.ok(++subrequests <= 50, "Catalog exceeds the Worker subrequest budget");
+    return git(...args);
+  };
+  catalogPages++;
+  return content.handleContent("catalog", new Request("https://deepaltitude.com/api/" + endpoint), null, limitedGit, environment);
+}
+const fullCatalog = await catalogClient.loadCatalogPages(catalogPage);
+const expectedArticles = [...files.keys()].filter((file) => docs.kindOf(file) === "article");
+assert.ok(catalogPages > 1);
+assert.deepEqual(fullCatalog.articles.map((item) => item.file).sort(), expectedArticles.sort());
+assert.equal(new Set(fullCatalog.articles.map((item) => item.file)).size, expectedArticles.length);
+assert.equal(fullCatalog.drafts.length, sqlite.prepare("SELECT count(*) n FROM content_drafts").get().n);
+for (let i = 1; i < fullCatalog.articles.length; i++)
+  assert.ok(String(fullCatalog.articles[i - 1].pubDate || "") >= String(fullCatalog.articles[i].pubDate || ""));
+assert.equal(writes, writesBeforeCatalog, "Reading a catalog must never write to GitHub");
+const unavailableDrafts = await catalogClient.loadCatalogPages((endpoint) => catalogPage(endpoint, { DB: brokenDB }));
+assert.equal(unavailableDrafts.articles.length, expectedArticles.length);
+assert.equal(unavailableDrafts.drafts.length, 0);
+assert.match(unavailableDrafts.warning, /temporarily unavailable/);
+const firstPage = await catalogPage("editor/catalog");
+const catalogHead = head;
+head = "a".repeat(40);
+await assert.rejects(() => catalogPage("editor/catalog?cursor=" + encodeURIComponent(firstPage.next)), /changed while its index/);
+head = catalogHead;
+await assert.rejects(() => catalogPage("editor/catalog?cursor=invalid"), /page is invalid/);
+let interruptedPages = 0;
+await assert.rejects(() => catalogClient.loadCatalogPages(async () => {
+  if (++interruptedPages > 1) throw new Error("Simulated second-page failure");
+  return firstPage;
+}), /second-page failure/);
+await assert.rejects(() => catalogClient.loadCatalogPages(async () => firstPage), /could not finish/);
 // Public and private API guards are exercised with no session and no real network.
 for (const endpoint of [
   "src/pages/api/ops/[action].ts",
@@ -630,5 +677,5 @@ for (const endpoint of [
   }
 }
 console.log(
-  `System checks passed: ${baseline.originals.length} preserved essays + current About; D1 migrations and CRUD, privacy, conflicts, idea promotion, 13 concurrent experiments, observations, habits, focus, 1/3/6/12 months, timezone and exclusive all-day ends, encryption, private drafts, Git publishing, and unauthenticated API probes.`,
+  `System checks passed: ${baseline.originals.length} preserved essays + current About; D1 migrations and CRUD, privacy, conflicts, idea promotion, 13 concurrent experiments, observations, habits, focus, 1/3/6/12 months, timezone and exclusive all-day ends, encryption, private drafts, Git publishing, bounded cold catalog pagination and unauthenticated API probes.`,
 );

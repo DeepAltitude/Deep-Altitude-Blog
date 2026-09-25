@@ -12,6 +12,7 @@ import { domains, domainNames, topics } from "../utils/domains";
 import { slugify } from "../server/documents";
 import { todayIn } from "../lib/calendar/model";
 import { requestJSON } from "./request";
+import { loadCatalogPages } from "./catalog";
 import type { Editable, Catalog } from "../utils/editor-model";
 const query = new URLSearchParams(location.search),
   writing = el<HTMLFormElement>("writing-form"),
@@ -245,7 +246,7 @@ function principleOptions(select: HTMLSelectElement, selected: string[] = []) {
   );
 }
 async function loadCatalog() {
-  catalog = await api("editor/catalog");
+  catalog = await loadCatalogPages(api);
   el("catalog-warning").textContent = catalog.warning || "";
   el("catalog-warning").hidden = !catalog.warning;
   await choices();

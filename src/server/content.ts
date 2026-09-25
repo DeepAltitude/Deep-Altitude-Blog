@@ -18,7 +18,7 @@ import {
 import {
   blankFields,
   type Editable,
-  type Catalog,
+  type CatalogPage,
   type CatalogItem,
   type Attachment,
   type NewPrinciple,
@@ -282,9 +282,23 @@ async function catalog(
   snap: Snapshot,
   git: Git,
   env: ContentEnvironment,
-): Promise<Catalog> {
-  const publicFiles = [...snap.files.values()].filter((f) => kindOf(f.path));
-  const items = await mapLimit(publicFiles, async (f) => {
+  cursor: string | null,
+): Promise<CatalogPage> {
+  let offset = 0;
+  if (cursor !== null) {
+    const parts = /^([a-f0-9]{40}):([1-9]\d{0,7})$/.exec(cursor);
+    if (!parts) throw new EditorError(400, "The notebook page is invalid. Reload the editor.");
+    if (parts[1] !== snap.head)
+      throw new EditorError(409, "The notebook changed while its index was loading. Reload the editor; your draft stays in this tab.");
+    offset = Number(parts[2]);
+  }
+  const publicFiles = [...snap.files.values()]
+    .filter((f) => ["article", "principle"].includes(kindOf(f.path) || ""))
+    .sort((a, b) => a.path.localeCompare(b.path));
+  // A cold isolate must stay under the Worker request limit, even with hundreds
+  // of notes. Leave room for author verification, the Git snapshot and D1.
+  const end = offset + 24;
+  const items = await mapLimit(publicFiles.slice(offset, end), async (f) => {
     let meta = metadataCache.get(f.sha);
     if (!meta) {
       const { raw } = await readFile(f.path, snap, git),
@@ -306,7 +320,7 @@ async function catalog(
   });
   let drafts: CatalogItem[] = [];
   let warning: string | undefined;
-  if (env.DB) {
+  if (env.DB && offset === 0) {
     try {
       drafts = (
         await env.DB.prepare(
@@ -342,6 +356,7 @@ async function catalog(
       .sort((a, b) => a.title.localeCompare(b.title)),
     drafts,
     ...(warning ? { warning } : {}),
+    ...(end < publicFiles.length ? { next: `${snap.head}:${end}` } : {}),
   };
 }
 async function requireDraft(
@@ -373,7 +388,7 @@ export async function handleContent(
 ) {
   const url = new URL(request.url),
     snap = await snapshot(git);
-  if (action === "catalog") return catalog(snap, git, env);
+  if (action === "catalog") return catalog(snap, git, env, url.searchParams.get("cursor"));
   if (action === "document") {
     const file = url.searchParams.get("file");
     if (!file) {
