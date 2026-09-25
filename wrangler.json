@@ -7,6 +7,14 @@
 		"directory": "./dist",
 		"binding": "ASSETS"
 	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "deepaltitude-private",
+			"database_id": "23e5572c-a765-414b-9068-8473ff85688a",
+			"migrations_dir": "migrations"
+		}
+	],
 	"observability": {
 		"enabled": true
 	},
