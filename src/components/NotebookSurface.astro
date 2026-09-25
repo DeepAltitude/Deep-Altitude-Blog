@@ -1,0 +1,13 @@
+---
+import ArticleList from "./ArticleList.astro";
+import type { Note } from "../utils/posts";
+interface Props { notes: Note[]; domain?: string; topic?: string; title?: string; }
+const { notes, domain = "", topic = "", title = "Asmeniniai užrašai" } = Astro.props;
+---
+<section data-notebook data-kind="article" data-domain={domain} data-topic={topic}>
+  <header class="inline-heading"><h2>{title}</h2><span data-create-slot></span></header>
+  <div data-new-item></div>
+  <p data-notebook-status class="inline-status" role="status"></p>
+  <div data-notebook-list><ArticleList notes={notes} /></div>
+  <p class="empty-index" data-empty-notebook hidden>No notes here yet.</p>
+</section>

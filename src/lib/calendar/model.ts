@@ -22,7 +22,7 @@ export function eventWhen(item: CalendarItem, timeZone: string) {
       format.formatRange(
         new Date(start + "T12:00:00Z"),
         new Date(end + "T12:00:00Z"),
-      ) + " · Visa diena"
+      ) + " · All day"
     );
   }
   return (
@@ -30,7 +30,9 @@ export function eventWhen(item: CalendarItem, timeZone: string) {
       dateStyle: "medium",
       timeStyle: "short",
       timeZone,
-    }).formatRange(new Date(item.start), new Date(item.end)) + " · " + timeZone
+    }).formatRange(new Date(item.start), new Date(item.end)) +
+    " · " +
+    timeZone
   );
 }
 export function googleEventHref(value?: string) {
@@ -106,57 +108,41 @@ export function occurs(item: CalendarItem, day: string, timeZone: string) {
   const d = datesOf(item, timeZone);
   return d.start <= day && d.end >= day;
 }
-export function operationalItems(data: {
-  projects: any[];
-  experiments: any[];
-  sprints: any[];
-}): CalendarItem[] {
-  return (["projects", "experiments", "sprints"] as const).flatMap((kind) =>
+// Projects and experiments own date ranges, never ordinary scheduled events.
+export function operationalItems(
+  data: { projects: any[]; experiments: any[]; sprints?: any[] },
+  timezone = "Europe/Zurich",
+): CalendarItem[] {
+  return (["projects", "experiments"] as const).flatMap((kind) =>
     data[kind].flatMap((r) => {
       if (["idea", "abandoned", "cancelled"].includes(r.status)) return [];
-      const source = kind.slice(0, -1) as "project" | "experiment" | "sprint",
-        href = "/editor/?kind=" + kind + "&id=" + encodeURIComponent(r.id);
-      const item = (
-        start: string,
-        end?: string,
-        suffix = "",
-      ): CalendarItem => ({
-        id: r.id + suffix,
-        source,
-        title: r.title + suffix,
-        start,
-        end: end || start,
-        allDay: !start.includes("T"),
-        href,
-      });
-      if (kind === "projects")
-        return [
-          r.start_date &&
-            item(
-              r.start_date,
-              addDay(r.start_date.slice(0, 10), 1),
-              " · pradžia",
-            ),
-          r.end_date &&
-            item(r.end_date, addDay(r.end_date.slice(0, 10), 1), " · tikslas"),
-        ].filter(Boolean) as CalendarItem[];
-      if (!r.start_date)
-        return r.end_date
-          ? [item(r.end_date, addDay(r.end_date.slice(0, 10), 1))]
-          : [];
-      if (r.start_date.includes("T"))
-        return [
-          item(
-            r.start_date,
-            r.end_date ||
-              new Date(Date.parse(r.start_date) + 3600000).toISOString(),
-          ),
-        ];
+      const day = (value: string) =>
+        value.includes("T")
+          ? todayIn(timezone, new Date(value))
+          : value.slice(0, 10);
+      const start = r.start_date
+        ? day(r.start_date)
+        : r.end_date
+          ? day(r.end_date)
+          : "";
+      if (!start) return [];
+      const end = r.end_date ? day(r.end_date) : start;
       return [
-        item(
-          r.start_date,
-          addDay((r.end_date || r.start_date).slice(0, 10), 1),
-        ),
+        {
+          id: r.id,
+          source:
+            kind === "projects"
+              ? ("project" as const)
+              : ("experiment" as const),
+          title: r.title,
+          start,
+          end: addDay(end, 1),
+          allDay: true,
+          href:
+            (kind === "projects" ? "/projektai/" : "/eksperimentai/") +
+            "#item=" +
+            encodeURIComponent(r.id),
+        },
       ];
     }),
   );
@@ -176,5 +162,41 @@ export function progress(record: any, today: string) {
       Math.floor((Date.parse(today) - Date.parse(start)) / 86400000) + 1;
   return duration > 0
     ? `${Math.min(duration, Math.max(0, elapsed))} / ${duration} diena`
+    : "";
+}
+
+export function isoWeek(day: string) {
+  const date = new Date(day + "T12:00:00Z");
+  date.setUTCDate(date.getUTCDate() + 3 - ((date.getUTCDay() + 6) % 7));
+  const year = date.getUTCFullYear(),
+    first = new Date(Date.UTC(year, 0, 4, 12));
+  first.setUTCDate(first.getUTCDate() + 3 - ((first.getUTCDay() + 6) % 7));
+  return {
+    year,
+    week: 1 + Math.round((date.valueOf() - first.valueOf()) / 604800000),
+  };
+}
+export function pursuitProgress(
+  record: any,
+  kind: "projects" | "experiments",
+  today = todayIn(),
+) {
+  if (kind === "projects")
+    return record.progress == null ? "" : record.progress + "%";
+  if (!record.show_progress || !record.start_date || !record.end_date)
+    return "";
+  const total =
+    Math.floor(
+      (Date.parse(record.end_date.slice(0, 10)) -
+        Date.parse(record.start_date.slice(0, 10))) /
+        86400000,
+    ) + 1;
+  const elapsed =
+    Math.floor(
+      (Date.parse(today) - Date.parse(record.start_date.slice(0, 10))) /
+        86400000,
+    ) + 1;
+  return total > 0
+    ? `Day ${Math.max(0, Math.min(total, elapsed))} / ${total}`
     : "";
 }

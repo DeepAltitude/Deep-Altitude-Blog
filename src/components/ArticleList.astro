@@ -1,40 +1,25 @@
 ---
+import { render } from "astro:content";
 import { dateLabel, type Note } from "../utils/posts";
 import { domainNames, topicFor } from "../utils/domains";
-interface Props {
-  notes: Note[];
-  showDomain?: boolean;
-  heading?: "h2" | "h3";
-}
+interface Props { notes: Note[]; showDomain?: boolean; heading?: "h2" | "h3"; }
 const { notes, showDomain = true, heading: Heading = "h2" } = Astro.props;
+const rows = await Promise.all(notes.map(async note => ({ note, Content: (await render(note.source)).Content })));
 ---
-
 <ol class="article-index">
-  {notes.map((note) => (
-    <li data-domain={note.domain} data-topic={note.topic}>
-      <a class="index-entry" href={note.url}>
-        <div class="entry-meta">
-          <time datetime={note.pubDate.toISOString()}>
-            {dateLabel(note.pubDate)}
-          </time>
-          {showDomain && note.domain && (
-            <span>
-              {domainNames[note.domain]} ·{" "}
-              {topicFor(note.domain, note.topic)?.title}
-            </span>
-          )}
+  {rows.map(({note,Content}) => (
+    <li data-domain={note.domain} data-topic={note.topic} data-date={note.pubDate.toISOString().slice(0,10)}>
+      <details class="notebook-entry" data-writing data-kind="article" data-file={note.source.filePath!.replace(/^\.\//, "")} data-url={note.url}>
+        <summary class="index-entry">
+          <div class="entry-meta"><time datetime={note.pubDate.toISOString()}>{dateLabel(note.pubDate)}</time>{showDomain && note.domain && <span>{domainNames[note.domain]}{note.topic && <> · {topicFor(note.domain,note.topic)?.title}</>}</span>}</div>
+          <div class="entry-copy"><Heading>{note.title}</Heading>{note.description && <p>{note.description}</p>}</div>
+          <span class="entry-arrow" aria-hidden="true">⌄</span>
+        </summary>
+        <div class="inline-content" data-writing-panel>
+          <div class="prose" data-writing-read><Content /></div>
+          <a class="quiet-link" href={note.url}>Open article →</a>
         </div>
-        <div class="entry-copy">
-          <Heading>{note.title}</Heading>
-          {note.description && <p>{note.description}</p>}
-          {note.tags.length > 0 && (
-            <p class="entry-tags">{note.tags.join(" · ")}</p>
-          )}
-        </div>
-        <span class="entry-arrow" aria-hidden="true">
-          →
-        </span>
-      </a>
+      </details>
     </li>
   ))}
 </ol>

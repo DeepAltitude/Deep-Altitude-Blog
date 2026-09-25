@@ -1,6 +1,6 @@
 ---
 import Site from "../layouts/Site.astro";
-import "../styles/editor.css";
+import OperationSurface from "../components/OperationSurface.astro";
 import "../styles/calendar.css";
 import { authenticate, privateHeaders } from "../server/guard";
 export const prerender = false;
@@ -13,17 +13,11 @@ try {
 }
 ---
 
-<Site title="Dabar" noindex class="author-page" canonical="/dabar/">
+<Site title="Dabar" noindex class="daily-page" canonical="/dabar/">
   <header class="page-heading">
     <p class="eyebrow" id="today-label"></p>
     <h1>Dabar</h1>
-    <div class="author-actions">
-      <a href="/editor/?kind=projects">+ Project</a>
-      <a href="/editor/?kind=experiments">+ Experiment</a>
-      <a href="/editor/?kind=experiments&idea=1">+ Experiment idea</a>
-      <a href="/editor/?kind=sprints">+ Sprint</a>
-      <a href="/editor/?kind=article">+ Note</a>
-    </div>
+
   </header>
   <p id="status" role="status" aria-live="polite"></p>
   <section class="notebook-section calendar-section">
@@ -35,27 +29,27 @@ try {
     </div>
     <div class="calendar-toolbar">
       <div class="calendar-nav">
-        <button type="button" id="previous-month" aria-label="Ankstesnis mėnuo">
+        <button type="button" id="previous-month" aria-label="Previous month">
           ‹
         </button>
         <button type="button" id="today-month">
-          Šiandien
+          Today
         </button>
-        <button type="button" id="next-month" aria-label="Kitas mėnuo">
+        <button type="button" id="next-month" aria-label="Next month">
           ›
         </button>
       </div>
       <label class="calendar-view">
-        Rodyti{" "}
-        <select id="month-count" aria-label="Mėnesių skaičius">
-          <option value="1">1 mėn.</option>
-          <option value="3">3 mėn.</option>
-          <option value="6">6 mėn.</option>
-          <option value="12">12 mėn.</option>
+        Show{" "}
+        <select id="month-count" aria-label="Number of months">
+          <option value="1">1 month</option>
+          <option value="3">3 months</option>
+          <option value="6">6 months</option>
+          <option value="12">12 months</option>
         </select>
       </label>
     </div>
-    <div class="calendar-filters" aria-label="Kalendoriaus šaltiniai">
+    <div class="calendar-filters" aria-label="Calendar sources">
       <label>
         <input type="checkbox" value="google" checked />
         Google
@@ -68,67 +62,42 @@ try {
         <input type="checkbox" value="experiment" checked />
         Eksperimentai
       </label>
-      <label>
-        <input type="checkbox" value="sprint" checked />
-        Sprintai
-      </label>
+
       <button type="button" id="retry-calendar">
-        Atnaujinti
+        Refresh
       </button>
-      <a href="/editor/?kind=settings">Nustatymai</a>
+      <a href="/editor/?kind=settings">Settings</a>
     </div>
     <p class="muted" id="calendar-status" role="status"></p>
     <div id="months" aria-busy="true"></div>
   </section>
-  <section class="notebook-section">
-    <p class="eyebrow">02 / SAVAITĖS FOKUSAS</p>
-    <h2>Savaitės fokusas</h2>
-    <form id="focus-form">
-      <label class="sr-only" for="focus-items">
-        One focus per line
-      </label>
-      <textarea
-        id="focus-items"
-        rows="4"
-        placeholder="Kas svarbu šią savaitę?"
-      ></textarea>
-      <button type="submit">Save focus</button>
-    </form>
+  <section class="notebook-section" data-weekly-focus>
+    <p class="eyebrow">02 / WEEKLY FOCUS</p>
+    <h2>Weekly focus</h2>
+    <div data-current-focus></div>
+    <section class="focus-history">
+      <h3>Previous weeks</h3>
+      <div data-focus-history></div>
+      <button type="button" class="quiet-action" data-more-focus hidden>Show more</button>
+    </section>
   </section>
   <section class="notebook-section">
-    <p class="eyebrow">03 / AKTYVŪS PROJEKTAI</p>
-    <h2>Projektai</h2>
-    <ul class="text-index" id="projects-list"></ul>
+    <div class="section-heading"><h2>Projektai</h2><a href="/projektai/">All projects →</a></div>
+    <OperationSurface kind="projects" records={[]} current dabar />
   </section>
   <section class="notebook-section">
-    <p class="eyebrow">04 / EKSPERIMENTAI</p>
-    <h2>Eksperimentai</h2>
-    <ul class="text-index" id="experiments-list"></ul>
-  </section>
-  <section class="notebook-section">
-    <p class="eyebrow">05 / SPRINTAI</p>
-    <h2>Sprintai</h2>
-    <ul class="text-index" id="sprints-list"></ul>
-  </section>
-  <section class="notebook-section">
-    <div class="section-heading">
-      <div>
-        <p class="eyebrow">06 / ĮPROČIAI</p>
-        <h2>Įpročiai</h2>
-      </div>
-      <a href="/editor/?kind=habits">Edit habits →</a>
-    </div>
-    <div id="habits"></div>
+    <div class="section-heading"><h2>Eksperimentai</h2><a href="/eksperimentai/">All experiments →</a></div>
+    <OperationSurface kind="experiments" records={[]} current dabar />
   </section>
   <dialog id="day-dialog" aria-labelledby="day-title">
-    <button class="dialog-close" type="button" data-close aria-label="Uždaryti">
+    <button class="dialog-close" type="button" data-close aria-label="Close">
       ×
     </button>
     <h2 id="day-title"></h2>
     <ul id="day-agenda" class="text-index"></ul>
   </dialog>
   <dialog id="event-dialog" aria-labelledby="event-title">
-    <button class="dialog-close" type="button" data-close aria-label="Uždaryti">
+    <button class="dialog-close" type="button" data-close aria-label="Close">
       ×
     </button>
     <p class="eyebrow" id="event-calendar"></p>
@@ -137,7 +106,7 @@ try {
     <p id="event-location" class="preserve-lines" hidden></p>
     <p id="event-description" class="preserve-lines" hidden></p>
     <a id="event-google" target="_blank" rel="noopener noreferrer" hidden>
-      Atidaryti Google Calendar ↗
+      Open in Google Calendar ↗
     </a>
   </dialog>
 </Site>

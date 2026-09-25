@@ -29,6 +29,7 @@ const store = await module("src/lib/data/store.ts"),
   content = await module("src/server/content.ts");
 const sqlite = new DatabaseSync(":memory:");
 sqlite.exec(fs.readFileSync("migrations/0001_operational.sql", "utf8"));
+sqlite.exec(fs.readFileSync("migrations/0002_inline_notebook.sql", "utf8"));
 const db = {
   async batch(statements) {
     sqlite.exec("BEGIN");
@@ -654,12 +655,18 @@ for (const endpoint of [
   const route = await module(endpoint);
   for (const action of [
     "snapshot",
+    "notebook",
+    "focus-history",
+    "focus-save",
+    "focus-delete",
+    "delete",
     "record",
     "list",
     "focus",
     "habit",
     "events",
     "settings",
+    "preferences",
     "connect",
     "callback",
     "event",

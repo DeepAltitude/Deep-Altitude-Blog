@@ -1,4 +1,7 @@
-import { api, session, el, node, message } from "./client";
+import { author } from "./author";
+import { focusSurface } from "./focus";
+import { operationSurface, setOperationalTimezone } from "./operations";
+import { api, el, node, message } from "./client";
 import {
   isoDay,
   todayIn,
@@ -8,7 +11,6 @@ import {
   monthCells,
   operationalItems,
   occurs,
-  progress,
   eventWhen,
   googleEventHref,
   type CalendarItem,
@@ -20,9 +22,6 @@ let timezone = "Europe/Zurich",
   snapshot: any = {
     projects: [],
     experiments: [],
-    sprints: [],
-    habits: [],
-    entries: [],
     focus: { version: 0, items: [] },
   },
   google: CalendarItem[] = [],
@@ -67,12 +66,20 @@ function openDay(day: string) {
     button.addEventListener("click", () => openItem(item));
     agenda.append(li);
   }
-  if (!agenda.children.length) agenda.append(node("li", "Įvykių nėra."));
+  if (!agenda.children.length) agenda.append(node("li", "No events."));
   el<HTMLDialogElement>("day-dialog").showModal();
 }
 function openItem(item: CalendarItem) {
   if (item.source !== "google") {
-    location.href = item.href!;
+    el<HTMLDialogElement>("day-dialog").close();
+    const id = new URL(item.href!, location.origin).hash.slice(6);
+    const row = [
+      ...document.querySelectorAll<HTMLDetailsElement>("[data-operation]"),
+    ].find((row) => row.dataset.id === decodeURIComponent(id));
+    if (row) {
+      row.open = true;
+      row.scrollIntoView({ block: "start" });
+    } else location.href = item.href!;
     return;
   }
   el<HTMLDialogElement>("day-dialog").close();
@@ -114,7 +121,7 @@ function render() {
           type: "button",
           class: "day-open",
           "aria-label":
-            pretty(day) + (list.length ? ", " + list.length + " įvykiai" : ""),
+            pretty(day) + (list.length ? ", " + list.length + " events" : ""),
         });
       button.append(
         node("span", String(date.getDate())),
@@ -196,112 +203,6 @@ el("retry-calendar").addEventListener("click", () => void loadCalendar());
 document
   .querySelectorAll(".calendar-filters input")
   .forEach((input) => input.addEventListener("change", render));
-function renderLists() {
-  for (const k of ["projects", "experiments", "sprints"]) {
-    const list = el(k + "-list");
-    list.replaceChildren(
-      ...snapshot[k]
-        .filter((r: any) => r.status === "active")
-        .map((r: any) => {
-          const row = node("li");
-          row.append(
-            node("a", r.title + " →", {
-              href: "/editor/?kind=" + k + "&id=" + r.id,
-            }),
-          );
-          if (r.start_date)
-            row.append(node("p", progress(r, today), { class: "entry-tags" }));
-          return row;
-        }),
-    );
-    if (!list.children.length)
-      list.append(
-        node("li", "Aktyvių įrašų kol kas nėra.", { class: "muted" }),
-      );
-  }
-}
-function renderHabits() {
-  const root = el("habits"),
-    week = monday(today);
-  root.replaceChildren();
-  const head = node("div", undefined, { class: "habit-row habit-head" });
-  head.append(node("span", "", { class: "habit-name" }));
-  for (const d of ["P", "A", "T", "K", "Pn", "Š", "S"])
-    head.append(node("span", d));
-  root.append(head);
-  for (const habit of snapshot.habits.filter((h: any) => h.active)) {
-    const row = node("div", undefined, { class: "habit-row" });
-    row.append(
-      node(
-        "p",
-        habit.title +
-          (habit.quantity ? " · " + habit.quantity : "") +
-          (habit.recurrence === "weekly"
-            ? " · " + habit.weekly_target + " / sav."
-            : ""),
-      ),
-    );
-    for (let n = 0; n < 7; n++) {
-      const date = addDay(week, n),
-        done = snapshot.entries.some(
-          (e: any) => e.habit === habit.id && e.date === date,
-        ),
-        scheduled =
-          habit.recurrence === "daily" ||
-          habit.recurrence === "weekly" ||
-          (habit.recurrence === "weekdays" && n < 5) ||
-          (habit.recurrence === "days" && habit.weekdays.includes(n));
-      const b = node("button", done ? "✓" : scheduled ? "○" : "·", {
-        type: "button",
-        class: "habit-check" + (!scheduled ? " off-schedule" : ""),
-        "aria-pressed": String(done),
-        "aria-label": habit.title + " · " + pretty(date),
-      });
-      b.addEventListener("click", async () => {
-        b.disabled = true;
-        try {
-          await api("ops/habit", {
-            habit: habit.id,
-            date,
-            done: !done,
-            quantity: habit.quantity,
-          });
-          snapshot.entries = snapshot.entries.filter(
-            (e: any) => e.habit !== habit.id || e.date !== date,
-          );
-          if (!done) snapshot.entries.push({ habit: habit.id, date });
-          renderHabits();
-        } catch (e) {
-          message((e as Error).message, true);
-          b.disabled = false;
-        }
-      });
-      row.append(b);
-    }
-    root.append(row);
-  }
-  if (!snapshot.habits.length)
-    root.append(node("p", "Įpročių kol kas nėra.", { class: "muted" }));
-}
-el("focus-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const button = el("focus-form").querySelector("button")!;
-  button.disabled = true;
-  try {
-    snapshot.focus = await api("ops/focus", {
-      week: monday(today),
-      version: snapshot.focus.version,
-      items: el<HTMLTextAreaElement>("focus-items")
-        .value.split("\n")
-        .filter((s) => s.trim()),
-    });
-    message("Focus saved.");
-  } catch (e) {
-    message((e as Error).message, true);
-  } finally {
-    button.disabled = false;
-  }
-});
 document
   .querySelectorAll("[data-close]")
   .forEach((b) =>
@@ -325,27 +226,43 @@ function openEvent(item: CalendarItem) {
 }
 async function boot() {
   try {
-    const auth = await session();
+    const auth = await author();
     if (!auth.authenticated) {
       location.replace("/editor/?returnTo=%2Fdabar%2F");
       return;
     }
     try {
-      const s = await api("calendar/settings");
-      timezone = s.preferences.timezone;
+      const s = await api("calendar/preferences");
+      timezone = s.timezone;
     } catch {}
     today = todayIn(timezone);
     el("today-label").textContent = pretty(today);
-    snapshot = await api("ops/snapshot?week=" + monday(today));
-    local = operationalItems(snapshot);
-    el<HTMLTextAreaElement>("focus-items").value =
-      snapshot.focus.items.join("\n");
-    renderLists();
-    renderHabits();
+    snapshot = await api("ops/notebook?week=" + monday(today));
+    local = operationalItems(snapshot, timezone);
+    setOperationalTimezone(timezone);
+    for (const root of document.querySelectorAll<HTMLElement>(
+      "[data-dabar-operations]",
+    )) {
+      const kind = root.dataset.operations as "projects" | "experiments";
+      operationSurface(root, snapshot[kind], kind);
+    }
+    void focusSurface(
+      document.querySelector("[data-weekly-focus]")!,
+      snapshot.focus,
+    );
     await loadCalendar();
   } catch (e) {
     message((e as Error).message, true);
     render();
   }
 }
+document.addEventListener("operations:changed", () => {
+  void api("ops/notebook?week=" + monday(today))
+    .then((data) => {
+      snapshot = data;
+      local = operationalItems(snapshot, timezone);
+      render();
+    })
+    .catch((e) => message(e.message, true));
+});
 void boot();

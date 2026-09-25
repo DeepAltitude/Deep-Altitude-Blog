@@ -7,8 +7,9 @@ export async function readDraft(db: Database, id: string) {
     .prepare("SELECT document,version FROM content_drafts WHERE id = ?")
     .bind(id)
     .first();
-  if (!row) throw new EditorError(404, "Draft not found.");
+  if (!row) throw new EditorError(404, "Private item not found.");
   const document = JSON.parse(row.document) as Editable;
+  if (document.deleted) throw new EditorError(404, "Private item not found.");
   const parts = (
     await db
       .prepare(
@@ -36,7 +37,7 @@ export async function saveDraft(db: Database, document: Editable) {
   if (new TextEncoder().encode(metadata).length > 1800000)
     throw new EditorError(
       413,
-      "This draft is too large. Download it before reducing its size.",
+      "This note is too large. Keep a copy before reducing its size.",
     );
   const statements = [
     document.draftFile
@@ -84,7 +85,7 @@ export async function saveDraft(db: Database, document: Editable) {
   if (results[0].meta.changes !== 1)
     throw new EditorError(
       409,
-      "This draft changed elsewhere. Reload before saving.",
+      "This item changed elsewhere. Your text is still here; reopen the latest saved version before saving.",
     );
   return {
     ...document,

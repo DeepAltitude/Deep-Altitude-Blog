@@ -1,0 +1,14 @@
+---
+import { render } from "astro:content";
+import type { Principle } from "../utils/principles";
+interface Props { principles: Principle[]; }
+const rows = await Promise.all(Astro.props.principles.map(async principle => ({principle, Content:(await render(principle.source)).Content})));
+---
+<ol class="article-index">
+  {rows.map(({principle,Content})=>(
+    <li><details class="notebook-entry" data-writing data-kind="principle" data-file={principle.source.filePath!.replace(/^\.\//, "")} data-url={principle.url}>
+      <summary class="index-entry"><div class="entry-meta">PRINCIPAS</div><div class="entry-copy"><h2>{principle.title}</h2>{principle.description && <p>{principle.description}</p>}</div><span class="entry-arrow" aria-hidden="true">⌄</span></summary>
+      <div class="inline-content" data-writing-panel><div class="prose" data-writing-read><Content /></div>{principle.notes.length>0 && <section class="inline-related"><h3>Source notes</h3><ul class="text-index">{principle.notes.map(note=><li><a href={note.url}>{note.title}</a></li>)}</ul></section>}<a class="quiet-link" href={principle.url}>Open principle →</a></div>
+    </details></li>
+  ))}
+</ol>

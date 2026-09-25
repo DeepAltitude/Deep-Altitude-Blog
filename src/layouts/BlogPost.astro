@@ -2,7 +2,6 @@
 import { render } from "astro:content";
 import Site from "./Site.astro";
 import { one } from "../lib/data/store";
-import AuthorLink from "../components/AuthorLink.astro";
 import {
   getNotes,
   dateLabel,
@@ -83,12 +82,8 @@ if (db) {
         </p>
       )}
     </header>
-    {!note.example && (
-      <AuthorLink
-        file={note.source.filePath!.replace(/^\.\//, "")}
-        label="Edit article"
-      />
-    )}
+    {!note.example && <div class="canonical-author" data-inline-writing={note.source.filePath!.replace(/^\.\//, "")} data-kind="article"></div>}
+    <div data-canonical-content>
     {image && (
       <figure class="article-hero">
         <img src={image} alt={note.heroImageAlt || ""} decoding="async" />
@@ -125,6 +120,7 @@ if (db) {
         </ul>
       </section>
     )}
+    </div>
     <nav class="page-turn" aria-label="Užrašai">
       <a href={backUrl}>← {backLabel}</a>
       <div class="adjacent-notes">

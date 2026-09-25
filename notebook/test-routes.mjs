@@ -58,6 +58,9 @@ try {
       `Local ${worker ? "Cloudflare Worker" : "Astro server"} could not start: ` +
         log.slice(-2500),
     );
+  const authConfiguration = await (
+    await fetch(origin + "/api/editor/session")
+  ).json();
   const migration = JSON.parse(
     fs.readFileSync("notebook/content-migration.json"),
   );
@@ -129,21 +132,60 @@ try {
   assert.ok(privatePage.headers.get("Location").startsWith("/editor/"));
   for (const route of [
     "/api/ops/snapshot?week=2026-09-21",
+    "/api/ops/notebook?week=2026-09-21",
+    "/api/ops/focus-history?before=2026-09-21",
+    "/api/editor/note?kind=article",
     "/api/ops/list?kind=projects",
     "/api/ops/list?kind=experiments",
     "/api/ops/list?kind=habits",
     "/api/calendar/events?start=2026-09-01&end=2026-10-01",
     "/api/calendar/settings",
+    "/api/calendar/preferences",
   ]) {
     const response = await fetch(origin + route);
-    assert.equal(response.status, 401, route);
+    if (route.startsWith("/api/editor/") && !authConfiguration.configured) {
+      assert.equal(response.status, 503, route);
+      assert.deepEqual(await response.json(), {
+        error: "Author sign-in is not connected yet.",
+      });
+    } else assert.equal(response.status, 401, route);
     assert.equal(response.headers.get("Cache-Control"), "private, no-store");
   }
-  for (const [source, destination] of [["/about/", "/apie/"], ["/blog/", "/uzrasai/"]]) {
+  for (const route of [
+    "/api/editor/save-note",
+    "/api/editor/delete-note",
+    "/api/editor/settle-note",
+    "/api/ops/focus-save",
+    "/api/ops/focus-delete",
+    "/api/ops/delete",
+  ]) {
+    const response = await fetch(origin + route, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Origin: origin },
+      body: "{}",
+    });
+    if (route.startsWith("/api/editor/") && !authConfiguration.configured) {
+      assert.equal(response.status, 503, route);
+      assert.deepEqual(await response.json(), {
+        error: "Author sign-in is not connected yet.",
+      });
+    } else assert.ok([401, 403].includes(response.status), route);
+    assert.equal(response.headers.get("Cache-Control"), "private, no-store");
+  }
+  for (const [source, destination] of [
+    ["/about/", "/apie/"],
+    ["/blog/", "/uzrasai/"],
+  ]) {
     for (const search of ["", "?ref=legacy"]) {
-      const response = await fetch(origin + source + search, { redirect: "manual" });
+      const response = await fetch(origin + source + search, {
+        redirect: "manual",
+      });
       assert.equal(response.status, 301, source);
-      assert.equal(response.headers.get("Location"), destination + search, source);
+      assert.equal(
+        response.headers.get("Location"),
+        destination + search,
+        source,
+      );
     }
   }
   if (output)
@@ -152,7 +194,7 @@ try {
       JSON.stringify(results, null, 2),
     );
   console.log(
-    `Runtime HTTP checks passed (${worker ? "Cloudflare Worker" : "Astro"}): ${routes.length} public/editor routes, 12 original URLs, ${aliases.length} legacy slash variants with query strings, private Dabar guard, six unauthenticated private API probes and archive/About redirects.`,
+    `Runtime HTTP checks passed (${worker ? "Cloudflare Worker" : "Astro"}): ${routes.length} public/editor routes, 12 original URLs, ${aliases.length} legacy slash variants with query strings, private Dabar guard, unauthenticated private API probes and archive/About redirects.`,
   );
 } catch (e) {
   console.error(e);

@@ -33,17 +33,5 @@ const { language = "lt", ...props } = Astro.props;
   </body>
 </html>
 <script>
-  if (document.querySelector("[data-author-link]"))
-    fetch("/api/editor/session", {
-      credentials: "same-origin",
-      cache: "no-store",
-    })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((session: any) => {
-        if (session?.authenticated)
-          document
-            .querySelectorAll<HTMLElement>("[data-author-link]")
-            .forEach((link) => (link.hidden = false));
-      })
-      .catch(() => {});
+  import "../scripts/notebook";
 </script>

@@ -1,5 +1,4 @@
 ---
-import AuthorLink from "../../components/AuthorLink.astro";
 import PursuitList from "../../components/PursuitList.astro";
 import { list } from "../../lib/data/store";
 import { render } from "astro:content";
@@ -55,7 +54,8 @@ const groups = [...domains, undefined]
         </p>
       )}
     </header>
-    <AuthorLink file={principle.source.filePath!} label="Edit principle" />
+    <div class="canonical-author" data-inline-writing={principle.source.filePath!} data-kind="principle"></div>
+    <div data-canonical-content>
     {principle.source.body?.trim() && (
       <div class="prose principle-explanation">
         <Content />
@@ -89,6 +89,7 @@ const groups = [...domains, undefined]
         <PursuitList records={related} kind="experiments" />
       </section>
     )}
+    </div>
     <nav class="page-turn" aria-label="Principai">
       <a href="/principai/">← Principai</a>
     </nav>

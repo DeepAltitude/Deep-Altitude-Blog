@@ -1,0 +1,9 @@
+---
+import PursuitList from "./PursuitList.astro";
+interface Props { kind: "projects" | "experiments"; records?: any[]; current?: boolean; dabar?: boolean; }
+const {kind,records=[],current=false,dabar=false}=Astro.props;
+---
+<section data-operations={kind} data-current={current||undefined} data-dabar-operations={dabar||undefined}>
+  <div data-operation-create class="inline-actions"></div><div data-operation-new></div>
+  <div data-operation-list><PursuitList records={records} kind={kind} /></div>
+</section>
