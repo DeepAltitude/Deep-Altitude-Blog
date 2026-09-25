@@ -16,6 +16,60 @@ await build({
   logLevel: "silent",
 });
 const g = createRequire(import.meta.url)(file);
+const modelFile = path.join(temp, "model.cjs"),
+  routeFile = path.join(temp, "route.cjs");
+await build({
+  entryPoints: ["src/lib/calendar/model.ts"],
+  outfile: modelFile, bundle: true, platform: "node", format: "cjs", logLevel: "silent",
+});
+const model = createRequire(import.meta.url)(modelFile);
+// Test the Calendar router as an already-authorized author. Real author/CSRF
+// checks remain covered by the existing guard/editor tests.
+await build({
+  entryPoints: ["src/pages/api/calendar/[action].ts"],
+  outfile: routeFile, bundle: true, platform: "node", format: "cjs", logLevel: "silent",
+  plugins: [{
+    name: "authorized-calendar-route",
+    setup(builder) {
+      builder.onLoad({ filter: /server[\\/]guard\.ts$/ }, () => ({
+        contents: `
+          export const authenticate = async () => ({ authenticated: true });
+          export const input = (request) => request.json();
+          export const privateHeaders = { "Cache-Control": "private, no-store" };
+          export const failure = (error) => Response.json({ error: error.message }, { status: error.status || 503, headers: privateHeaders });
+        `,
+        loader: "js",
+      }));
+    },
+  }],
+});
+const route = createRequire(import.meta.url)(routeFile);
+for (const method of ["GET", "POST", "PATCH", "DELETE"]) {
+  const response = await route.ALL({
+    request: new Request("https://deepaltitude.com/api/calendar/event", {
+      method,
+      ...(method === "POST" ? { headers: { "Content-Type": "application/json" }, body: "{}" } : {}),
+    }),
+    params: { action: "event" }, locals: { runtime: { env: {} } },
+  });
+  assert.equal(response.status, ["GET", "POST"].includes(method) ? 404 : 405);
+}
+const page = fs.readFileSync("src/pages/dabar.astro", "utf8");
+assert.doesNotMatch(page, /id="(?:new-event|day-add-event|event-form|event-save|event-delete)"/);
+assert.doesNotMatch(fs.readFileSync("src/pages/editor/index.astro", "utf8"), /default_calendar/);
+assert.equal(model.googleEventHref("https://calendar.google.com/calendar/event?eid=example"), "https://calendar.google.com/calendar/event?eid=example");
+assert.equal(model.googleEventHref("https://www.google.com/calendar/event?eid=example"), "https://www.google.com/calendar/event?eid=example");
+for (const unsafe of [undefined, "", "javascript:alert(1)", "https://calendar.google.com.example.invalid/", "http://calendar.google.com/"])
+  assert.equal(model.googleEventHref(unsafe), null);
+const range = model.eventWhen({ allDay: true, start: "2026-09-24", end: "2026-09-27" }, "America/New_York");
+assert.match(range, /24/);
+assert.match(range, /26/);
+assert.doesNotMatch(range, /27/);
+assert.match(range, /Visa diena/);
+const timed = model.eventWhen({ allDay: false, start: "2026-09-25T08:00:00+02:00", end: "2026-09-25T09:00:00+02:00" }, "Europe/Zurich");
+assert.match(timed, /08:00/);
+assert.match(timed, /09:00/);
+assert.match(timed, /Europe\/Zurich/);
 const sql = new DatabaseSync(":memory:");
 sql.exec(fs.readFileSync("migrations/0001_operational.sql", "utf8"));
 const db = {
@@ -50,10 +104,8 @@ const env = {
 let refreshes = 0,
   revoked = false,
   fail = false,
-  created,
-  deleted = false,
   queries = [],
-  updated = false;
+  grantedScopes = "https://www.googleapis.com/auth/calendar.events.readonly https://www.googleapis.com/auth/calendar.calendarlist.readonly";
 const mock = async (url, options = {}) => {
   if (fail) throw Error("Simulated network failure");
   const u = new URL(url);
@@ -70,6 +122,7 @@ const mock = async (url, options = {}) => {
       access_token: "test-access",
       refresh_token: "test-refresh",
       expires_in: 3600,
+      scope: grantedScopes,
     });
   }
   if (u.pathname === "/revoke") {
@@ -78,6 +131,7 @@ const mock = async (url, options = {}) => {
     return new Response("", { status: 200 });
   }
   assert.equal(options.headers.Authorization, "Bearer test-access");
+  assert.equal(options.method, "GET", "Calendar list access must be read-only");
   if (u.pathname.endsWith("/calendarList"))
     return Response.json({
       items: [
@@ -91,23 +145,8 @@ const mock = async (url, options = {}) => {
         { id: "work", summary: "Work", accessRole: "reader" },
       ],
     });
-  if (options.method === "DELETE") {
-    assert.equal(options.headers["If-Match"], '"event-v1"');
-    deleted = true;
-    return new Response(null, { status: 204 });
-  }
-  if (options.method === "PATCH" || options.method === "POST") {
-    const input = JSON.parse(options.body);
-    created = input;
-    updated = options.method === "PATCH";
-    return Response.json({
-      id: "new-event",
-      summary: input.summary,
-      ...input,
-      etag: '"event-v1"',
-      htmlLink: "https://calendar.google.com/calendar/event?eid=test",
-    });
-  }
+  assert.equal(options.method, "GET", "Calendar data access must be read-only");
+  assert.equal(options.body, undefined);
   queries.push(u.searchParams);
   return Response.json({
     items: [
@@ -145,7 +184,11 @@ const start = await g.connect(env),
   authorize = new URL(start.headers.get("Location"));
 assert.equal(authorize.searchParams.get("access_type"), "offline");
 assert.equal(authorize.searchParams.get("code_challenge_method"), "S256");
-assert.ok(!authorize.searchParams.get("scope").includes("userinfo"));
+assert.deepEqual(authorize.searchParams.get("scope").split(" ").sort(), [
+  "https://www.googleapis.com/auth/calendar.calendarlist.readonly",
+  "https://www.googleapis.com/auth/calendar.events.readonly",
+]);
+assert.equal(authorize.searchParams.get("redirect_uri"), "https://deepaltitude.com/api/calendar/callback");
 const cookie = start.headers.get("Set-Cookie").split(";")[0];
 const bad = await g.oauthCallback(
   new Request(
@@ -160,6 +203,18 @@ assert.equal(
   sql.prepare("SELECT count(*) n FROM oauth_connections").get().n,
   0,
 );
+// Partial consent must not create a usable connection or persist provider tokens.
+const scopes = grantedScopes;
+grantedScopes = "https://www.googleapis.com/auth/calendar.calendarlist.readonly";
+const partial = await g.oauthCallback(
+  new Request(
+    "https://deepaltitude.com/api/calendar/callback?code=test&state=" + authorize.searchParams.get("state"),
+    { headers: { Cookie: cookie } },
+  ), env, mock,
+);
+assert.ok(partial.headers.get("Location").endsWith("failed"));
+assert.equal(sql.prepare("SELECT count(*) n FROM oauth_connections").get().n, 0);
+grantedScopes = scopes;
 const response = await g.oauthCallback(
   new Request(
     "https://deepaltitude.com/api/calendar/callback?code=test&state=" +
@@ -200,53 +255,11 @@ const stale = await g.crypt(
 sql.prepare("UPDATE oauth_connections SET encrypted_token=?").run(stale);
 await g.calendars(env, mock);
 assert.equal(refreshes, 1);
-const event = await g.writeEvent(
-  env,
-  {
-    calendarId: "primary@example.invalid",
-    title: "QA event",
-    start: "2026-09-25T09:00",
-    end: "2026-09-25T10:00",
-    allDay: false,
-  },
-  mock,
-);
-assert.equal(event.id, "new-event");
-assert.equal(created.start.timeZone, "Europe/Zurich");
-await g.writeEvent(
-  env,
-  {
-    ...event,
-    title: "Updated QA",
-    start: "2026-09-25",
-    end: "2026-09-27",
-    allDay: true,
-  },
-  mock,
-);
-assert.equal(updated, true);
-assert.equal(created.start.date, "2026-09-25");
-assert.equal(created.end.date, "2026-09-27");
-await g.writeEvent(
-  env,
-  {
-    calendarId: event.calendarId,
-    id: event.id,
-    etag: event.etag,
-    remove: true,
-  },
-  mock,
-);
-assert.equal(deleted, true);
-await assert.rejects(
-  () =>
-    g.writeEvent(
-      env,
-      { calendarId: "work", title: "Unauthorized write" },
-      mock,
-    ),
-  /edit/,
-);
+assert.equal(g.writeEvent, undefined, "No provider write operation is exported");
+assert.ok(result.items.every((item) => !("writable" in item) && !("etag" in item)));
+assert.ok(!("default_calendar" in settings.preferences));
+assert.ok(!JSON.stringify(settings).includes("test-refresh"));
+assert.ok(!JSON.stringify(settings).includes("test-access"));
 fail = true;
 await assert.rejects(
   () => g.events(env, "2026-10-01", "2026-11-01", mock),
@@ -281,5 +294,5 @@ sql.prepare("UPDATE oauth_connections SET encrypted_token=?").run(stale);
 revoked = true;
 await assert.rejects(() => g.calendars(env, mock), /revoked/);
 console.log(
-  "Calendar provider-mock checks passed: connect/state/PKCE, reconnect/disconnect, encrypted dynamic tokens, multiple calendars, cache/range, timed/all-day/multi-day/recurring/cancelled events, real API-shaped create/edit/delete, refresh, revocation and failure. No real Google account or event was accessed.",
+  "Calendar provider-mock checks passed: connect/state/PKCE, reconnect/disconnect, encrypted dynamic tokens, multiple calendars, cache/range, timed/all-day/multi-day/recurring/cancelled events, read-only scopes and requests, rejected partial consent, refresh, revocation and failure. No real Google account or event was accessed.",
 );

@@ -13,7 +13,6 @@ import {
   disconnect,
   saveSettings,
   events,
-  writeEvent,
 } from "../../../lib/calendar/google";
 export const prerender = false;
 export const ALL: APIRoute = async ({ request, params, locals }) => {
@@ -43,7 +42,6 @@ export const ALL: APIRoute = async ({ request, params, locals }) => {
       let result: any;
       if (action === "disconnect") result = await disconnect(env);
       else if (action === "settings") result = await saveSettings(env, value);
-      else if (action === "event") result = await writeEvent(env, value);
       else throw new EditorError(404, "Not found.");
       return Response.json(result, { headers: privateHeaders });
     }

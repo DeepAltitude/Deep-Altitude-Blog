@@ -125,6 +125,7 @@ dialog {
   background: var(--paper);
   border: var(--rule);
   padding: 2rem;
+  overflow-wrap: anywhere;
 }
 dialog::backdrop {
   background: #14282266;

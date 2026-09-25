@@ -1,4 +1,4 @@
-import { api, session, el, node, option, message } from "./client";
+import { api, session, el, node, message } from "./client";
 import {
   isoDay,
   todayIn,
@@ -9,6 +9,8 @@ import {
   operationalItems,
   occurs,
   progress,
+  eventWhen,
+  googleEventHref,
   type CalendarItem,
 } from "../lib/calendar/model";
 let timezone = "Europe/Zurich",
@@ -25,10 +27,7 @@ let timezone = "Europe/Zurich",
   },
   google: CalendarItem[] = [],
   local: CalendarItem[] = [],
-  generation = 0,
-  currentDay = today,
-  event: CalendarItem | null = null,
-  calendarSettings: any;
+  generation = 0;
 try {
   const saved = Number(localStorage.getItem("deepaltitude-months"));
   if ([1, 3, 6, 12].includes(saved)) count = saved;
@@ -49,7 +48,6 @@ function pretty(day: string) {
   }).format(new Date(day + "T12:00:00Z"));
 }
 function openDay(day: string) {
-  currentDay = day;
   el("day-title").textContent = pretty(day);
   const agenda = el("day-agenda");
   agenda.replaceChildren();
@@ -78,7 +76,7 @@ function openItem(item: CalendarItem) {
     return;
   }
   el<HTMLDialogElement>("day-dialog").close();
-  void openEvent(item);
+  openEvent(item);
 }
 function render() {
   const root = el("months");
@@ -309,137 +307,22 @@ document
   .forEach((b) =>
     b.addEventListener("click", () => b.closest("dialog")!.close()),
   );
-const eventForm = el<HTMLFormElement>("event-form"),
-  f = (name: string) =>
-    eventForm.elements.namedItem(name) as
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
-function localTime(value: string) {
-  const date = new Date(value);
-  return new Intl.DateTimeFormat("sv-SE", {
-    timeZone: timezone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  })
-    .format(date)
-    .replace(" ", "T");
-}
-async function openEvent(item: CalendarItem | null = null, day = today) {
-  event = item;
-  el("event-status").textContent = "Loading calendars…";
+function openEvent(item: CalendarItem) {
+  el("event-title").textContent = item.title;
+  el("event-calendar").textContent = item.calendarName || "Google Calendar";
+  el("event-when").textContent = eventWhen(item, timezone);
+  for (const name of ["location", "description"] as const) {
+    const field = el("event-" + name);
+    field.textContent = item[name] || "";
+    field.hidden = !item[name];
+  }
+  const link = el<HTMLAnchorElement>("event-google"),
+    href = googleEventHref(item.href);
+  link.hidden = !href;
+  if (href) link.href = href;
+  else link.removeAttribute("href");
   el<HTMLDialogElement>("event-dialog").showModal();
-  el<HTMLButtonElement>("event-save").disabled = true;
-  try {
-    calendarSettings = await api("calendar/settings");
-    if (!calendarSettings.connected)
-      throw new Error(
-        "Connect Google Calendar in Settings before creating events.",
-      );
-    timezone = calendarSettings.preferences.timezone;
-    const writable = calendarSettings.calendars.filter(
-      (c: any) => c.writable || (item && c.id === item.calendarId),
-    );
-    (f("calendarId") as HTMLSelectElement).replaceChildren(
-      ...writable.map((c: any) => option(c.id, c.name)),
-    );
-    f("calendarId").value =
-      item?.calendarId || calendarSettings.preferences.default_calendar;
-    f("calendarId").disabled = !!item;
-    f("title").value = item?.title || "";
-    (f("allDay") as HTMLInputElement).checked = !!item?.allDay;
-    updateEventType();
-    f("start").value = item
-      ? item.allDay
-        ? item.start
-        : localTime(item.start)
-      : day + "T09:00";
-    f("end").value = item
-      ? item.allDay
-        ? item.end
-        : localTime(item.end)
-      : day + "T10:00";
-    f("location").value = item?.location || "";
-    f("description").value = item?.description || "";
-    el<HTMLButtonElement>("event-save").disabled = !!item && !item.writable;
-    el("event-delete").hidden = !item?.writable;
-    const link = el<HTMLAnchorElement>("event-google");
-    link.hidden = !item?.href;
-    if (item?.href && new URL(item.href).protocol === "https:")
-      link.href = item.href;
-    el("event-status").textContent = item
-      ? "Editing this occurrence. Other recurring occurrences stay unchanged."
-      : "";
-  } catch (e) {
-    el("event-status").textContent = (e as Error).message;
-  }
 }
-function updateEventType() {
-  const allDay = (f("allDay") as HTMLInputElement).checked;
-  for (const name of ["start", "end"]) {
-    const input = f(name) as HTMLInputElement,
-      old = input.value;
-    input.type = allDay ? "date" : "datetime-local";
-    input.value = allDay
-      ? old.slice(0, 10)
-      : old.length === 10
-        ? old + "T09:00"
-        : old;
-  }
-  el("event-date-help").textContent = allDay
-    ? "For all-day events, End is the first day after the event."
-    : "Times use " + timezone + ".";
-}
-f("allDay").addEventListener("change", updateEventType);
-el("new-event").addEventListener("click", () => void openEvent());
-el("day-add-event").addEventListener("click", () => {
-  el<HTMLDialogElement>("day-dialog").close();
-  void openEvent(null, currentDay);
-});
-eventForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const b = el<HTMLButtonElement>("event-save");
-  b.disabled = true;
-  try {
-    await api("calendar/event", {
-      id: event?.id,
-      etag: event?.etag,
-      title: f("title").value,
-      calendarId: f("calendarId").value,
-      allDay: (f("allDay") as HTMLInputElement).checked,
-      start: f("start").value,
-      end: f("end").value,
-      location: f("location").value,
-      description: f("description").value,
-    });
-    el<HTMLDialogElement>("event-dialog").close();
-    message("Saved to Google Calendar.");
-    await loadCalendar();
-  } catch (e) {
-    el("event-status").textContent = (e as Error).message;
-  } finally {
-    b.disabled = false;
-  }
-});
-el("event-delete").addEventListener("click", async () => {
-  if (!event || !confirm("Delete this occurrence from Google Calendar?"))
-    return;
-  try {
-    await api("calendar/event", {
-      calendarId: event.calendarId,
-      id: event.id,
-      etag: event.etag,
-      remove: true,
-    });
-    el<HTMLDialogElement>("event-dialog").close();
-    message("Event deleted from Google Calendar.");
-    await loadCalendar();
-  } catch (e) {
-    el("event-status").textContent = (e as Error).message;
-  }
-});
 async function boot() {
   try {
     const auth = await session();
