@@ -307,3 +307,10 @@ dialog button {
 .canonical-author .notebook-entry > summary {
   display: none;
 }
+.topic-filter {
+  border-top: 0;
+  padding-top: 0;
+}
+.topic-filter:empty {
+  display: none;
+}
