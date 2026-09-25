@@ -129,10 +129,18 @@ async function deploy() {
   ).sequence;
 }
 await deploy();
-const fetcher = async (url) =>
-  Response.json(url.includes("visibility-revision") ? { sequence } : live);
+let assetFailure = false;
+const assets = {
+  async fetch(request) {
+    assert.ok(request instanceof Request);
+    assert.equal(request.headers.has("cookie"), false);
+    if (assetFailure) return new Response("Unavailable", { status: 503 });
+    return Response.json(request.url.includes("visibility-revision") ? { sequence } : live);
+  },
+};
+const fetcher = async () => { throw Error("Outbound self-fetch must not be used"); };
 const call = (action, input = null, query = "") =>
-  handleNotebook(action, req(query), input, git, { DB: db }, fetcher);
+  handleNotebook(action, req(query), input, git, { DB: db, ASSETS: assets }, fetcher);
 const fresh = (kind) => call("note", null, "?kind=" + kind);
 let note = await fresh("article");
 note.title = "Private fixture";
@@ -203,6 +211,16 @@ assert.equal(
   note.body,
 );
 await deploy();
+assetFailure = true;
+await assert.rejects(
+  () => call("settle-note", { file: note.draftFile, version: note.draftSha }),
+  /live deployment could not be checked/,
+);
+assert.equal(
+  (await call("note", null, "?file=" + encodeURIComponent(note.draftFile))).visibility,
+  "private",
+);
+assetFailure = false;
 note = (
   await call("settle-note", { file: note.draftFile, version: note.draftSha })
 ).document;
