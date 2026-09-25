@@ -6,28 +6,20 @@ declare global {
   }
 }
 import { marked } from "../../notebook/vendor/marked.mjs";
+import { requestJSON } from "./request";
 export let csrf = "";
 export async function api(path: string, value?: unknown) {
-  const response = await fetch("/api/" + path, {
-    method: value === undefined ? "GET" : "POST",
-    credentials: "same-origin",
-    cache: "no-store",
-    headers: { "Content-Type": "application/json", "X-Editor-CSRF": csrf },
-    body: value === undefined ? undefined : JSON.stringify(value),
-  });
-  let data: any;
-  try {
-    data = await response.json();
-  } catch {
-    throw new Error(
-      "The server response could not be read. Your unsaved changes are still here.",
-    );
-  }
-  if (!response.ok)
-    throw Object.assign(new Error(data.error || "The request failed."), {
-      status: response.status,
-    });
-  return data;
+  return requestJSON(
+    "/api/" + path,
+    {
+      method: value === undefined ? "GET" : "POST",
+      credentials: "same-origin",
+      cache: "no-store",
+      headers: { "Content-Type": "application/json", "X-Editor-CSRF": csrf },
+      body: value === undefined ? undefined : JSON.stringify(value),
+    },
+    value === undefined ? 45000 : 90000,
+  );
 }
 export async function session() {
   const value = await api("editor/session");

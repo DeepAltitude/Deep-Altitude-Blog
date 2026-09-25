@@ -1,6 +1,9 @@
 import { spawn } from "node:child_process";
 import fs from "node:fs";
+import path from "node:path";
 import assert from "node:assert/strict";
+const output = process.env.DEEPALTITUDE_QA_DIR;
+if (output) fs.mkdirSync(output, { recursive: true });
 const server = spawn(
   process.execPath,
   [
@@ -56,11 +59,14 @@ try {
     assert.equal(response.status, 200, route + ": " + body.slice(0, 200));
     assert.ok(!body.includes("<title>Error</title>"), route);
     results.push({ route, status: response.status });
-    if (["/", "/editor/", "/uzrasai/", "/apie/"].includes(route))
+    if (output && ["/", "/editor/", "/uzrasai/", "/apie/"].includes(route))
       fs.writeFileSync(
-        "/workspace/scratch/17e349c45178/upgrade-qa/render-" +
-          (route === "/" ? "home" : route.replaceAll("/", "")) +
-          ".html",
+        path.join(
+          output,
+          "render-" +
+            (route === "/" ? "home" : route.replaceAll("/", "")) +
+            ".html",
+        ),
         body,
       );
   }
@@ -86,10 +92,11 @@ try {
   const archive = await fetch(origin + "/blog/", { redirect: "manual" });
   assert.equal(archive.status, 301);
   assert.equal(archive.headers.get("Location"), "/uzrasai/");
-  fs.writeFileSync(
-    "/workspace/scratch/17e349c45178/upgrade-qa/runtime-routes.json",
-    JSON.stringify(results, null, 2),
-  );
+  if (output)
+    fs.writeFileSync(
+      path.join(output, "runtime-routes.json"),
+      JSON.stringify(results, null, 2),
+    );
   console.log(
     `Runtime HTTP checks passed: ${routes.length} public/editor routes, 12 original URLs, private Dabar guard, six unauthenticated private API probes and archive/About redirects.`,
   );

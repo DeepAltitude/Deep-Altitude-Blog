@@ -20,7 +20,12 @@ export async function authenticate(
     env,
   );
   const session = (await response.json()) as any;
-  if (!response.ok || !session.authenticated)
+  if (!response.ok)
+    throw new EditorError(
+      response.status,
+      session.error || "Author verification is unavailable. Try again shortly.",
+    );
+  if (!session.authenticated)
     throw new EditorError(401, session.error || "Sign in to DeepAltitude.");
   if (
     write &&

@@ -24,7 +24,7 @@
     "deploy": "wrangler deploy",
     "dev": "astro dev",
     "preview": "npm run build && wrangler dev",
-    "test": "node notebook/test-editor.mjs && node notebook/test-system.mjs && node notebook/test-calendar.mjs",
+    "test": "node notebook/test-editor.mjs && node notebook/test-system.mjs && node notebook/test-calendar.mjs && node notebook/test-requests.mjs",
     "test:runtime": "node notebook/test-routes.mjs"
   },
   "type": "module"

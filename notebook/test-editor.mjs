@@ -35,7 +35,9 @@ let stored = raw,
   push = true,
   writes = [];
 let exchange;
+let providerDown = false;
 const mockFetch = async (url, options = {}) => {
+  if (providerDown) throw new Error("Simulated GitHub outage");
   const u = new URL(url);
   if (u.hostname === "github.com") {
     exchange = JSON.parse(options.body);
@@ -237,6 +239,49 @@ repoId = 1317330542;
 push = false;
 assert.equal((await call("session", { headers: auth })).status, 403);
 push = true;
+// Real authentication failure is distinct from a transient provider outage.
+const guardBundle = path.join(temporary, "guard.cjs");
+await build({
+  entryPoints: ["src/server/guard.ts"],
+  outfile: guardBundle,
+  bundle: true,
+  format: "cjs",
+  platform: "node",
+  target: "node22",
+  logLevel: "silent",
+});
+const { authenticate } = createRequire(import.meta.url)(guardBundle);
+const actualFetch = globalThis.fetch;
+globalThis.fetch = mockFetch;
+try {
+  providerDown = true;
+  assert.equal((await call("session", { headers: auth })).status, 503);
+  await assert.rejects(
+    () => authenticate(request("session", { headers: auth }), env),
+    (error) => error.status === 503,
+  );
+  providerDown = false;
+  push = false;
+  await assert.rejects(
+    () => authenticate(request("session", { headers: auth }), env),
+    (error) => error.status === 403,
+  );
+  push = true;
+  const realNow = Date.now;
+  try {
+    Date.now = () => realNow() + 9 * 60 * 60 * 1000;
+    await assert.rejects(
+      () => authenticate(request("session", { headers: auth }), env),
+      (error) => error.status === 401,
+    );
+  } finally {
+    Date.now = realNow;
+  }
+} finally {
+  providerDown = false;
+  push = true;
+  globalThis.fetch = actualFetch;
+}
 assert.equal(
   (
     await call(

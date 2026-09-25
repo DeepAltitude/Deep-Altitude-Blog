@@ -244,12 +244,16 @@ await assert.rejects(() =>
 );
 // Drafts are private D1 rows: saving a draft makes zero Git writes.
 const files = new Map();
-for (const m of migration.articles) {
-  const raw = fs.readFileSync(m.after, "utf8"),
+for (const file of [
+  ...migration.articles.map((m) => m.after),
+  "src/content/pages/home.md",
+  "src/content/pages/about.md",
+]) {
+  const raw = fs.readFileSync(file, "utf8"),
     sha = createHash("sha1")
       .update("blob " + Buffer.byteLength(raw) + "\0" + raw)
       .digest("hex");
-  files.set(m.after, { raw, sha });
+  files.set(file, { raw, sha });
 }
 let writes = 0,
   head = "1".repeat(40),
@@ -360,6 +364,194 @@ const stale = { ...saved.document, sha: "0".repeat(40) };
 await assert.rejects(
   () => content.handleContent("publish", request(), stale, git, { DB: db }),
   /changed/,
+);
+// A database outage must not hide public Markdown or cause a false Git failure.
+const brokenDB = {
+  prepare() {
+    throw new Error("Simulated D1 outage with private detail");
+  },
+};
+const offlineCatalog = await content.handleContent(
+  "catalog",
+  request(),
+  null,
+  git,
+  { DB: brokenDB },
+);
+assert.ok(
+  offlineCatalog.articles.some((item) => item.file === saved.document.file),
+);
+assert.equal(offlineCatalog.drafts.length, 0);
+assert.match(offlineCatalog.warning, /temporarily unavailable/);
+assert.ok(!offlineCatalog.warning.includes("private detail"));
+const beforeFailedDraft = writes;
+await assert.rejects(
+  () =>
+    content.handleContent(
+      "draft",
+      request(),
+      { ...document, key: crypto.randomUUID() },
+      git,
+      { DB: brokenDB },
+    ),
+  /D1 outage/,
+);
+assert.equal(
+  writes,
+  beforeFailedDraft,
+  "Failed private draft attempted a Git write",
+);
+const priorRaw = files.get(saved.document.file).raw;
+await assert.rejects(
+  () =>
+    content.handleContent(
+      "publish",
+      request(),
+      { ...saved.document, body: "Unsaved local writing." },
+      (endpoint, data, method) => {
+        if (method === "PATCH")
+          throw new Error("Simulated GitHub write interruption");
+        return git(endpoint, data, method);
+      },
+      { DB: db },
+    ),
+  /GitHub write interruption/,
+);
+assert.equal(
+  files.get(saved.document.file).raw,
+  priorRaw,
+  "Failed Git update changed published writing",
+);
+const pendingDraft = await content.handleContent(
+  "draft",
+  request(),
+  { ...document, key: crypto.randomUUID(), title: "Cleanup failure" },
+  git,
+  { DB: db },
+);
+const cleanupFailureDB = {
+  prepare(sql) {
+    if (sql.startsWith("DELETE FROM content_drafts")) {
+      const statement = {
+        bind() {
+          return statement;
+        },
+        async run() {
+          throw Error("Simulated cleanup outage");
+        },
+      };
+      return statement;
+    }
+    return db.prepare(sql);
+  },
+};
+const publishedWithDraft = await content.handleContent(
+  "publish",
+  request(),
+  pendingDraft.document,
+  git,
+  { DB: cleanupFailureDB },
+);
+assert.ok(files.has(publishedWithDraft.document.file));
+assert.match(publishedWithDraft.warning, /saved to GitHub.*cleanup failed/);
+assert.equal(publishedWithDraft.document.draftFile, undefined);
+assert.ok(
+  sqlite
+    .prepare("SELECT id FROM content_drafts WHERE id = ?")
+    .get(pendingDraft.document.key),
+);
+// Exercise the current document service for pages and reusable principles too.
+for (const page of ["home", "about"]) {
+  const file = "src/content/pages/" + page + ".md";
+  const pageDocument = await content.handleContent(
+    "document",
+    request("?file=" + encodeURIComponent(file)),
+    null,
+    git,
+    { DB: db },
+  );
+  const originalPage = files.get(file).raw;
+  const pageNoOp = await content.handleContent(
+    "publish",
+    request(),
+    pageDocument,
+    git,
+    { DB: db },
+  );
+  assert.equal(pageNoOp.unchanged, true);
+  assert.equal(files.get(file).raw, originalPage);
+  const edited = {
+    ...pageDocument,
+    description: "Provider-mocked author test.",
+  };
+  const pageSave = await content.handleContent(
+    "publish",
+    request(),
+    edited,
+    git,
+    { DB: db },
+  );
+  assert.equal(
+    docs.fieldsOf(files.get(file).raw).description,
+    edited.description,
+  );
+  assert.equal(
+    docs.splitOriginal(files.get(file).raw).body,
+    docs.splitOriginal(originalPage).body,
+  );
+  assert.equal(pageSave.document.url, page === "home" ? "/" : "/apie/");
+}
+let principle = await content.handleContent(
+  "document",
+  request("?kind=principle"),
+  null,
+  git,
+  { DB: db },
+);
+principle = {
+  ...principle,
+  title: "A provider-mocked principle",
+  body: "An explanation.",
+};
+const principleSave = await content.handleContent(
+  "publish",
+  request(),
+  principle,
+  git,
+  { DB: db },
+);
+const linked = {
+  ...saved.document,
+  principles: ["temporary-principle"],
+  newPrinciples: [
+    { id: "temporary-principle", title: principle.title, description: "" },
+  ],
+};
+const linkedSave = await content.handleContent(
+  "publish",
+  request(),
+  linked,
+  git,
+  { DB: db },
+);
+const principleId = principleSave.document.file.split("/").at(-1).slice(0, -3);
+assert.deepEqual(
+  linkedSave.document.principles,
+  [principleId],
+  "Inline principle should reuse the canonical entity",
+);
+assert.equal(files.has("src/content/principles/temporary-principle.md"), false);
+assert.equal(
+  (
+    await content.handleContent(
+      "publish",
+      request(),
+      linkedSave.document,
+      git,
+      { DB: db },
+    )
+  ).unchanged,
+  true,
 );
 const drafts = await module("src/lib/data/drafts.ts");
 const privateImage = {

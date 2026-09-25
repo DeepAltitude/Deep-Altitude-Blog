@@ -304,8 +304,11 @@ async function catalog(
     }
     return { ...meta, file: f.path, sha: f.sha } as CatalogItem;
   });
-  const drafts = env.DB
-    ? (
+  let drafts: CatalogItem[] = [];
+  let warning: string | undefined;
+  if (env.DB) {
+    try {
+      drafts = (
         await env.DB.prepare(
           "SELECT id, document, version FROM content_drafts ORDER BY updated_at DESC",
         ).all()
@@ -320,8 +323,12 @@ async function catalog(
           domain: d.domain,
           topic: d.topic,
         };
-      })
-    : [];
+      });
+    } catch {
+      warning =
+        "Private drafts are temporarily unavailable. Your published writing can still be edited. Try opening drafts again later.";
+    }
+  }
   return {
     articles: items
       .filter((i) => i.kind === "article")
@@ -334,6 +341,7 @@ async function catalog(
       .filter((i) => i.kind === "principle")
       .sort((a, b) => a.title.localeCompare(b.title)),
     drafts,
+    ...(warning ? { warning } : {}),
   };
 }
 async function requireDraft(
@@ -537,11 +545,23 @@ export async function handleContent(
     "Save notebook: " +
       document.title.replace(/[\r\n\x00-\x1f]/g, " ").slice(0, 100),
   );
-  if (document.draftFile)
-    await database(env)
-      .prepare("DELETE FROM content_drafts WHERE id = ? AND version = ?")
-      .bind(document.draftFile.slice(6), Number(document.draftSha))
-      .run();
+  let warning: string | undefined;
+  if (document.draftFile) {
+    try {
+      const removed = await database(env)
+        .prepare("DELETE FROM content_drafts WHERE id = ? AND version = ?")
+        .bind(document.draftFile.slice(6), Number(document.draftSha))
+        .run();
+      if (removed.meta.changes !== 1)
+        warning =
+          "A newer private draft was kept. This version is saved to GitHub.";
+    } catch {
+      // Git publication already succeeded. D1 housekeeping must not turn it into
+      // a reported save failure or encourage a duplicate publication.
+      warning =
+        "This version is saved to GitHub. Private draft cleanup failed; its older copy is still available.";
+    }
+  }
   const bytes = encoder.encode(raw),
     prefix = encoder.encode(`blob ${bytes.length}\0`),
     joined = new Uint8Array(prefix.length + bytes.length);
@@ -556,6 +576,7 @@ export async function handleContent(
     unchanged: changes.length === 0,
     commit: commitSha,
     revision: await digest(raw),
+    ...(warning ? { warning } : {}),
     document: {
       ...document,
       file,

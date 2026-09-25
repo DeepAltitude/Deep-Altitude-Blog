@@ -11,6 +11,7 @@ import {
 import { domains, domainNames, topics } from "../utils/domains";
 import { slugify } from "../server/documents";
 import { todayIn } from "../lib/calendar/model";
+import { requestJSON } from "./request";
 import type { Editable, Catalog } from "../utils/editor-model";
 const query = new URLSearchParams(location.search),
   writing = el<HTMLFormElement>("writing-form"),
@@ -59,12 +60,17 @@ function error(e: unknown) {
   if ((e as any).status === 401) {
     el("login").hidden = false;
     el("login-link").hidden = false;
+    el<HTMLAnchorElement>("login-link").href =
+      "/api/editor/login?returnTo=" +
+      encodeURIComponent(location.pathname + location.search);
     el("login-message").textContent =
       "Sign in again. Your unsaved writing is preserved in this tab.";
   }
 }
 async function act(fn: () => Promise<void>) {
   if (busy) return;
+  // A previous publication poll must not overwrite this action's status.
+  publishRun++;
   busy = true;
   const controls = Array.from(
     document.querySelectorAll(
@@ -189,15 +195,31 @@ async function relationships(
       : []),
   ]) {
     let rows: any[] = [];
+    let unavailable = false;
     try {
       rows = await api("ops/list?kind=" + k);
     } catch {
       /* A disconnected operational store does not block public writing. */
+      unavailable = true;
     }
-    field(target, name, label, "select", [
+    const saved: string | undefined = (current || record)?.[name];
+    const select = field(target, name, label, "select", [
       { value: "", label: "Optional" },
       ...rows.map((r) => ({ value: r.id, label: r.title })),
+      ...(saved && !rows.some((r) => r.id === saved)
+        ? [{ value: saved, label: "Saved connection (unavailable)" }]
+        : []),
     ]);
+    select.disabled = unavailable;
+    if (unavailable)
+      target.append(
+        node(
+          "p",
+          label +
+            " connections are unavailable. Any existing connection will be kept.",
+          { class: "editor-help" },
+        ),
+      );
   }
 }
 function principleOptions(select: HTMLSelectElement, selected: string[] = []) {
@@ -205,6 +227,16 @@ function principleOptions(select: HTMLSelectElement, selected: string[] = []) {
     ...catalog.principles.map((p) => option(p.id!, p.title)),
     ...(current?.newPrinciples || []).map((p) => option(p.id, p.title)),
   );
+  for (const reference of selected) {
+    if (
+      !Array.from(select.options).some(
+        (o) =>
+          o.value === reference ||
+          "src/content/principles/" + o.value + ".md" === reference,
+      )
+    )
+      select.append(option(reference, "Saved principle (unavailable)"));
+  }
   Array.from(select.options).forEach(
     (o) =>
       (o.selected =
@@ -214,6 +246,8 @@ function principleOptions(select: HTMLSelectElement, selected: string[] = []) {
 }
 async function loadCatalog() {
   catalog = await api("editor/catalog");
+  el("catalog-warning").textContent = catalog.warning || "";
+  el("catalog-warning").hidden = !catalog.warning;
   await choices();
 }
 async function choices() {
@@ -279,6 +313,7 @@ async function openWriting(
   requestedKind: string,
   ignoreRecovery = false,
 ) {
+  publishRun++;
   message("Loading the latest saved version…");
   current = await api(
     "editor/document?" +
@@ -429,23 +464,38 @@ async function publish() {
   const link = el<HTMLAnchorElement>("published-link");
   link.href = current!.url;
   link.hidden = false;
+  // The server may have reused an existing principle with the same title.
+  // Reflect its canonical references before another save, even if refresh fails.
+  principleOptions(el("note-principles"), current!.principles);
+  if (result.warning) message("Saved to GitHub. Publishing… " + result.warning);
   void verifyPublication(result, current!.file, ++publishRun);
+  void loadCatalog()
+    .then(() => {
+      if (current?.file === result.document.file)
+        principleOptions(el("note-principles"), writingValue().principles);
+    })
+    .catch(() => {
+      el("catalog-warning").hidden = false;
+      el("catalog-warning").textContent =
+        "Saved to GitHub. The item list could not refresh; reopen it later.";
+    });
 }
 async function verifyPublication(result: any, file: string, run: number) {
   for (let attempt = 0; attempt < 36 && run === publishRun; attempt++) {
     if (attempt) await new Promise((r) => setTimeout(r, 5000));
     try {
-      const response = await fetch(
-          "/publication.json?revision=" + result.commit,
-          { cache: "no-store" },
-        ),
-        manifest = (await response.json()) as Record<string, string>;
+      const manifest = (await requestJSON(
+        "/publication.json?revision=" + result.commit,
+        { cache: "no-store" },
+        10000,
+      )) as Record<string, string>;
       if (manifest[file] === result.revision) {
         if (run === publishRun)
           message(
-            dirty
+            (dirty
               ? "Live — previous save verified. You have unsaved changes."
-              : "Live — publication verified.",
+              : "Live — publication verified.") +
+              (result.warning ? " " + result.warning : ""),
           );
         return;
       }
@@ -453,7 +503,8 @@ async function verifyPublication(result: any, file: string, run: number) {
   }
   if (run !== publishRun) return;
   message(
-    "Saved to GitHub. The live deployment has not been verified yet. Your saved content is safe; check the published page shortly.",
+    "Saved to GitHub. The live deployment has not been verified yet. Your saved content is safe; check the published page shortly." +
+      (result.warning ? " " + result.warning : ""),
   );
 }
 writing.addEventListener("submit", (e) => {
@@ -744,7 +795,7 @@ el("start-experiment").addEventListener("click", () =>
     record = await api("ops/start", {
       id: record.id,
       version: record.version,
-      date: todayIn(),
+      date: todayIn(authorTimezone),
     });
     fill(operational, record);
     clean();
@@ -765,7 +816,7 @@ async function loadObservations() {
       return row;
     }),
   );
-  fields(el("observation-form"), "date").value = todayIn();
+  fields(el("observation-form"), "date").value = todayIn(authorTimezone);
 }
 el("observation-form").addEventListener("submit", (e) => {
   e.preventDefault();

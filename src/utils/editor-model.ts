@@ -55,6 +55,7 @@ export interface Catalog {
   articles: CatalogItem[];
   principles: CatalogItem[];
   drafts: CatalogItem[];
+  warning?: string;
 }
 export const blankFields = (): Fields => ({
   title: "",

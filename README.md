@@ -36,6 +36,8 @@ Homepage and About use the same contextual editing flow. The Homepage introducti
 
 Unsaved writing is recovered from this tab's session storage, with **Download draft** as a fallback. Save conflicts never silently overwrite another version. Download your text before explicitly loading the latest saved version.
 
+Interrupted or stalled requests release the editor and keep the current text. Writes are never retried automatically: a lost response does not prove the server failed to save. Check the saved version before retrying. A private-store outage leaves published Markdown accessible and preserves existing connections. If GitHub saves successfully but private-draft cleanup fails, the editor reports the successful GitHub save and the retained draft separately.
+
 ## Projects, experiments, sprints and habits
 
 Use the editor's simple collection links. A Project needs a title and your intended outcome; an Experiment Idea needs only a title. Ideas start private and undated. **Pradėti eksperimentą** changes the same record to active and sets its start date. There is no simultaneous-experiment limit. Add dated observations to an existing Experiment; complete it and record your own conclusion when useful.
@@ -107,7 +109,7 @@ For local D1 development, add the real binding first and run `npx wrangler d1 mi
 
 Production is the existing `main` → Cloudflare Git integration. GitHub writes create one atomic commit including any new principles/images. SHA checks and non-forced reference updates prevent lost edits. D1 changes do not trigger builds. Public operational pages render on request so visibility changes apply without a rebuild. The sitemap queries only public records; RSS remains available without a visible footer control.
 
-The Cloudflare account/dashboard security challenge prevented provisioning or reading new bindings during this implementation. Browser access to local previews was also blocked. Those external/live checks are explicitly separate from the passing automated tests.
+The Cloudflare account/dashboard security challenge prevented provisioning or reading new bindings during this implementation; automatic approval review stopped further dashboard attempts. Browser access to local previews was also blocked. Those external/live checks are explicitly separate from the passing automated tests. PR #3 remains the implementation branch. Its Cloudflare build check failed without a detailed error being exposed through GitHub; a fresh dependency install and full local check passed. Obtain the Cloudflare build log and resolve its reported cause before merging. Do not merge a failing deployment check or treat these local checks as proof of live authoring.
 
 ## Recovery
 
