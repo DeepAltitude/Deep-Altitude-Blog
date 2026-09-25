@@ -1,173 +1,894 @@
-import {marked} from '../../notebook/vendor/marked.mjs';
-
-type Article={file:string;sha:string;title:string;description:string;body:string};
-const element=<T=HTMLElement>(id:string)=>document.getElementById(id) as T;
-const login=element('editor-login'),workspace=element('editor-workspace'),form=element<HTMLFormElement>('editor-form');
-const choice=element<HTMLSelectElement>('editor-article'),title=element<HTMLInputElement>('editor-title'),description=element<HTMLTextAreaElement>('editor-description'),body=element<HTMLTextAreaElement>('editor-body');
-const status=element('editor-status'),save=element<HTMLButtonElement>('editor-save'),preview=element('editor-preview');
-const loginLink=element<HTMLAnchorElement>('login-link');
-let current:Article|null=null,csrf='',busy=false,dirty=false,loadVersion=0,publishVersion=0;
-const prefix='deepaltitude-original-draft:';
-const draftKey=(file:string)=>prefix+file;
-const values=()=>({title:title.value,description:description.value,body:body.value});
-function message(text:string,error=false){status.textContent=text;status.dataset.error=String(error);}
-function remember(){
-  if(!current)return;
-  dirty=Object.entries(values()).some(([key,value])=>value!==current![key as keyof Article]);
-  save.disabled=busy||!csrf||!dirty||!title.value.trim()||!body.value.trim();
+import {
+  api,
+  session,
+  el,
+  node,
+  option,
+  message,
+  safePreview,
+  splitList,
+} from "./client";
+import { domains, domainNames, topics } from "../utils/domains";
+import { slugify } from "../server/documents";
+import { todayIn } from "../lib/calendar/model";
+import type { Editable, Catalog } from "../utils/editor-model";
+const query = new URLSearchParams(location.search),
+  writing = el<HTMLFormElement>("writing-form"),
+  operational = el<HTMLFormElement>("operational-form");
+let authorTimezone = "Europe/Zurich";
+let catalog: Catalog = { articles: [], principles: [], drafts: [] },
+  current: Editable | null = null,
+  record: any = null,
+  kind = query.get("kind") || "article",
+  busy = false,
+  dirty = false,
+  publishRun = 0,
+  settings: any;
+const fields = (form: HTMLFormElement, name: string) =>
+  form.elements.namedItem(name) as
+    HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+const storageKey = () => "deepaltitude-unsaved:" + location.search;
+function preserve() {
+  dirty = true;
   try {
-    if(dirty)sessionStorage.setItem(draftKey(current.file),JSON.stringify({...current,...values()}));
-    else sessionStorage.removeItem(draftKey(current.file));
-    element('editor-draft-status').textContent=dirty?'Draft kept in this tab.':'No unsaved changes.';
-  }catch{element('editor-draft-status').textContent=dirty?'Unsaved changes. Keep this tab open.':'No unsaved changes.';}
+    sessionStorage.setItem(
+      storageKey(),
+      JSON.stringify(
+        current
+          ? { mode: "writing", value: writingValue() }
+          : { mode: "operational", value: operationalValue() },
+      ),
+    );
+  } catch {}
+  if (current) preview();
 }
-async function api<T=Record<string,unknown>>(action:string,options:RequestInit={}):Promise<T>{
-  const response=await fetch('/api/editor/'+action,{...options,credentials:'same-origin',cache:'no-store',headers:{'Content-Type':'application/json','X-Editor-CSRF':csrf,...options.headers}});
-  const data=await response.json() as T & {error?:string};
-  if(!response.ok){
-    const error=Object.assign(new Error(data.error||'The editor could not complete this request.'),{status:response.status});
-    if(response.status===401){csrf='';save.disabled=true;login.hidden=false;loginLink.hidden=false;element('login-message').textContent='Sign in again to continue. Your draft stays in this tab.';}
-    throw error;
+function clean() {
+  dirty = false;
+  try {
+    sessionStorage.removeItem(storageKey());
+  } catch {}
+}
+window.addEventListener("beforeunload", (e) => {
+  if (dirty) {
+    e.preventDefault();
+    e.returnValue = "";
   }
-  return data;
+});
+function error(e: unknown) {
+  message((e as Error).message, true);
+  if ((e as any).status === 401) {
+    el("login").hidden = false;
+    el("login-link").hidden = false;
+    el("login-message").textContent =
+      "Sign in again. Your unsaved writing is preserved in this tab.";
+  }
 }
-function setLoginReturn(){loginLink.href='/api/editor/login?returnTo='+encodeURIComponent(location.pathname+location.search);}
-function setMode(showPreview:boolean){
-  if(showPreview)renderPreview();
-  preview.hidden=!showPreview;body.hidden=showPreview;
-  document.querySelector<HTMLElement>('.editor-toolbar')!.hidden=showPreview;
-  element('editor-write').setAttribute('aria-pressed',String(!showPreview));
-  element('editor-preview-toggle').setAttribute('aria-pressed',String(showPreview));
+async function act(fn: () => Promise<void>) {
+  if (busy) return;
+  busy = true;
+  const controls = Array.from(
+    document.querySelectorAll(
+      "#workspace input, #workspace textarea, #workspace select, #workspace button",
+    ),
+  ).map((node) => {
+    const element = node as unknown as HTMLInputElement;
+    return { element, disabled: element.disabled };
+  });
+  controls.forEach(({ element }) => (element.disabled = true));
+  try {
+    await fn();
+  } catch (e) {
+    error(e);
+  } finally {
+    busy = false;
+    controls.forEach(({ element, disabled }) => (element.disabled = disabled));
+  }
 }
-// Construct new DOM from a narrow allowlist; raw article HTML never enters the
-// authenticated document with scripts, event handlers, styles or unsafe URLs.
-function renderPreview(){
-  const parsed=new DOMParser().parseFromString(marked.parse(body.value,{gfm:true,breaks:false}) as string,'text/html');
-  const allowed=new Set('p h1 h2 h3 h4 h5 h6 ul ol li blockquote hr br strong em del a img pre code table thead tbody tr th td figure figcaption div span sup sub details summary'.split(' '));
-  const discard=new Set(['script','style','iframe','object','embed','svg','math','template','form','input','button']);
-  const clean=(node:Node):Node=>{
-    if(node.nodeType===Node.TEXT_NODE)return document.createTextNode(node.textContent??'');
-    const fragment=document.createDocumentFragment();
-    if(!(node instanceof Element)||discard.has(node.localName))return fragment;
-    const target=allowed.has(node.localName)?document.createElement(node.localName):fragment;
-    if(target instanceof HTMLElement){
-      for(const name of ['title','alt'])if(node.hasAttribute(name))target.setAttribute(name,node.getAttribute(name)!);
-      const attribute=node.localName==='a'?'href':node.localName==='img'?'src':null;
-      if(attribute&&node.hasAttribute(attribute)){
-        try{const url=new URL(node.getAttribute(attribute)!,location.origin);if(['http:','https:'].includes(url.protocol)||(attribute==='href'&&url.protocol==='mailto:'))target.setAttribute(attribute,url.href);}catch{}
-      }
-      if(node.localName==='a'){target.setAttribute('target','_blank');target.setAttribute('rel','noopener noreferrer');}
-      if(node.localName==='img'){target.setAttribute('loading','lazy');target.setAttribute('referrerpolicy','no-referrer');}
+function field(
+  target: HTMLElement,
+  name: string,
+  label: string,
+  type = "text",
+  choices?: { value: string; label: string }[],
+) {
+  const wrapper = node("label", label),
+    input = choices
+      ? node("select")
+      : type === "textarea"
+        ? node("textarea")
+        : node("input");
+  input.name = name;
+  if (input instanceof HTMLInputElement) {
+    input.type = type;
+    if (name === "title") input.required = true;
+  }
+  if (input instanceof HTMLTextAreaElement) input.rows = 4;
+  if (choices && input instanceof HTMLSelectElement)
+    input.append(...choices.map((c) => option(c.value, c.label)));
+  if (type === "textarea") wrapper.className = "wide";
+  if (type === "checkbox") wrapper.className = "check-label";
+  wrapper.append(input);
+  target.append(wrapper);
+  return input;
+}
+function fill(form: HTMLFormElement, data: any) {
+  if (form === operational) data = operationalFormData(data);
+  for (const input of Array.from(form.elements)) {
+    if (
+      !(
+        input instanceof HTMLInputElement ||
+        input instanceof HTMLSelectElement ||
+        input instanceof HTMLTextAreaElement
+      ) ||
+      !input.name
+    )
+      continue;
+    const value = data[input.name];
+    if (input instanceof HTMLInputElement && input.type === "checkbox")
+      input.checked = !!value;
+    else if (input instanceof HTMLSelectElement && input.multiple) {
+      Array.from(input.options).forEach(
+        (o) => (o.selected = (value || []).map(String).includes(o.value)),
+      );
+    } else
+      input.value = Array.isArray(value) ? value.join(", ") : (value ?? "");
+  }
+}
+function values(form: HTMLFormElement) {
+  const result: any = {};
+  for (const input of Array.from(form.elements)) {
+    if (
+      !(
+        input instanceof HTMLInputElement ||
+        input instanceof HTMLSelectElement ||
+        input instanceof HTMLTextAreaElement
+      ) ||
+      !input.name
+    )
+      continue;
+    result[input.name] =
+      input instanceof HTMLInputElement && input.type === "checkbox"
+        ? input.checked
+        : input instanceof HTMLSelectElement && input.multiple
+          ? Array.from(input.selectedOptions).map((o) => o.value)
+          : input.value;
+  }
+  return result;
+}
+function taxonomy(target: HTMLElement, form: HTMLFormElement) {
+  field(target, "domain", "Domain", "select", [
+    { value: "", label: "Optional" },
+    ...domains.map((d) => ({ value: d, label: domainNames[d] })),
+  ]);
+  field(target, "topic", "Topic", "select", [{ value: "", label: "Optional" }]);
+  fields(form, "domain").addEventListener("change", () =>
+    updateTopics(form, ""),
+  );
+}
+function updateTopics(form: HTMLFormElement, selected: string) {
+  const d = fields(form, "domain").value as keyof typeof topics,
+    select = fields(form, "topic") as HTMLSelectElement;
+  select.replaceChildren(
+    option("", "Optional"),
+    ...(topics[d] || []).map((t) => option(t.id, t.title)),
+  );
+  select.value = selected;
+}
+async function relationships(
+  target: HTMLElement,
+  _form: HTMLFormElement,
+  all = false,
+) {
+  for (const [name, label, k] of [
+    ["project", "Project", "projects"],
+    ...(all
+      ? [
+          ["experiment", "Experiment", "experiments"],
+          ["sprint", "Sprint", "sprints"],
+        ]
+      : []),
+  ]) {
+    let rows: any[] = [];
+    try {
+      rows = await api("ops/list?kind=" + k);
+    } catch {
+      /* A disconnected operational store does not block public writing. */
     }
-    node.childNodes.forEach(child=>target.appendChild(clean(child)));
-    return target;
+    field(target, name, label, "select", [
+      { value: "", label: "Optional" },
+      ...rows.map((r) => ({ value: r.id, label: r.title })),
+    ]);
+  }
+}
+function principleOptions(select: HTMLSelectElement, selected: string[] = []) {
+  select.replaceChildren(
+    ...catalog.principles.map((p) => option(p.id!, p.title)),
+    ...(current?.newPrinciples || []).map((p) => option(p.id, p.title)),
+  );
+  Array.from(select.options).forEach(
+    (o) =>
+      (o.selected =
+        selected.includes(o.value) ||
+        selected.includes("src/content/principles/" + o.value + ".md")),
+  );
+}
+async function loadCatalog() {
+  catalog = await api("editor/catalog");
+  await choices();
+}
+async function choices() {
+  const collection = el<HTMLSelectElement>("collection").value;
+  const rows =
+    collection in catalog
+      ? (catalog as any)[collection]
+      : await api("ops/list?kind=" + collection);
+  el<HTMLSelectElement>("record-choice").replaceChildren(
+    option("", "Choose…"),
+    ...rows.map((r: any) => option(r.file || r.id, r.title)),
+  );
+}
+el("collection").addEventListener("change", () => choices().catch(error));
+el("record-choice").addEventListener("change", () => {
+  const value = el<HTMLSelectElement>("record-choice").value,
+    c = el<HTMLSelectElement>("collection").value;
+  if (value)
+    location.href =
+      "/editor/?" +
+      (["articles", "principles", "drafts"].includes(c)
+        ? "file=" + encodeURIComponent(value)
+        : "kind=" + c + "&id=" + value);
+});
+function writingValue(): Editable {
+  return {
+    ...current!,
+    ...values(writing),
+    principles: Array.from(
+      el<HTMLSelectElement>("note-principles").selectedOptions,
+    ).map((o) => o.value),
+    tags: splitList(fields(writing, "tags")?.value || ""),
   };
-  preview.replaceChildren(...Array.from(parsed.body.childNodes,clean));
 }
-async function load(file:string,ignoreDraft=false){
-  const version=++loadVersion;++publishVersion;
-  form.hidden=true;current=null;dirty=false;message('');
-  element('editor-conflict').hidden=true;
-  if(!file){element('editor-loading').textContent='Choose an article to begin.';return;}
-  element('editor-loading').textContent='Loading the latest original…';
-  try{
-    const article=await api<Article>('article?file='+encodeURIComponent(file));
-    if(version!==loadVersion)return;
-    current=article;title.value=article.title;description.value=article.description;body.value=article.body;
-    let draft:Article|null=null;
-    try{if(!ignoreDraft)draft=JSON.parse(sessionStorage.getItem(draftKey(file))??'null');else sessionStorage.removeItem(draftKey(file));}catch{}
-    if(draft&&draft.file===file&&typeof draft.body==='string'&&typeof draft.title==='string'&&typeof draft.description==='string'){
-      title.value=draft.title;description.value=draft.description;body.value=draft.body;
-      if(draft.sha!==article.sha){current={...article,sha:draft.sha};element('editor-conflict').hidden=false;message('Your draft was restored, but the original has changed since you started. Review the latest version before saving.',true);}
-      else message('Your unsaved draft was restored.');
+function preview() {
+  if (!current) return;
+  const value = writingValue();
+  el("preview-title").textContent = value.title;
+  el("preview-description").textContent = value.description;
+  el("preview-meta").textContent = [
+    domainNames[value.domain as keyof typeof domainNames],
+    value.pubDate,
+  ]
+    .filter(Boolean)
+    .join(" / ");
+  const figure = el("preview-hero"),
+    image = el<HTMLImageElement>("preview-hero-image");
+  figure.hidden = true;
+  if (value.heroImage) {
+    try {
+      const url = new URL(value.heroImage, location.origin);
+      if (["https:", "http:"].includes(url.protocol)) {
+        image.src = url.href;
+        image.alt = value.heroImageAlt;
+        figure.hidden = false;
+      }
+    } catch {}
+  }
+  safePreview(el("preview-body"), value.body, value.attachments);
+}
+async function openWriting(
+  file: string | null,
+  requestedKind: string,
+  ignoreRecovery = false,
+) {
+  message("Loading the latest saved version…");
+  current = await api(
+    "editor/document?" +
+      (file ? "file=" + encodeURIComponent(file) : "kind=" + requestedKind),
+  );
+  kind = current!.kind;
+  record = null;
+  const meta = el("writing-metadata");
+  meta.replaceChildren();
+  if (kind === "article") {
+    field(meta, "pubDate", "Date", "date");
+    field(meta, "updatedDate", "Updated date", "date");
+    taxonomy(meta, writing);
+    await relationships(meta, writing, true);
+    field(meta, "tags", "Tags, separated by commas");
+    field(meta, "heroImage", "Optional image");
+    field(meta, "heroImageAlt", "Image description");
+  }
+  el("note-metadata").hidden = kind !== "article";
+  el("document-kind").textContent =
+    kind === "article" ? "ORIGINAL NOTE" : kind.toUpperCase();
+  el("editor-heading").textContent = current!.title || "Naujas užrašas";
+  fill(writing, current);
+  if (kind === "article") updateTopics(writing, current!.topic);
+  principleOptions(el("note-principles"), current!.principles);
+  const link = el<HTMLAnchorElement>("published-link");
+  link.hidden = !current!.url;
+  link.href = current!.url || "/";
+  writing.hidden = false;
+  operational.hidden = true;
+  el("settings").hidden = true;
+  el("observations").hidden = true;
+  el<HTMLDetailsElement>("library").open = false;
+  dirty = false;
+  message("");
+  if (ignoreRecovery) clean();
+  if (!ignoreRecovery) restoreRecovery();
+  preview();
+}
+function restoreRecovery() {
+  try {
+    const raw = sessionStorage.getItem(storageKey());
+    if (!raw) return;
+    const draft = JSON.parse(raw);
+    if (current && draft.mode === "writing") {
+      const server = current;
+      current = { ...current, ...draft.value };
+      fill(writing, current);
+      if (kind === "article") updateTopics(writing, current!.topic);
+      principleOptions(el("note-principles"), current!.principles);
+      dirty = true;
+      message(
+        server.sha !== current!.sha
+          ? "Unsaved writing restored. The saved version has changed; download your draft before reloading."
+          : "Unsaved writing restored.",
+      );
+    } else if (record && draft.mode === "operational") {
+      record = draft.value;
+      fill(operational, record);
+      if (fields(operational, "domain"))
+        updateTopics(operational, record.topic);
+      dirty = true;
+      message("Unsaved changes restored.");
     }
-    const option=choice.selectedOptions[0];
-    element('editor-language').textContent='ORIGINAL: '+(option.dataset.language??'');
-    element<HTMLAnchorElement>('editor-view').href=option.dataset.url??'/blog/';
-    element('editor-loading').textContent='';form.hidden=false;setMode(false);remember();
-  }catch(error){if(version===loadVersion)element('editor-loading').textContent=(error as Error).message;}
+  } catch {}
 }
-choice.addEventListener('change',()=>{
-  if(dirty&&!confirm('Leave this article? Your unsaved draft will remain in this tab.')){choice.value=current?.file??'';return;}
-  const url=new URL(location.href);if(choice.value)url.searchParams.set('file',choice.value);else url.searchParams.delete('file');url.searchParams.delete('error');history.replaceState(null,'',url);setLoginReturn();void load(choice.value);
+writing.addEventListener("input", preserve);
+writing.addEventListener("change", preserve);
+el("write-mode").addEventListener("click", () => {
+  document.querySelector(".writing-split")!.classList.remove("preview-active");
+  el("write-mode").setAttribute("aria-pressed", "true");
+  el("preview-mode").setAttribute("aria-pressed", "false");
 });
-form.addEventListener('input',()=>{remember();if(!preview.hidden)renderPreview();});
-window.addEventListener('beforeunload',event=>{if(dirty){event.preventDefault();event.returnValue='';}});
-element('editor-write').addEventListener('click',()=>setMode(false));
-element('editor-preview-toggle').addEventListener('click',()=>setMode(true));
-document.querySelectorAll<HTMLButtonElement>('[data-format]').forEach(button=>button.addEventListener('click',()=>{
-  const start=body.selectionStart,end=body.selectionEnd,selected=body.value.slice(start,end);
-  const type=button.dataset.format;
-  let replacement=selected;
-  if(type==='bold')replacement='**'+(selected||'text')+'**';
-  if(type==='italic')replacement='*'+(selected||'text')+'*';
-  if(type==='heading'||type==='quote'||type==='list'){
-    const marker=type==='heading'?'## ':type==='quote'?'> ':'- ';
-    replacement=(start>0&&body.value[start-1]!=='\n'?'\n':'')+(selected||'text').split('\n').map(line=>marker+line).join('\n');
-  }
-  if(type==='link'){
-    const url=prompt('Link address (https://…)');if(!url)return;
-    try{if(!['https:','http:','mailto:'].includes(new URL(url).protocol))throw Error();}catch{message('Use an https, http or email link.',true);return;}
-    replacement='['+(selected||'link text')+']('+url.replaceAll(')','%29')+')';
-  }
-  body.focus();body.setRangeText(replacement,start,end,'select');remember();
-}));
-element('editor-download').addEventListener('click',()=>{
-  if(!current)return;
-  const link=document.createElement('a');link.href=URL.createObjectURL(new Blob([title.value+'\n\n'+body.value],{type:'text/plain;charset=utf-8'}));link.download='deepaltitude-draft.txt';link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000);
+el("preview-mode").addEventListener("click", () => {
+  preview();
+  document.querySelector(".writing-split")!.classList.add("preview-active");
+  el("write-mode").setAttribute("aria-pressed", "false");
+  el("preview-mode").setAttribute("aria-pressed", "true");
 });
-element('editor-reload').addEventListener('click',()=>{
-  if(busy||!current||!confirm('Replace this draft with the latest saved original? Download your draft first if you want to keep it.'))return;
-  void load(current.file,true);
-});
-async function waitForPublication(download:string,digest:string,commit:string,version:number){
-  for(let attempt=0;attempt<15;attempt++){
-    await new Promise(resolve=>setTimeout(resolve,6000));
-    if(version!==publishVersion)return;
-    try{
-      const response=await fetch(download+'?revision='+encodeURIComponent(commit),{cache:'no-store',signal:AbortSignal.timeout(10000)});
-      if(!response.ok)continue;
-      const bytes=new Uint8Array(await crypto.subtle.digest('SHA-256',await response.arrayBuffer()));
-      const actual=btoa(String.fromCharCode(...bytes)).replaceAll('+','-').replaceAll('/','_').replace(/=+$/,'');
-      if(actual===digest){if(version===publishVersion)message('Published. Your original article is now live.');return;}
-    }catch{}
+el("add-principle").addEventListener("click", () => {
+  const input = el<HTMLInputElement>("new-principle-title"),
+    title = input.value.trim();
+  if (!title || !current) return;
+  const chosen = Array.from(
+      el<HTMLSelectElement>("note-principles").selectedOptions,
+    ).map((o) => o.value),
+    existing = catalog.principles.find(
+      (p) => p.title.trim().toLocaleLowerCase() === title.toLocaleLowerCase(),
+    );
+  let id = existing?.id;
+  if (!id) {
+    id = slugify(title) + "-" + crypto.randomUUID().slice(0, 8);
+    current.newPrinciples.push({ id, title, description: "" });
   }
-  if(version===publishVersion)message('Saved in GitHub. Publication is taking longer than usual; check the published article shortly.');
+  chosen.push(id);
+  principleOptions(el("note-principles"), chosen);
+  input.value = "";
+  preserve();
+});
+el("image-upload").addEventListener("change", async () => {
+  const input = el<HTMLInputElement>("image-upload"),
+    file = input.files?.[0];
+  if (!file || !current) return;
+  const extensions: Record<string, string> = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/gif": "gif",
+    "image/webp": "webp",
+    "image/avif": "avif",
+  };
+  if (!extensions[file.type] || file.size > 4 * 1024 * 1024) {
+    message("Choose a supported image under 4 MB.", true);
+    return;
+  }
+  const data = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result).split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+  const id = crypto.randomUUID(),
+    path = "/images/editor-" + id + "." + extensions[file.type];
+  current.attachments.push({ id, path, mime: file.type, data });
+  const body = fields(writing, "body") as HTMLTextAreaElement;
+  body.setRangeText(
+    "\n\n![](" + path + ")\n",
+    body.selectionStart,
+    body.selectionEnd,
+    "end",
+  );
+  input.value = "";
+  preserve();
+  message(
+    "Image added. Add a description between the square brackets. It will upload when you publish.",
+  );
+});
+async function publish() {
+  message("Saving to GitHub…");
+  const result = await api("editor/publish", writingValue());
+  current = result.document;
+  clean();
+  history.replaceState(
+    null,
+    "",
+    "/editor/?file=" + encodeURIComponent(current!.file),
+  );
+  message("Saved to GitHub. Publishing…");
+  const link = el<HTMLAnchorElement>("published-link");
+  link.href = current!.url;
+  link.hidden = false;
+  void verifyPublication(result, current!.file, ++publishRun);
 }
-form.addEventListener('submit',async event=>{
-  event.preventDefault();if(!current||busy||!dirty)return;
-  const input={...current,...values()},version=++publishVersion,download=choice.selectedOptions[0].dataset.download!;
-  busy=true;save.disabled=true;choice.disabled=true;message('Saving the original…');
-  // Keep the save snapshot stable while a request is in flight.
-  for(const field of [title,description,body])field.readOnly=true;
-  document.querySelectorAll<HTMLButtonElement>('[data-format]').forEach(button=>button.disabled=true);
-  try{
-    const result=await api<{sha:string;unchanged:boolean;digest:string;commit:string}>('article',{method:'POST',body:JSON.stringify(input)});
-    current={...input,sha:result.sha};element('editor-conflict').hidden=true;remember();
-    message(result.unchanged?'No changes to publish.':'Saved in GitHub. Publishing your original…');
-    if(!result.unchanged)void waitForPublication(download,result.digest,result.commit,version);
-  }catch(error){message((error as Error).message,true);if((error as {status?:number}).status===409)element('editor-conflict').hidden=false;}
-  finally{busy=false;choice.disabled=false;for(const field of [title,description,body])field.readOnly=false;document.querySelectorAll<HTMLButtonElement>('[data-format]').forEach(button=>button.disabled=false);remember();}
-});
-element('editor-logout').addEventListener('click',async()=>{
-  if(busy)return;
-  if(dirty&&!confirm('Sign out and discard the unsaved draft in this tab? Download it first if you want to keep it.'))return;
-  try{
-    await api('logout',{method:'POST',body:'{}'});
-    try{Object.keys(sessionStorage).filter(key=>key.startsWith(prefix)).forEach(key=>sessionStorage.removeItem(key));}catch{}
-    dirty=false;current=null;csrf='';title.value='';description.value='';body.value='';preview.replaceChildren();workspace.hidden=true;login.hidden=false;loginLink.hidden=false;element('login-message').textContent='Signed out.';
-  }catch(error){message((error as Error).message,true);}
-});
-async function init(){
-  const requested=new URL(location.href).searchParams.get('file');
-  if(requested&&Array.from(choice.options).some(option=>option.value===requested))choice.value=requested;
-  setLoginReturn();
-  try{
-    const session=await api<{configured:boolean;authenticated:boolean;csrf:string;login:string}>('session');
-    if(!session.configured){element('login-message').textContent='Author sign-in is not connected yet.';return;}
-    if(!session.authenticated){element('login-message').textContent=new URL(location.href).searchParams.has('error')?'Sign-in did not complete. Use the DeepAltitude GitHub account and try again.':'Sign in to edit your original articles.';loginLink.hidden=false;return;}
-    csrf=session.csrf;login.hidden=true;workspace.hidden=false;element('editor-account-name').textContent='Signed in as '+session.login;
-    await load(choice.value);
-  }catch(error){element('login-message').textContent=(error as Error).message;}
+async function verifyPublication(result: any, file: string, run: number) {
+  for (let attempt = 0; attempt < 36 && run === publishRun; attempt++) {
+    if (attempt) await new Promise((r) => setTimeout(r, 5000));
+    try {
+      const response = await fetch(
+          "/publication.json?revision=" + result.commit,
+          { cache: "no-store" },
+        ),
+        manifest = (await response.json()) as Record<string, string>;
+      if (manifest[file] === result.revision) {
+        if (run === publishRun)
+          message(
+            dirty
+              ? "Live — previous save verified. You have unsaved changes."
+              : "Live — publication verified.",
+          );
+        return;
+      }
+    } catch {}
+  }
+  if (run !== publishRun) return;
+  message(
+    "Saved to GitHub. The live deployment has not been verified yet. Your saved content is safe; check the published page shortly.",
+  );
 }
-void init();
+writing.addEventListener("submit", (e) => {
+  e.preventDefault();
+  void act(publish);
+});
+el("save-draft").addEventListener("click", () =>
+  act(async () => {
+    message("Saving private draft…");
+    const result = await api("editor/draft", writingValue());
+    current = result.document;
+    clean();
+    history.replaceState(
+      null,
+      "",
+      "/editor/?file=" + encodeURIComponent(current!.draftFile!),
+    );
+    message("Private draft saved.");
+  }),
+);
+el("download").addEventListener("click", () => {
+  if (!current) return;
+  const d = writingValue(),
+    blob = new Blob([d.title + "\n\n" + d.description + "\n\n" + d.body], {
+      type: "text/plain;charset=utf-8",
+    }),
+    url = URL.createObjectURL(blob),
+    a = node("a", "", { href: url, download: slugify(d.title) + ".md" });
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+el("reload-document").addEventListener("click", () => {
+  if (
+    current &&
+    (!dirty ||
+      confirm(
+        "Replace the local draft with the saved version? Download your draft first if you want to keep it.",
+      ))
+  )
+    void act(() =>
+      openWriting(current!.draftFile || current!.file, kind, true),
+    );
+});
+function operationalFormData(data: any) {
+  const result = { ...data };
+  for (const key of ["start", "end"]) {
+    const value = data[key + "_date"];
+    if (!value) {
+      result[key + "_time"] = "";
+      continue;
+    }
+    if (value.includes("T")) {
+      const local = new Intl.DateTimeFormat("sv-SE", {
+        timeZone: authorTimezone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23",
+      }).format(new Date(value));
+      result[key + "_date"] = local.slice(0, 10);
+      result[key + "_time"] = local.slice(11, 16);
+    } else result[key + "_time"] = "";
+  }
+  return result;
+}
+function operationalValue() {
+  const v = { ...record, ...values(operational) };
+  const original = operationalFormData(record);
+  for (const key of ["start", "end"]) {
+    const date = v[key + "_date"],
+      time = v[key + "_time"];
+    v[key + "_date"] =
+      date === original[key + "_date"] && time === original[key + "_time"]
+        ? record[key + "_date"]
+        : date && time
+          ? date + "T" + time
+          : date;
+  }
+  if (Array.isArray(v.weekdays)) v.weekdays = v.weekdays.map(Number);
+  for (const k of ["tags", "weekdays"])
+    if (typeof v[k] === "string")
+      v[k] = k === "weekdays" ? splitList(v[k]).map(Number) : splitList(v[k]);
+  if (v.weekly_target !== undefined) v.weekly_target = Number(v.weekly_target);
+  return v;
+}
+async function openOperational() {
+  current = null;
+  record = query.get("id")
+    ? await api("ops/record?kind=" + kind + "&id=" + query.get("id"))
+    : {
+        title: "",
+        status:
+          kind === "experiments"
+            ? query.has("idea")
+              ? "idea"
+              : "planned"
+            : "planned",
+        visibility: "private",
+        active: true,
+        recurrence: "daily",
+        weekly_target: 1,
+        tags: [],
+        principles: [],
+        weekdays: [],
+      };
+  let target = el("operational-fields");
+  target.replaceChildren();
+  field(target, "title", "Title");
+  if (kind === "habits") {
+    field(target, "recurrence", "Repeat", "select", [
+      { value: "daily", label: "Daily" },
+      { value: "weekdays", label: "Weekdays" },
+      { value: "days", label: "Specific weekdays" },
+      { value: "weekly", label: "X times per week" },
+    ]);
+    const weekdays = field(
+      target,
+      "weekdays",
+      "Weekdays",
+      "select",
+      [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+      ].map((label, i) => ({ value: String(i), label })),
+    ) as HTMLSelectElement;
+    weekdays.multiple = true;
+    weekdays.size = 7;
+    field(target, "weekly_target", "Times per week", "number");
+    field(target, "quantity", "Optional quantity, e.g. 45 min");
+    field(target, "active", "Active", "checkbox");
+  } else {
+    field(
+      target,
+      "description",
+      kind === "experiments" ? "What do I want to test?" : "Description",
+      "textarea",
+    );
+    if (kind === "experiments" && record.status === "idea") {
+      const details = node("details", undefined, { class: "wide" });
+      details.append(node("summary", "Optional details"));
+      const extra = node("div", undefined, { class: "field-grid" });
+      details.append(extra);
+      target.append(details);
+      target = extra;
+    }
+    const states =
+      kind === "projects"
+        ? ["planned", "active", "completed", "paused", "abandoned"]
+        : kind === "experiments"
+          ? ["idea", "planned", "active", "completed", "paused", "abandoned"]
+          : ["planned", "active", "completed", "cancelled"];
+    field(
+      target,
+      "status",
+      "State",
+      "select",
+      states.map((s) => ({ value: s, label: s })),
+    );
+    field(target, "start_date", "Start", "date");
+    field(target, "start_time", "Start time (optional)", "time");
+    field(
+      target,
+      "end_date",
+      kind === "projects" ? "Target date" : "End date",
+      "date",
+    );
+    field(target, "end_time", "End time (optional)", "time");
+    if (kind === "projects")
+      field(target, "outcome", "Desired outcome", "textarea");
+    else await relationships(target, operational);
+    if (kind !== "sprints") {
+      taxonomy(target, operational);
+      field(target, "tags", "Tags, separated by commas");
+      field(target, "visibility", "Visibility", "select", [
+        { value: "private", label: "Private" },
+        { value: "public", label: "Public" },
+      ]);
+      field(
+        target,
+        "featured",
+        kind === "projects"
+          ? "Feature on Homepage (public only)"
+          : "Feature on Homepage (public + active only)",
+        "checkbox",
+      );
+    }
+    if (kind === "experiments") {
+      for (const [name, label] of [
+        ["hypothesis", "Hypothesis"],
+        ["protocol", "Protocol"],
+        ["observe", "Things to observe"],
+        ["conclusion", "Conclusion"],
+      ])
+        field(target, name, label, "textarea");
+      const select = field(
+        target,
+        "principles",
+        "Principles",
+        "select",
+        catalog.principles.map((p) => ({ value: p.id!, label: p.title })),
+      ) as HTMLSelectElement;
+      select.multiple = true;
+      select.size = 4;
+      const add = node("button", "+ New principle", { type: "button" });
+      target.append(add);
+      add.addEventListener("click", () =>
+        act(async () => {
+          const title = prompt("Principle — your reusable idea");
+          if (!title?.trim()) return;
+          const d = await api("editor/document?kind=principle");
+          d.title = title;
+          const result = await api("editor/publish", d);
+          const id = result.document.file.split("/").pop().slice(0, -3);
+          select.append(option(id, title));
+          select.options[select.options.length - 1].selected = true;
+          preserve();
+          message(
+            "Principle saved to GitHub. Save this experiment to connect it.",
+          );
+        }),
+      );
+    }
+    if (kind === "sprints") {
+      field(target, "goals", "Focus / goals", "textarea");
+      field(target, "notes", "Notes", "textarea");
+    }
+  }
+  fill(operational, record);
+  if (fields(operational, "domain"))
+    updateTopics(operational, record.topic || "");
+  operational.hidden = false;
+  writing.hidden = true;
+  el("settings").hidden = true;
+  el<HTMLDetailsElement>("library").open = false;
+  el("editor-heading").textContent =
+    record.title ||
+    (
+      {
+        projects: "Naujas projektas",
+        experiments: query.has("idea")
+          ? "Eksperimento idėja"
+          : "Naujas eksperimentas",
+        sprints: "Naujas sprintas",
+        habits: "Įprotis",
+      } as any
+    )[kind];
+  el("start-experiment").hidden =
+    kind !== "experiments" || !record.id || record.status !== "idea";
+  el("observations").hidden = kind !== "experiments" || !record.id;
+  if (kind === "experiments" && record.id) await loadObservations();
+  dirty = false;
+  restoreRecovery();
+}
+operational.addEventListener("input", preserve);
+operational.addEventListener("change", preserve);
+operational.addEventListener("submit", (e) => {
+  e.preventDefault();
+  void act(async () => {
+    message("Saving…");
+    record = await api("ops/save", { kind, record: operationalValue() });
+    clean();
+    history.replaceState(
+      null,
+      "",
+      "/editor/?kind=" + kind + "&id=" + record.id,
+    );
+    message("Saved.");
+    el("start-experiment").hidden =
+      kind !== "experiments" || record.status !== "idea";
+    if (kind === "experiments") {
+      el("observations").hidden = false;
+      await loadObservations();
+    }
+  });
+});
+el("start-experiment").addEventListener("click", () =>
+  act(async () => {
+    if (dirty) {
+      record = await api("ops/save", { kind, record: operationalValue() });
+    }
+    record = await api("ops/start", {
+      id: record.id,
+      version: record.version,
+      date: todayIn(),
+    });
+    fill(operational, record);
+    clean();
+    el("start-experiment").hidden = true;
+    message("Experiment started. The same record is now active.");
+  }),
+);
+async function loadObservations() {
+  const entries = await api("ops/observations?id=" + record.id),
+    target = el("observation-list");
+  target.replaceChildren(
+    ...entries.map((e: any) => {
+      const row = node("div", undefined, { class: "observation" });
+      row.append(
+        node("time", e.date),
+        node("p", e.body, { class: "preserve-lines" }),
+      );
+      return row;
+    }),
+  );
+  fields(el("observation-form"), "date").value = todayIn();
+}
+el("observation-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  void act(async () => {
+    await api("ops/observation", {
+      experiment: record.id,
+      ...values(el("observation-form")),
+    });
+    fields(el("observation-form"), "body").value = "";
+    await loadObservations();
+    message("Observation saved.");
+  });
+});
+async function openSettings() {
+  settings = await api("calendar/settings");
+  el("settings").hidden = false;
+  el("editor-heading").textContent = "Settings";
+  el("calendar-connection").textContent =
+    settings.warning ||
+    (settings.connected
+      ? "Connected" + (settings.account ? " as " + settings.account : "")
+      : settings.configured
+        ? "Not connected."
+        : "Google Calendar connection is not configured yet.");
+  el("calendar-connect").textContent = settings.connected
+    ? "Reconnect Google Calendar →"
+    : "Connect Google Calendar →";
+  el("calendar-connect").hidden = !settings.configured;
+  el("calendar-disconnect").hidden = !settings.connected;
+  el("calendar-settings").hidden = false;
+  const checks = el("calendar-choices");
+  checks.replaceChildren(node("legend", "Calendars"));
+  for (const c of settings.calendars) {
+    const label = node("label", c.name, { class: "check-label" }),
+      input = node("input", undefined, { type: "checkbox", value: c.id });
+    input.checked = settings.preferences.calendars.includes(c.id);
+    label.prepend(input);
+    checks.append(label);
+  }
+  const select = fields(
+    el("calendar-settings"),
+    "default_calendar",
+  ) as HTMLSelectElement;
+  select.replaceChildren(
+    option("", "Choose…"),
+    ...settings.calendars
+      .filter((c: any) => c.writable)
+      .map((c: any) => option(c.id, c.name)),
+  );
+  fill(el("calendar-settings"), settings.preferences);
+}
+el("calendar-settings").addEventListener("submit", (e) => {
+  e.preventDefault();
+  void act(async () => {
+    await api("calendar/settings", {
+      ...values(el("calendar-settings")),
+      calendars: Array.from(
+        document.querySelectorAll<HTMLInputElement>(
+          "#calendar-choices input:checked",
+        ),
+      ).map((i) => i.value),
+      version: settings.preferences.version,
+    });
+    await openSettings();
+    message("Settings saved.");
+  });
+});
+el("calendar-disconnect").addEventListener("click", () =>
+  act(async () => {
+    await api("calendar/disconnect", {});
+    await openSettings();
+    message("Calendar disconnected. DeepAltitude authoring remains available.");
+  }),
+);
+el("logout").addEventListener("click", () =>
+  act(async () => {
+    if (
+      dirty &&
+      !confirm("Sign out with unsaved changes? Download your writing first.")
+    )
+      return;
+    await api("editor/logout", {});
+    location.reload();
+  }),
+);
+async function boot() {
+  const login = el<HTMLAnchorElement>("login-link");
+  login.href =
+    "/api/editor/login?returnTo=" +
+    encodeURIComponent(
+      query.get("returnTo") === "/dabar/"
+        ? "/dabar/"
+        : location.pathname + location.search,
+    );
+  try {
+    const auth = await session();
+    if (!auth.authenticated) {
+      el("login-message").textContent = auth.configured
+        ? "Sign in to write and manage your notebook."
+        : "Author sign-in is not connected yet.";
+      login.hidden = !auth.configured;
+      return;
+    }
+    el("login").hidden = true;
+    el("workspace").hidden = false;
+    message("Loading your notebook…");
+    await loadCatalog();
+    message("");
+    if (kind === "settings") {
+      await openSettings();
+      return;
+    }
+    if (["projects", "experiments", "sprints", "habits"].includes(kind)) {
+      try {
+        authorTimezone = (await api("calendar/settings")).preferences.timezone;
+      } catch {}
+      await openOperational();
+      return;
+    }
+    await openWriting(query.get("file"), kind);
+  } catch (e) {
+    error(e);
+    el("login-message").textContent = (e as Error).message;
+  }
+}
+void boot();

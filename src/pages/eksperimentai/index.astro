@@ -1,0 +1,56 @@
+---
+import Site from "../../layouts/Site.astro";
+import PursuitList from "../../components/PursuitList.astro";
+import { list } from "../../lib/data/store";
+export const prerender = false;
+const db = (Astro.locals.runtime?.env as any)?.DB;
+let records: any[] = [],
+  unavailable = false;
+try {
+  if (db) records = await list(db, "experiments", true);
+} catch {
+  unavailable = true;
+  Astro.response.status = 503;
+}
+const groups = [
+  ["active", "Vyksta"],
+  ["planned", "Planuojami"],
+  ["idea", "Idėjos"],
+  ["completed", "Baigti"],
+  ["paused", "Pristabdyti"],
+  ["abandoned", "Užbaigti kitaip"],
+];
+Astro.response.headers.set("Cache-Control", "no-cache");
+---
+
+<Site title="Eksperimentai" active="Experiments" canonical="/eksperimentai/">
+  <section class="index-page">
+    <header class="page-heading">
+      <p class="eyebrow">DEEP ALTITUDE</p>
+      <h1>Eksperimentai</h1>
+    </header>
+    <div class="author-actions" data-author-link hidden>
+      <a href="/editor/?kind=experiments">+ Experiment</a>
+      <a href="/editor/?kind=experiments&idea=1">+ Experiment idea</a>
+    </div>
+    {groups.map(
+      ([state, label]) =>
+        records.some((r) => r.status === state) && (
+          <section class="notebook-section">
+            <h2>{label}</h2>
+            <PursuitList
+              records={records.filter((r) => r.status === state)}
+              kind="experiments"
+            />
+          </section>
+        ),
+    )}
+    {!records.length && (
+      <p class="muted">
+        {unavailable
+          ? "Šiuo metu nepavyko įkelti. Pabandykite vėliau."
+          : "Viešų įrašų kol kas nėra."}
+      </p>
+    )}
+  </section>
+</Site>

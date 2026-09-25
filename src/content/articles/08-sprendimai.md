@@ -1,0 +1,22 @@
+---
+title: "Sprendimu priemimas"
+description: "Uz ir pries..."
+pubDate: "2026.08.26"
+heroImage: "/blog-placeholder-3.jpg"
+domain: darbas
+topic: problem-solving
+id: better-decisions
+slug: 08-sprendimai
+legacyGuid: /Protas/08-sprendimai/
+---
+
+Kaip priimti teisingus sprendimus?
+Kas butu naudingiausia daugiausiai zmoniu ilgalaikiskiausioje perspektyvoje? 
+
+Struktura... Paruosti 6-pager; pre-moretem.
+
+Pvz.: darbas uz ir pries; tradeoffs, kada butu geras sprendimas?
+
+Breakdown... analyze MECE... koks mano tikslas, kokius svertus turiu? Kokia kiekvieno kaina?
+
+pvz.. ideja, ar verta keisti darba, mazai streso, mazai sudu, bet jokio karjeros progreso..  is keista dinamika nesikalbant vapse su vadove

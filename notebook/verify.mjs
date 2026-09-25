@@ -1,42 +1,76 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import crypto from 'node:crypto';
-import assert from 'node:assert/strict';
-const root=path.resolve('dist');
-const digest=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
-// Compare downloads to CURRENT content: legitimate CMS edits and new posts must build.
-const downloads=fs.readdirSync(path.join(root,'original/files')).filter(f=>f.endsWith('.md')).map(f=>digest(fs.readFileSync(path.join(root,'original/files',f))));
-const sources=fs.readdirSync('src/content',{recursive:true}).filter(f=>/\.mdx?$/.test(f)&&!f.startsWith('pages/'));
-assert.equal(downloads.length,sources.length);
-for(const file of sources)assert.ok(downloads.includes(digest(fs.readFileSync(path.join('src/content',file)))),`Exact original download missing: ${file}`);
-const htmlFiles=fs.readdirSync(root,{recursive:true}).filter(f=>f.endsWith('.html'));
-const redirects=fs.readFileSync(path.join(root,'_redirects'),'utf8').trim().split('\n').filter(line=>line&&!line.startsWith('#')).map(line=>line.trim().split(/\s+/));
-const redirectSources=new Set(redirects.map(([source])=>source));
-for(const [source,target] of redirects){
- assert.ok(fs.existsSync(path.join(root,target,'index.html')),`Missing redirect destination: ${source} → ${target}`);
- const alternate=source.endsWith('/')?source.slice(0,-1):source+'/';
- assert.ok(redirectSources.has(alternate),`Missing trailing-slash variant: ${alternate}`);
+import fs from "node:fs";
+import path from "node:path";
+import assert from "node:assert/strict";
+import { parse } from "yaml";
+const root = path.resolve("dist"),
+  redirects = JSON.parse(fs.readFileSync("notebook/legacy-routes.json"));
+const routes = new Set([
+  "/",
+  "/editor/",
+  "/dabar/",
+  "/uzrasai/",
+  "/apie/",
+  "/about/",
+  "/blog/",
+  "/principai/",
+  "/projektai/",
+  "/eksperimentai/",
+  "/sitemap.xml",
+]);
+const files = fs
+  .readdirSync("src/content/articles")
+  .filter((f) => f.endsWith(".md"));
+for (const filename of files) {
+  const raw = fs.readFileSync("src/content/articles/" + filename, "utf8"),
+    data = parse(raw.match(/^---\r?\n([\s\S]*?)\r?\n---/)[1]);
+  if (!data.draft)
+    routes.add("/blog/" + (data.slug || filename.slice(0, -3)) + "/");
 }
-let links=0;
-for(const file of htmlFiles){
- const full=path.join(root,file),html=fs.readFileSync(full,'utf8');
- for(const [,href] of html.matchAll(/(?:href|src)="([^"]+)"/g)){
-  const u=new URL(href.replaceAll('&amp;','&'),'https://deepaltitude.com/'+file.replace(/index\.html$/,''));
-  if(u.origin!=='https://deepaltitude.com')continue;
-  // The author login is an on-demand API route, not a static asset.
-  if(u.pathname==='/api/editor/login'){
-   assert.ok(fs.existsSync('src/pages/api/editor/[action].ts'),'Missing editor API route');
-   links++;continue;
+for (const filename of fs
+  .readdirSync("src/content/principles")
+  .filter((f) => f.endsWith(".md")))
+  routes.add("/principai/" + filename.slice(0, -3) + "/");
+const exists = (p) =>
+  routes.has(p) ||
+  fs.existsSync(path.join(root, p)) ||
+  fs.existsSync(path.join(root, p, "index.html"));
+for (const [from, to] of Object.entries(redirects))
+  assert.ok(exists(to), `Missing redirect destination: ${from} → ${to}`);
+let links = 0;
+for (const filename of fs
+  .readdirSync(root, { recursive: true })
+  .filter((f) => f.endsWith(".html"))) {
+  const html = fs.readFileSync(path.join(root, filename), "utf8");
+  for (const [, raw] of html.matchAll(/(?:href|src)="([^"]+)"/g)) {
+    const url = new URL(
+      raw.replaceAll("&amp;", "&"),
+      "https://deepaltitude.com/" + filename.replace(/index\.html$/, ""),
+    );
+    if (url.origin !== "https://deepaltitude.com") continue;
+    if (url.pathname.startsWith("/api/")) continue;
+    assert.ok(
+      exists(decodeURI(url.pathname)) ||
+        redirects[url.pathname.replace(/\/$/, "")],
+      `Broken local link in ${filename}: ${raw}`,
+    );
+    links++;
   }
-  const destination=redirects.find(([source])=>source===u.pathname)?.[1]??u.pathname;
-  const raw=path.join(root,decodeURIComponent(destination));
-  let target=fs.existsSync(raw)&&fs.statSync(raw).isDirectory()?path.join(raw,'index.html'):raw;
-  assert.ok(fs.existsSync(target),`Broken link in ${file}: ${href}`);links++;
-  if(u.hash&&target.endsWith('.html')){
-   const fragment=decodeURIComponent(u.hash.slice(1));
-   const ids=[...fs.readFileSync(target,'utf8').matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]);
-   assert.ok(ids.includes(fragment),`Missing fragment in ${file}: ${href}`);
-  }
- }
 }
-console.log(`Verified ${sources.length} exact source downloads, ${redirects.length} redirects and ${links} internal links across ${htmlFiles.length} HTML pages.`);
+for (const file of ["dabar/index.html", "editor/index.html"])
+  assert.ok(
+    !fs.existsSync(path.join(root, file)),
+    `Private dynamic route was emitted as static HTML: ${file}`,
+  );
+for (const file of fs
+  .readdirSync(root, { recursive: true })
+  .filter((f) => f.endsWith(".js") || f.endsWith(".html"))) {
+  if (file.startsWith("_worker.js")) continue;
+  const content = fs.readFileSync(path.join(root, file), "utf8");
+  assert.ok(
+    !content.includes("test-refresh") && !content.includes("PRIVATE_REFRESH"),
+    `Test token leaked: ${file}`,
+  );
+}
+console.log(
+  `Generated output verified: ${files.length} notes, ${Object.keys(redirects).length} preserved redirects, ${links} local links, dynamic private routes and no test credentials in public output.`,
+);

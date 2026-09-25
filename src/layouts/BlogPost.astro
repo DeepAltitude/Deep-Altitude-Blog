@@ -1,32 +1,146 @@
 ---
-import {render} from 'astro:content';
-import Site from './Site.astro';
-import {marked} from '../../notebook/vendor/marked.mjs';
-import {getNotes,versionsFor,dateLabel,langLabel,bodyLanguage,indexUrl,copy,usableImage,type Note} from '../utils/posts';
-import {labels} from '../utils/editorial';
-import {domainNames} from '../utils/domains';
-import {knowledgeLabels} from '../utils/knowledge-labels';
-import {principlesFor} from '../utils/principles';
-interface Props {note:Note;canonical?:string}
-const {note,canonical=note.url}=Astro.props,t=copy[note.edition],l=labels[note.edition];
-const {Content}=await render(note.source);
-const versions=await versionsFor(note),siblings=(await getNotes(note.edition)).filter(n=>n.domain===note.domain);
-const position=siblings.findIndex(n=>n.id===note.id),previous=siblings[position+1],next=position>0?siblings[position-1]:undefined;
-const image=usableImage(note.heroImage);
-const principles=await principlesFor(note),backUrl=indexUrl(note.edition,note.domain),backLabel=note.domain?domainNames[note.domain]:t.back;
+import { render } from "astro:content";
+import Site from "./Site.astro";
+import { one } from "../lib/data/store";
+import AuthorLink from "../components/AuthorLink.astro";
+import {
+  getNotes,
+  dateLabel,
+  bodyLanguage,
+  usableImage,
+  type Note,
+} from "../utils/posts";
+import { domainNames, domainUrl, topicFor, topicUrl } from "../utils/domains";
+import { principlesFor } from "../utils/principles";
+interface Props {
+  note: Note;
+  canonical?: string;
+}
+const { note, canonical = note.url } = Astro.props;
+const { Content } = await render(note.source);
+const siblings = (await getNotes()).filter(
+    (n) => n.domain === note.domain && n.topic === note.topic,
+  ),
+  position = siblings.findIndex((n) => n.id === note.id),
+  previous = siblings[position + 1],
+  next = position > 0 ? siblings[position - 1] : undefined;
+const image = usableImage(note.heroImage),
+  principles = await principlesFor(note),
+  topic = note.domain ? topicFor(note.domain, note.topic) : undefined;
+const backUrl =
+    topic && note.domain ? topicUrl(note.domain, topic.id) : "/uzrasai/",
+  backLabel = topic?.title || "Visi užrašai";
+const db = (Astro.locals.runtime?.env as any)?.DB;
+let connected: any[] = [];
+if (db) {
+  try {
+    for (const [kind, id, base] of [
+      ["projects", note.project, "/projektai/"],
+      ["experiments", note.experiment, "/eksperimentai/"],
+    ] as const) {
+      if (id) {
+        const item = await one(db, kind, id, true);
+        if (item) connected.push({ ...item, base });
+      }
+    }
+  } catch {}
+}
 ---
-<Site title={note.title} description={note.description} edition={note.edition} active={note.domain||'Blog'} canonical={canonical} versions={versions} image={image} article pubDate={note.pubDate} updatedDate={note.updatedDate} noindex={note.example}>
- <article class="reading-page">
-  <header class="article-header"><p class="article-meta">{note.domain&&<><a href={backUrl}>{domainNames[note.domain]}</a><span aria-hidden="true">/</span></>}<time datetime={note.pubDate.toISOString()}>{dateLabel(note.pubDate)}</time><span aria-hidden="true">/</span><span>{l.original}: {langLabel(note.originalLanguage)}</span></p><h1>{note.title}</h1>{note.description&&<p class="standfirst">{note.description}</p>}{note.updatedDate&&<p class="updated-date">{l.updated}: <time datetime={note.updatedDate.toISOString()}>{dateLabel(note.updatedDate)}</time></p>}</header>
-  {!note.translated&&!note.example&&<a class="edit-original-link" rel="nofollow" href={`/editor/?file=${encodeURIComponent(note.source.filePath!.replace(/^\.\//,''))}`}>{note.edition==='original'?'Redaguoti originalą':'Edit original'}</a>}
-  {image&&<figure class="article-hero"><img src={image} alt={note.heroImageAlt||''} decoding="async"/>{note.heroCaption&&<figcaption>{note.heroCaption}</figcaption>}</figure>}
-  <div class="prose article-body" lang={bodyLanguage(note)}>{note.translated?<Fragment set:html={marked.parse(note.body,{gfm:true,breaks:true})}/>:<Content/>}</div>
-  {note.tags.length>0&&<p class="article-tags">{note.tags.join(' · ')}</p>}
-  {principles.length>0&&<section class="note-principles" aria-labelledby="deepaltitude-principles"><h2 id="deepaltitude-principles">{knowledgeLabels[note.edition].fromNote}</h2><ul>{principles.map(principle=><li><a href={principle.url}>{principle.title}</a></li>)}</ul></section>}
-  <div class="article-colophon">{note.translated&&<p>{t.translationNote} {note.stale&&l.older} <a href={versions.find(v=>v.edition==='original')?.href}>{t.viewOriginal} →</a></p>}
-   {!note.translated&&<details class="raw-source"><summary>{t.raw}</summary><pre>{note.raw}</pre></details>}
-   <a class="raw-download" href={`/original/files/${note.id}.md`} download>{t.download} ↓</a>
-  </div>
-  <nav class="page-turn" aria-label={t.notes}><a class="back-link" href={backUrl}>← {backLabel}</a><div class="adjacent-notes">{previous&&<a href={previous.url}><span>{l.previous}</span><strong>{previous.title}</strong></a>}{next&&<a class="next-note" href={next.url}><span>{l.next}</span><strong>{next.title}</strong></a>}</div></nav>
- </article>
+
+<Site
+  title={note.title}
+  description={note.description}
+  active="Domains"
+  canonical={canonical}
+  image={image}
+  article
+  pubDate={note.pubDate}
+  updatedDate={note.updatedDate}
+  noindex={note.example}
+>
+  <article class="reading-page">
+    <header class="article-header">
+      <p class="article-meta">
+        {note.domain && (
+          <>
+            <a href={domainUrl(note.domain)}>{domainNames[note.domain]}</a>
+            <span aria-hidden="true">/</span>
+          </>
+        )}
+        {topic && <a href={backUrl}>{topic.title}</a>}
+        <time datetime={note.pubDate.toISOString()}>
+          {dateLabel(note.pubDate)}
+        </time>
+      </p>
+      <h1>{note.title}</h1>
+      {note.description && <p class="standfirst">{note.description}</p>}
+      {note.updatedDate && note.updatedDate > note.pubDate && (
+        <p class="updated-date">
+          Atnaujinta{" "}
+          <time datetime={note.updatedDate.toISOString()}>
+            {dateLabel(note.updatedDate)}
+          </time>
+        </p>
+      )}
+    </header>
+    {!note.example && (
+      <AuthorLink
+        file={note.source.filePath!.replace(/^\.\//, "")}
+        label="Edit article"
+      />
+    )}
+    {image && (
+      <figure class="article-hero">
+        <img src={image} alt={note.heroImageAlt || ""} decoding="async" />
+        {note.heroCaption && <figcaption>{note.heroCaption}</figcaption>}
+      </figure>
+    )}
+    <div class="prose article-body" lang={bodyLanguage(note)}>
+      <Content />
+    </div>
+    {note.tags.length > 0 && (
+      <p class="article-tags">{note.tags.join(" · ")}</p>
+    )}
+    {principles.length > 0 && (
+      <section class="note-principles" aria-labelledby="note-principles">
+        <h2 id="note-principles">Principai</h2>
+        <ul>
+          {principles.map((principle) => (
+            <li>
+              <a href={principle.url}>{principle.title} →</a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+    {connected.length > 0 && (
+      <section class="notebook-section">
+        <h2>Susijusi patirtis</h2>
+        <ul class="text-index">
+          {connected.map((item) => (
+            <li>
+              <a href={item.base + item.slug + "/"}>{item.title} →</a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+    <nav class="page-turn" aria-label="Užrašai">
+      <a href={backUrl}>← {backLabel}</a>
+      <div class="adjacent-notes">
+        {previous && (
+          <a href={previous.url}>
+            <span>Ankstesnis užrašas</span>
+            <strong>{previous.title}</strong>
+          </a>
+        )}
+        {next && (
+          <a class="next-note" href={next.url}>
+            <span>Kitas užrašas</span>
+            <strong>{next.title}</strong>
+          </a>
+        )}
+      </div>
+    </nav>
+  </article>
 </Site>

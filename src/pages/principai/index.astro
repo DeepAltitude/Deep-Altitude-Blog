@@ -1,18 +1,52 @@
 ---
-import Site from '../../layouts/Site.astro';
-import {getPrinciples} from '../../utils/principles';
-import {domainNames} from '../../utils/domains';
-import {domainUrl} from '../../utils/posts';
-const principles=await getPrinciples();
-const description='Bendros pamokos iš patirties skirtingose gyvenimo srityse.';
+import Site from "../../layouts/Site.astro";
+import { getPrinciples } from "../../utils/principles";
+import { domainNames } from "../../utils/domains";
+import { domainUrl } from "../../utils/posts";
+const principles = await getPrinciples();
+const description =
+  "Bendros pamokos iš patirties skirtingose gyvenimo srityse.";
 ---
-<Site title="Principai" description={description} active="Principles" canonical="/principai/">
+
+<Site
+  title="Principai"
+  description={description}
+  active="Principles"
+  canonical="/principai/"
+>
   <section class="index-page">
-    <header class="page-heading"><p class="eyebrow">DEEP ALTITUDE / PRINCIPAI</p><h1>Principai</h1><p class="standfirst">{description}</p></header>
-    {principles.length?<ol class="principle-index">{principles.map(principle=><li>
-      <h2><a href={principle.url}>{principle.title}</a></h2>
-      {principle.description&&<p class="principle-description">{principle.description}</p>}
-      {principle.domains.length>0&&<p class="principle-domains">{principle.domains.map(domain=><a href={domainUrl(domain)}>{domainNames[domain]}</a>)}</p>}
-    </li>)}</ol>:<div class="empty-index"><p>Čia atsiras principai ir su jais susiję užrašai.</p><a class="quiet-link" href="/blog/">Skaityti užrašus →</a></div>}
+    <header class="page-heading">
+      <p class="eyebrow">DEEP ALTITUDE / PRINCIPAI</p>
+      <h1>Principai</h1>
+      <p class="standfirst">{description}</p>
+    </header>
+    {principles.length ? (
+      <ol class="principle-index">
+        {principles.map((principle) => (
+          <li>
+            <h2>
+              <a href={principle.url}>{principle.title}</a>
+            </h2>
+            {principle.description && (
+              <p class="principle-description">{principle.description}</p>
+            )}
+            {principle.domains.length > 0 && (
+              <p class="principle-domains">
+                {principle.domains.map((domain) => (
+                  <a href={domainUrl(domain)}>{domainNames[domain]}</a>
+                ))}
+              </p>
+            )}
+          </li>
+        ))}
+      </ol>
+    ) : (
+      <div class="empty-index">
+        <p>Čia atsiras principai ir su jais susiję užrašai.</p>
+        <a class="quiet-link" href="/uzrasai/">
+          Skaityti užrašus →
+        </a>
+      </div>
+    )}
   </section>
 </Site>

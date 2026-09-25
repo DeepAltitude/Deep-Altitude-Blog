@@ -1,16 +1,15 @@
 {
   "name": "deepaltitude",
-  "description": "Deep Altitude — a public notebook about physical practice, languages and thinking.",
+  "description": "DeepAltitude \u2014 public writing and a private daily notebook.",
   "dependencies": {
     "@astrojs/cloudflare": "12.6.12",
-    "@astrojs/mdx": "4.3.13",
     "@astrojs/rss": "4.0.14",
-    "@astrojs/sitemap": "3.6.1",
     "astro": "5.16.9",
     "typescript": "5.9.3",
     "yaml": "2.9.1"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.10",
     "wrangler": "4.88.0"
   },
   "engines": {
@@ -19,12 +18,14 @@
   "private": true,
   "scripts": {
     "astro": "astro",
-    "build": "astro build --force",
+    "build": "node scripts/build.mjs",
     "cf-typegen": "wrangler types",
-    "check": "npm run build && node notebook/verify.mjs && tsc && wrangler deploy --dry-run",
+    "check": "astro check && tsc --noEmit && npm test && npm run build && node notebook/verify.mjs && wrangler deploy --dry-run",
     "deploy": "wrangler deploy",
     "dev": "astro dev",
-    "preview": "npm run build && wrangler dev"
+    "preview": "npm run build && wrangler dev",
+    "test": "node notebook/test-editor.mjs && node notebook/test-system.mjs && node notebook/test-calendar.mjs",
+    "test:runtime": "node notebook/test-routes.mjs"
   },
   "type": "module"
 }

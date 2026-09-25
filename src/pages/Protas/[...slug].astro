@@ -1,9 +1,0 @@
----
-import {getOriginals} from '../../utils/posts';
-import BlogPost from '../../layouts/BlogPost.astro';
-export async function getStaticPaths() {
- return (await getOriginals()).filter(n=>n.source.collection==='Protas').map(note=>({params:{slug:note.source.id},props:{note}}));
-}
-const {note}=Astro.props;
----
-<BlogPost note={note}/>

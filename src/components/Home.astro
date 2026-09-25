@@ -1,16 +1,107 @@
 ---
-import Site from '../layouts/Site.astro';
-import ArticleList from './ArticleList.astro';
-import {copy,editions,homeUrl,indexUrl,domainUrl,aboutUrl,getNotes,type Edition} from '../utils/posts';
-import {domains,domainNames} from '../utils/domains';
-import {knowledgeLabels} from '../utils/knowledge-labels';
-import {labels} from '../utils/editorial';
-import {landscape} from '../../notebook/landscape.mjs';
-const {edition='original'}=Astro.props as {edition?:Edition};
-const t=copy[edition],l=labels[edition],notes=(await getNotes(edition)).slice(0,6);
+import { getEntry } from "astro:content";
+import Site from "../layouts/Site.astro";
+import ArticleList from "./ArticleList.astro";
+import AuthorLink from "./AuthorLink.astro";
+import { getNotes } from "../utils/posts";
+import { list } from "../lib/data/store";
+import { getPrinciples } from "../utils/principles";
+import PursuitList from "./PursuitList.astro";
+import { landscape } from "../../notebook/landscape.mjs";
+const page = await getEntry("pages", "home");
+if (!page) throw Error("Homepage content missing");
+const notes = (await getNotes()).filter((n) => !n.placeholder).slice(0, 6),
+  principles = (await getPrinciples()).slice(0, 6);
+const db = (Astro.locals.runtime?.env as any)?.DB;
+let projects: any[] = [],
+  experiments: any[] = [];
+if (db) {
+  try {
+    projects = (await list(db, "projects", true)).filter((r) => r.featured);
+    experiments = (await list(db, "experiments", true)).filter(
+      (r) => r.featured && r.status === "active",
+    );
+  } catch {
+    /* Public writing remains available during an operational outage. */
+  }
+}
 ---
-<Site title={t.hero} description={t.intro} edition={edition} canonical={homeUrl(edition)} versions={editions.map(e=>({edition:e,href:homeUrl(e)}))}>
- <section class="hero"><div class="hero-copy"><p class="eyebrow"><span class="small-rule"></span>{t.notebook}</p><h1>{t.hero}</h1><p class="hero-intro">{t.intro}</p><a class="primary-link" href={indexUrl(edition)}>{t.explore}<span aria-hidden="true">↗</span></a><p class="hero-topics">{domains.map(domain=><a href={domainUrl(domain,edition)}>{domainNames[domain]}</a>)}</p></div><figure class="hero-art"><Fragment set:html={landscape.replace(/aria-label="[^"]+"/,`aria-label="${t.landscape}"`)}/><figcaption><span>DEEP / ALTITUDE</span><span>{t.notebook}</span></figcaption></figure></section>
- <section class="recent-notes" id="notes"><div class="section-heading"><div><p class="eyebrow">01 / {t.notes}</p><h2>{l.recent}</h2></div><a class="quiet-link" href={indexUrl(edition)}>{t.back} <span aria-hidden="true">→</span></a></div><ArticleList notes={notes} numbered/></section>
- <section class="about-strip" id="about"><div><p class="eyebrow">02 / DEEP ALTITUDE</p><h2>{t.aboutTitle}</h2></div><div><p>{t.aboutText}</p><a class="quiet-link" href={aboutUrl(edition)}>{l.aboutLink} <span aria-hidden="true">→</span></a><div class="category-key">{domains.map(domain=><a href={domainUrl(domain,edition)}>{domainNames[domain]}</a>)}</div><a class="quiet-link principles-link" href="/principai/">{knowledgeLabels[edition].principles} <span aria-hidden="true">→</span></a></div></section>
+
+<Site title={page.data.title} description={page.data.description} canonical="/">
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">
+        <span class="small-rule"></span>MANO UŽRAŠAI
+      </p>
+      <h1>{page.data.title}</h1>
+      <p class="hero-intro">{page.data.description}</p>
+      <a class="quiet-link" href="/uzrasai/">
+        Skaityti užrašus →
+      </a>
+      <AuthorLink file="src/content/pages/home.md" label="Edit homepage" />
+    </div>
+    <figure class="hero-art">
+      <Fragment set:html={landscape} />
+      <figcaption>
+        <span>DEEP / ALTITUDE</span>
+        <span>PASTEBĖTI · SUPRASTI</span>
+      </figcaption>
+    </figure>
+  </section>
+  <section class="notebook-section">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">01 / DABAR</p>
+        <h2>Šiuo metu</h2>
+      </div>
+    </div>
+    <div class="current-pursuits">
+      <div>
+        <h3 class="eyebrow">PROJEKTAI</h3>
+        <PursuitList records={projects} kind="projects" />
+        {!projects.length && <p class="muted">Viešų projektų kol kas nėra.</p>}
+      </div>
+      <div>
+        <h3 class="eyebrow">EKSPERIMENTAI</h3>
+        <PursuitList records={experiments} kind="experiments" />
+        {!experiments.length && (
+          <p class="muted">Viešų eksperimentų kol kas nėra.</p>
+        )}
+      </div>
+    </div>
+  </section>
+  <section class="notebook-section" id="notes">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">02 / UŽRAŠAU</p>
+        <h2>Naujausi puslapiai</h2>
+      </div>
+      <a class="quiet-link" href="/uzrasai/">
+        Visi užrašai →
+      </a>
+    </div>
+    <ArticleList notes={notes} />
+  </section>
+  <section class="notebook-section">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">03 / IŠGRYNINU</p>
+        <h2>Principai</h2>
+      </div>
+      <a class="quiet-link" href="/principai/">
+        Visi principai →
+      </a>
+    </div>
+    <ul class="text-index">
+      {principles.map((p) => (
+        <li>
+          <a href={p.url}>{p.title} →</a>
+          {p.description && <p>{p.description}</p>}
+        </li>
+      ))}
+    </ul>
+    {!principles.length && (
+      <p class="muted">Principai atsiras iš patirties ir užrašų.</p>
+    )}
+  </section>
 </Site>

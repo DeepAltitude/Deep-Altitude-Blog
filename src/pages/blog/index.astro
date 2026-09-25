@@ -1,4 +1,4 @@
 ---
-import NotesIndex from '../../components/NotesIndex.astro';
+export const prerender=false;
+return Astro.redirect('/uzrasai/'+Astro.url.search,301);
 ---
-<NotesIndex/>

@@ -1,0 +1,36 @@
+---
+import Site from "../layouts/Site.astro";
+import {
+  domains,
+  domainNames,
+  domainDescriptions,
+  domainUrl,
+} from "../utils/domains";
+---
+
+<Site
+  title="Sritys"
+  description="Patirtys skirtingose gyvenimo srityse."
+  active="Domains"
+  canonical="/sritys/"
+>
+  <section class="index-page">
+    <header class="page-heading">
+      <p class="eyebrow">DEEP ALTITUDE / SRITYS</p>
+      <h1>Sritys</h1>
+    </header>
+    <ol class="collection-index">
+      {domains.map((domain) => (
+        <li>
+          <a href={domainUrl(domain)}>
+            <div>
+              <h2>{domainNames[domain]}</h2>
+              <p>{domainDescriptions[domain]}</p>
+            </div>
+            <span aria-hidden="true">→</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </section>
+</Site>

@@ -1,12 +1,29 @@
 ---
-import {getEntry,render} from 'astro:content';
-import Site from '../layouts/Site.astro';
-import {copy,indexUrl,type Edition} from '../utils/posts';
-const {edition='original'}=Astro.props as {edition?:Edition};
-const page=await getEntry('pages',edition==='original'?'about':'about-en');
-if(!page)throw Error('About page missing');
-const {Content}=await render(page);
+import { getEntry, render } from "astro:content";
+import Site from "../layouts/Site.astro";
+import AuthorLink from "./AuthorLink.astro";
+const page = await getEntry("pages", "about");
+if (!page) throw Error("About content missing");
+const { Content } = await render(page);
 ---
-<Site title={page.data.title} description={page.data.description} edition={edition} active="About" canonical={edition==='original'?'/about/':'/en/about/'} versions={[{edition:'original',href:'/about/'},{edition:'en',href:'/en/about/'}]}>
- <article class="reading-page about-page"><header class="article-header"><p class="eyebrow">DEEP ALTITUDE / {copy[edition].about}</p><h1>{copy[edition].hero}</h1></header><div class="prose" lang={page.data.language}><Content/></div><nav class="page-turn"><a href={indexUrl(edition)}>{copy[edition].back} →</a></nav></article>
+
+<Site
+  title={page.data.title}
+  description={page.data.description}
+  active="About"
+  canonical="/apie/"
+>
+  <article class="reading-page about-page">
+    <header class="article-header">
+      <p class="eyebrow">DEEP ALTITUDE / APIE</p>
+      <h1>{page.data.title}</h1>
+    </header>
+    <AuthorLink file="src/content/pages/about.md" label="Edit About" />
+    <div class="prose" lang={page.data.language}>
+      <Content />
+    </div>
+    <nav class="page-turn">
+      <a href="/uzrasai/">Visi užrašai →</a>
+    </nav>
+  </article>
 </Site>

@@ -1,0 +1,52 @@
+---
+import Site from "../../layouts/Site.astro";
+import {
+  domains,
+  domainNames,
+  domainDescriptions,
+  topics,
+  domainUrl,
+  topicUrl,
+} from "../../utils/domains";
+import { getNotes } from "../../utils/posts";
+export function getStaticPaths() {
+  return domains.map((domain) => ({ params: { domain }, props: { domain } }));
+}
+const { domain } = Astro.props;
+const notes = (await getNotes()).filter((note) => note.domain === domain);
+---
+
+<Site
+  title={domainNames[domain]}
+  description={domainDescriptions[domain]}
+  active="Domains"
+  canonical={domainUrl(domain)}
+>
+  <section class="index-page">
+    <header class="page-heading">
+      <p class="eyebrow">
+        <a href="/sritys/">SRITYS</a>
+      </p>
+      <h1>{domainNames[domain]}</h1>
+      <p class="standfirst">{domainDescriptions[domain]}</p>
+    </header>
+    <ol class="collection-index">
+      {topics[domain].map((topic) => (
+        <li>
+          <a href={topicUrl(domain, topic.id)}>
+            <div>
+              <h2>{topic.title}</h2>
+              <p>
+                {notes.filter((note) => note.topic === topic.id).length} užrašai
+              </p>
+            </div>
+            <span aria-hidden="true">→</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+    <nav class="page-turn">
+      <a href={`/uzrasai/?domain=${domain}`}>Visi srities užrašai →</a>
+    </nav>
+  </section>
+</Site>

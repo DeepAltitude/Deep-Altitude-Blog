@@ -1,25 +1,96 @@
 ---
-import {render} from 'astro:content';
-import Site from '../../layouts/Site.astro';
-import ArticleList from '../../components/ArticleList.astro';
-import {getPrinciples} from '../../utils/principles';
-import {domains,domainNames} from '../../utils/domains';
-import {domainUrl} from '../../utils/posts';
-export async function getStaticPaths(){return (await getPrinciples()).map(principle=>({params:{slug:principle.id},props:{principle}}));}
-const {principle}=Astro.props;
-const {Content}=await render(principle.source);
-const groups=[...domains,undefined].map(domain=>({domain,notes:principle.notes.filter(note=>note.domain===domain)})).filter(group=>group.notes.length);
+import AuthorLink from "../../components/AuthorLink.astro";
+import PursuitList from "../../components/PursuitList.astro";
+import { list } from "../../lib/data/store";
+import { render } from "astro:content";
+import Site from "../../layouts/Site.astro";
+import ArticleList from "../../components/ArticleList.astro";
+import { getPrinciples } from "../../utils/principles";
+import { domains, domainNames } from "../../utils/domains";
+import { domainUrl } from "../../utils/posts";
+export const prerender = false;
+const principle = (await getPrinciples()).find(
+  (p) => p.id === Astro.params.slug,
+);
+if (!principle) return Astro.redirect("/404/", 302);
+Astro.response.headers.set("Cache-Control", "no-cache");
+const db = (Astro.locals.runtime?.env as any)?.DB;
+let related: any[] = [];
+if (db) {
+  try {
+    related = (await list(db, "experiments", true)).filter((r) =>
+      r.principles.some((p: string) => principle.references.includes(p)),
+    );
+  } catch {}
+}
+const { Content } = await render(principle.source);
+const groups = [...domains, undefined]
+  .map((domain) => ({
+    domain,
+    notes: principle.notes.filter((note) => note.domain === domain),
+  }))
+  .filter((group) => group.notes.length);
 ---
-<Site title={principle.title} description={principle.description} active="Principles" canonical={principle.url}>
+
+<Site
+  title={principle.title}
+  description={principle.description}
+  active="Principles"
+  canonical={principle.url}
+>
   <article class="index-page principle-page">
-    <header class="page-heading"><p class="eyebrow"><a href="/principai/">PRINCIPAI</a></p><h1>{principle.title}</h1>{principle.description&&<p class="standfirst">{principle.description}</p>}
-      {principle.domains.length>0&&<p class="principle-domains">{principle.domains.map(domain=><a href={domainUrl(domain)}>{domainNames[domain]}</a>)}</p>}
+    <header class="page-heading">
+      <p class="eyebrow">
+        <a href="/principai/">PRINCIPAI</a>
+      </p>
+      <h1>{principle.title}</h1>
+      {principle.description && (
+        <p class="standfirst">{principle.description}</p>
+      )}
+      {principle.domains.length > 0 && (
+        <p class="principle-domains">
+          {principle.domains.map((domain) => (
+            <a href={domainUrl(domain)}>{domainNames[domain]}</a>
+          ))}
+        </p>
+      )}
     </header>
-    {principle.source.body?.trim()&&<div class="prose principle-explanation"><Content/></div>}
-    {groups.length?groups.map(({domain,notes})=><section class="principle-group" aria-labelledby={`domain-${domain||'unassigned'}`}>
-      <h2 class="principle-domain-title" id={`domain-${domain||'unassigned'}`}>{domain?<a href={domainUrl(domain)}>{domainNames[domain]}</a>:'Nepriskirta sričiai'}</h2>
-      <ArticleList notes={notes} showDomain={false} heading="h3"/>
-    </section>):<p class="empty-index">Su šiuo principu užrašai dar nesusieti.</p>}
-    <nav class="page-turn" aria-label="Principai"><a href="/principai/">← Principai</a></nav>
+    <AuthorLink file={principle.source.filePath!} label="Edit principle" />
+    {principle.source.body?.trim() && (
+      <div class="prose principle-explanation">
+        <Content />
+      </div>
+    )}
+    {groups.length ? (
+      groups.map(({ domain, notes }) => (
+        <section
+          class="principle-group"
+          aria-labelledby={`domain-${domain || "unassigned"}`}
+        >
+          <h2
+            class="principle-domain-title"
+            id={`domain-${domain || "unassigned"}`}
+          >
+            {domain ? (
+              <a href={domainUrl(domain)}>{domainNames[domain]}</a>
+            ) : (
+              "Nepriskirta sričiai"
+            )}
+          </h2>
+          <ArticleList notes={notes} showDomain={false} heading="h3" />
+        </section>
+      ))
+    ) : (
+      <p class="empty-index">Su šiuo principu užrašai dar nesusieti.</p>
+    )}
+    {related.length > 0 && (
+      <section class="notebook-section">
+        <h2>Eksperimentai</h2>
+        <PursuitList records={related} kind="experiments" />
+      </section>
+    )}
+    <nav class="page-turn" aria-label="Principai">
+      <a href="/principai/">← Principai</a>
+    </nav>
   </article>
 </Site>
